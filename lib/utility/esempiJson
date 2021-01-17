@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1000,
+    "disponibilita": 4,
+    "inizio": "2020-11-15T16:00:00+0100",
+    "fine": "2020-11-15T17:00:00+0100",
+    "descrizione": "informazioni aggiuntive",
+    "prenotato": false
+  },
+  {
+    "id": 1001,
+    "disponibilita": 0,
+    "inizio": "2020-11-15T17:00:00+0100",
+    "fine": "2020-11-15T18:00:00+0100",
+    "descrizione": "informazioni aggiuntive"
+  },
+  {
+    "id": 1001,
+    "disponibilita": 2,
+    "inizio": "2020-11-15T18:00:00+0100",
+    "fine": "2020-11-15T19:00:00+0100",
+    "descrizione": "informazioni aggiuntive",
+    "prenotato":true
+  }
+]
