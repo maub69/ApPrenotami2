@@ -1,0 +1,14 @@
+formula per ottenere la settimana attuale a partire dal 28 dicembre 2020 a mezzanotte (settimana 0)
+((((1610934068/60)/60)/24)-(((1609110000/60)/60)/24))/7
+
+1610934068 = timestamp attuale (parte modificata dinamicamente)
+
+1609110000 = timestamp del 28 dic 2020 a mezzanotte (rimane fisso)
+
+var now = new DateTime.now();
+int adesso = now.millisecondsSinceEpoch.round();
+int getSettimana(){
+    var
+    ((((adesso/60)/60)/24)-(((1609110000/60)/60)/24))/7
+}
+

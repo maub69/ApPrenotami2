@@ -1,0 +1,28 @@
+
+[
+    {
+      "start": "1|08:30",
+      "end": "1|09:00",
+      "disponiblita": 5
+    },
+    {
+      "start": "1|09:00",
+      "end": "1|09:15",
+      "disponiblita": 2
+    },
+    {
+      "start": "1|09:15",
+      "end": "1|11:00",
+      "disponiblita": 12
+    },
+    {
+      "start": "1|14:00",
+      "end": "1|15:00",
+      "disponiblita": 4
+    },
+    {
+      "start": "1|23:30",
+      "end": "2|04:00",
+      "disponiblita": 10
+    }
+  ]

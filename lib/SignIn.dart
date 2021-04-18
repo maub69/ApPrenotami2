@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+//import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/utility/utility.dart';
 //import 'package:sqflite/sqflite.dart';
@@ -14,6 +15,10 @@ import 'login.dart';
 /// Permette la registrazione inserendo nomeUtente, password e mail
 /// e accettando la privacy policy (si può leggere da una apposita pagina)
 /// Poi torna alla schermata di login
+
+
+
+
 class SignIn extends StatefulWidget {
   SignIn();
 
@@ -166,7 +171,7 @@ class _StateSignIn extends State<SignIn> {
                     ],
                   ))
 
-              /*ListView(
+/*ListView(
             children: [
               Container(
                   alignment: Alignment.center,

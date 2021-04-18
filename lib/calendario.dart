@@ -5,11 +5,11 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 class Calendario extends StatefulWidget {
-  final List<Meeting> meetings;
+  final List<Disponibilita> calendario;
   //questa unzione specifica che cosa fare quando un evento sul calendario viene cliccato, gli viene passato in entrata l'appuntamento cosi' sa che cosa gestire
-  final Function(Meeting appuntamento) onTapMeeting;
+  final Function(Disponibilita appuntamento) onTapDisponibilita;
 
-  Calendario({this.meetings, this.onTapMeeting});
+  Calendario({this.calendario, this.onTapDisponibilita}); 
 
   @override
   State<StatefulWidget> createState() {
@@ -23,33 +23,34 @@ class _StateCalendario extends State<Calendario> {
   @override
   void initState() {
     super.initState();
-    meetingDataSource = MeetingDataSource(widget.meetings);
+    meetingDataSource = MeetingDataSource(widget.calendario);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Model(
-        body: SfCalendar(
-      view: CalendarView.week,
-      dataSource: meetingDataSource,
-      onTap: (CalendarTapDetails details) {
-        List<dynamic> appuntamenti = details.appointments;
-        if (appuntamenti == null) {
-          print("risposta: non ci sono appuntamenti");
-        } else {
-          widget.onTapMeeting((appuntamenti[0] as Meeting));
-        }
-      },
-      timeSlotViewSettings: TimeSlotViewSettings(
-          startHour: 1,
-          endHour: 23,
-          nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]),
-    ));
+    return Model(body: new Builder(builder: (BuildContext context) {
+      return SfCalendar(
+        view: CalendarView.week,
+        dataSource: meetingDataSource,
+        onTap: (CalendarTapDetails details) {
+          List<dynamic> appuntamenti = details.appointments;
+          if (appuntamenti == null) {
+            print("risposta: non ci sono appuntamenti");
+          } else {
+            widget.onTapDisponibilita((appuntamenti[0] as Disponibilita));
+          }
+        },
+        timeSlotViewSettings: TimeSlotViewSettings(
+            startHour: 0,
+            endHour: 24,
+            nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]),
+      );
+    }));
   }
 }
 
 class MeetingDataSource extends CalendarDataSource {
-  MeetingDataSource(List<Meeting> source) {
+  MeetingDataSource(List<Disponibilita> source) {
     appointments = source;
   }
 
@@ -79,14 +80,15 @@ class MeetingDataSource extends CalendarDataSource {
   }
 }
 
-class Meeting {
+class Disponibilita {
   String descrizione;
   DateTime from;
   DateTime to;
   bool isAllDay;
   String prenotato;
+  Function(String title, String body, String messageAdmin, Color color) showMessage;
 
-  Meeting(
+  Disponibilita(
       {this.descrizione,
       this.from,
       this.to,

@@ -3,17 +3,28 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/login.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:stack/stack.dart' as st;
 
 class Model extends StatelessWidget {
+  static st.Stack<BuildContext> stackContext = new st.Stack(); // permette di conservare lo stack con tutti i context attivi, in questo moto si ha sempre nel top il context che si sta visualizzando e dato che model viene usato per tutte le schermate, questa cosa risulta molto utile, per esempio per l'invio delle notifiche dall'interno dell'app
   final Widget body;
   final List<Widget> actions;
   final Color appBarColor;
   final bool confermaChiusura;
 
-  Model({this.body, this.actions, this.appBarColor, this.confermaChiusura = false});
+  Model(
+      {this.body,
+      this.actions,
+      this.appBarColor,
+      this.confermaChiusura = false});
+
+  static BuildContext getContext() {
+    return stackContext.top();
+  }
 
   @override
   Widget build(BuildContext context) {
+    stackContext.push(context);
     return WillPopScope(
         onWillPop: () {
           if (confermaChiusura) {
@@ -42,10 +53,13 @@ class Model extends StatelessWidget {
                 ) ??
                 false;
           } else {
+            stackContext.pop();
             return Future.value(true);
           }
           //
         },
+        //quando si inserisce un widget Builder ricordarsi sempre che deve essere "figlio" dello scaffold, altirmenti non funziona
+        //Diventa necessario il widget Builder quando serve il context, in particolare nel nostro codice quando serve il context per showSnackBar
         child: Scaffold(
             appBar: AppBar(
               backgroundColor:

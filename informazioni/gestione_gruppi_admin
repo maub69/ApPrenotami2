@@ -1,0 +1,21 @@
+ogni amministratore ha un gruppo di appartenenza
+
+ogni utente si registra ad un gruppo 
+
+ogni calendario è riferito ad un gruppo
+
+vi sarà una tabella gruppo con le seg specifiche:
+    id_gruppo 
+    descrizione
+    id_amministratore (chi ha creato il gruppo)
+    data_creazione
+
+vi sarà una tabella permessi gruppo con le seg specifiche:
+    id_gruppo
+    id_amministratore
+    tipo_utente 0=utente normali 1=amministratore (vede e gestisce tutti i calendari)
+    lista_calendari (arrey di calendari) se superuser vuoto altrimenti si vedranno i calendari gestiti
+
+nella tabella delle sessioni di login viene conservato oltre all'id dell'utente anche l'id del gruppo a cui si è loggato
+
+RICORDARSI !!! Gestione multilingua (Francesco)

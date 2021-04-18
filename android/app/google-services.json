@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "505071685185",
+    "project_id": "apprenotami",
+    "storage_bucket": "apprenotami.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:505071685185:android:b96b4b46399b35413e00c0",
+        "android_client_info": {
+          "package_name": "com.apprenotami.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "505071685185-qk8ekbg6s0la5275h6goog2iq6ktc260.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVah_Cd7xQJ-dBas7rFewYkUSOLIXKYZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "505071685185-qk8ekbg6s0la5275h6goog2iq6ktc260.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

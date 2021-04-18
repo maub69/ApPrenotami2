@@ -1,15 +1,27 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert' show jsonDecode;
 import 'package:flutter/gestures.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as nt;
+import 'package:flutter_notification_channel/flutter_notification_channel.dart';
+import 'package:flutter_notification_channel/notification_importance.dart';
+import 'package:flutter_notification_channel/notification_visibility.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/login.dart';
+import 'package:mia_prima_app/model.dart';
+import 'package:mia_prima_app/notificationSender.dart';
 import 'package:mia_prima_app/sceltaCalendario.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:path/path.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 //import 'package:sqflite/sqflite.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'SignIn.dart';
@@ -28,6 +40,10 @@ void main() {
   ));
 }
 
+String idCalendario = "-1";
+String idAppuntamento = "-1";
+nt.FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
 class MyApp extends StatefulWidget {
   @override
   // sovrascritta createState() passandogli il costruttore della classe _MyAppState
@@ -39,6 +55,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  BuildContext _context;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   // la classe tra < > sostituisce "T" un template a cui si passa
   // la classe che deve essere utilizzata come tipo
 
@@ -106,10 +124,31 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     manageDatabase();
+
+    _firebaseMessaging.getToken().then((token) => print("token-app: $token"));
+    FlutterNotificationChannel.registerNotificationChannel(
+      description: 'Qui ricevi le notifiche per gli appuntamenti',
+      id: 'apprenotami.appuntamenti',
+      importance: NotificationImportance.IMPORTANCE_HIGH,
+      name: 'Appuntamenti',
+      visibility: NotificationVisibility.VISIBILITY_PUBLIC,
+      allowBubbles: true,
+      enableVibration: true,
+      enableSound: true,
+      showBadge: true,
+    );
+
+    getMessage();
+  }
+
+  void getMessage() {
+    NotificationSender notificationSender = NotificationSender();
+    notificationSender.configureFirebaseNotification();
   }
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     // la funzione _getDataLogin() restituisce un valore 'id'
     // quando arriva l 'id' (attende il then) che poi viene valutata dalla funzione anonima
     _getDataLogin().then((id) {

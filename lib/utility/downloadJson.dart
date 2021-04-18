@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 
 /// classe che riceve un url e una funzione
@@ -26,7 +27,7 @@ class DownloadJson {
     }
     parametri["key"] = Utility.utente.id;
     Uri request = new Uri.https(
-        "prenotamionline.000webhostapp.com", "/" + url, parametri);
+        EndPoint.HOST, "/" + url, parametri);
 
     print("richiesta: ${request.toString()}");
 
