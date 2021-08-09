@@ -31,7 +31,7 @@ class DownloadJson {
 
     print("richiesta: ${request.toString()}");
 
-    http.get(request.toString()).then((value) {
+    http.get(Uri.parse(request.toString())).then((value) {
       // passandoli alla funzione 'letturaTerminata'
       if (letturaTerminata != null) {
         letturaTerminata(value);

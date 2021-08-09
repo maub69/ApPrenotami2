@@ -18,6 +18,7 @@ import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/notificationSender.dart';
 import 'package:mia_prima_app/sceltaCalendario.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
+import 'package:mia_prima_app/utility/messagesManager.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:path/path.dart';
@@ -28,6 +29,7 @@ import 'SignIn.dart';
 import 'dash.dart';
 import 'package:passwordfield/passwordfield.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/rendering.dart';
 
 void main() {
   // la funzione di init main() contiene la funzione di bindig runApp()
@@ -54,7 +56,7 @@ class MyApp extends StatefulWidget {
   // Se sostituisco il tipo di ritorno State con _MyAppState andrebbe bene lo stesso
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   BuildContext _context;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   // la classe tra < > sostituisce "T" un template a cui si passa
@@ -121,8 +123,32 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      MessagesManager.downloadChatNonLette();
+    }
+    /* else if (state == AppLifecycleState.paused) {
+      print("messaggesManager: sono qua 3");
+    }*/
+  }
+
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _getDataLogin().then((id) {
+      // se id non esiste
+      if (id == "-1") {
+        setState(() {
+          /// Reindirizzazione dell'utente alla pagina di login
+          _body = Login();
+        });
+        // se id è nel db
+      } else {
+        // chiama la funzione che recupera i dATI UTENTE TRAMITE ID e li passa alla classe Dash
+        _goOnDash(id);
+      }
+    });
     manageDatabase();
 
     _firebaseMessaging.getToken().then((token) => print("token-app: $token"));
@@ -148,22 +174,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    // debugPaintSizeEnabled = true;
     _context = context;
     // la funzione _getDataLogin() restituisce un valore 'id'
     // quando arriva l 'id' (attende il then) che poi viene valutata dalla funzione anonima
-    _getDataLogin().then((id) {
-      // se id non esiste
-      if (id == "-1") {
-        setState(() {
-          /// Reindirizzazione dell'utente alla pagina di login
-          _body = Login();
-        });
-        // se id è nel db
-      } else {
-        // chiama la funzione che recupera i dATI UTENTE TRAMITE ID e li passa alla classe Dash
-        _goOnDash(id);
-      }
-    });
 
     return _body;
   }
@@ -182,8 +196,9 @@ class _MyAppState extends State<MyApp> {
     List<String> idEmail = id.split(":");
     Utente utente =
         Utente(email: idEmail[1], id: idEmail[0], username: "", password: "");
-
     Utility.utente = utente;
+
+    MessagesManager.downloadChatNonLette();
     setState(() {
       _body = SceltaCalendario();
     });

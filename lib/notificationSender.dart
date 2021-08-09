@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -9,6 +10,7 @@ import 'package:mia_prima_app/main.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as nt;
+import 'package:mia_prima_app/utility/messagesManager.dart';
 
 /*
   Questa classe fa fondamentalmente due cose:
@@ -16,7 +18,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     - configureFirebaseNotification configura interamente firebase, questa e' una funzione fondamentale perche' senza questa dopo aver aperto una chat si perderebbe completamente la gestione delle notifiche di firebase
 */
 class NotificationSender {
-  Future showNotificationWithoutSound(Map<String, dynamic> message) async {
+  Future showNotificationWithoutSound(Map<String, dynamic> message,
+      [Function onNextCallNotification]) async {
     print(message);
     print(message["data"]["id_appuntamento"].toString());
 
@@ -26,9 +29,15 @@ class NotificationSender {
         new nt.InitializationSettings(android: initializationSettingsAndroid);
     flutterLocalNotificationsPlugin = new nt.FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: onSelectNotification);
+        onSelectNotification: (onNextCallNotification ==
+                null //di base la funzione che deve essere chiamata
+            // alla chiusura di una chat e' configureFirebaseNotification, in quanto ricopre quasi tutte le casistiche,
+            // c'e' pero' una caisistica non coperta, cioe' quell nella quale si apre una chat a partire da un altra chat
+            // in quel caso bisogna chiamare un'altra funzione di configurazione a partire dalla classe che gestisce la chat
+            ? onSelectNotification(configureFirebaseNotification)
+            : onSelectNotification(onNextCallNotification)));
 
-    final random = new Random();
+    //final random = new Random();
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
         'apprenotami.appuntamenti',
         'Appuntamenti',
@@ -37,29 +46,33 @@ class NotificationSender {
     var platformChannelSpecifics =
         new NotificationDetails(android: androidPlatformChannelSpecifics);
     flutterLocalNotificationsPlugin.show(
-      random.nextInt(9000000),
+      jsonDecode(message["data"]["body"])["id"],
       message["notification"]["title"],
       message["notification"]["body"],
       platformChannelSpecifics,
-      payload: message["data"]["id_appuntamento"].toString(),
+      payload: jsonDecode(message["data"]["body"])["id"].toString(),
     );
   }
 
-  Future onSelectNotification(String payload) async {
-    try {
-      Navigator.push(
-        Model.getContext(),
-        MaterialPageRoute(
-            builder: (context) => ChatPage(idAppuntamento: int.parse(payload))),
-      ).then((value) {
-        configureFirebaseNotification();
-      });
-    } catch (e) {
-      print(e);
-    }
+  Function onSelectNotification(Function nextCall) {
+    return (String payload) async {
+      try {
+        Navigator.push(
+          Model.getContext(),
+          MaterialPageRoute(
+              builder: (context) =>
+                  ChatPage(idAppuntamento: int.parse(payload))),
+        ).then((value) {
+          nextCall();
+        });
+      } catch (e) {
+        print(e);
+      }
+    };
   }
 
   void configureFirebaseNotification() {
+    MessagesManager.isNotChat = true;
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     _firebaseMessaging.configure(
         onResume: (Map<String, dynamic> message) async {
@@ -68,7 +81,7 @@ class NotificationSender {
         Model.getContext(),
         MaterialPageRoute(
             builder: (context) => ChatPage(
-                idAppuntamento: int.parse(message["data"]["id_chat"]))),
+                idAppuntamento: jsonDecode(message["data"]["body"])["id"])),
       ).then((value) {
         configureFirebaseNotification();
       });
@@ -76,13 +89,14 @@ class NotificationSender {
       try {
         NotificationSender notificationSender = NotificationSender();
         notificationSender.showNotificationWithoutSound(message);
+        MessagesManager.addChat(jsonDecode(message["data"]["body"])["id"]);
       } catch (e) {
         print(e);
       }
     }, onLaunch: (Map<String, dynamic> message) async {
       // in caso dell'onLauch, bisogna settare la variabile del calendario e dell'appuntamento che si vuole aprire, in questo modo il flusso del programma sa che dovra intraprendere delle azioni speciali per aprire un appuntamento
       idCalendario = message["data"]["id_calendario"];
-      idAppuntamento = message["data"]["id_appuntamento"];
+      idAppuntamento = jsonDecode(message["data"]["body"])["id"].toString();
       /*FlutterToast.showToast(
         msg: message["data"]["id_calendario"],
         toastLength: Toast.LENGTH_SHORT,

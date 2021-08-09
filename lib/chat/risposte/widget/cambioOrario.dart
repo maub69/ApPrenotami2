@@ -17,7 +17,7 @@ class CambioOrario extends Risposta {
     return [
       MessageTile(
         messageText: body["message"],
-        isLeft: false,
+        isLeft: true,
         datetime: datetime,
       ),
       getBottoniScelte(body["scelte"], body["proponi-orario"])
@@ -33,16 +33,24 @@ class CambioOrario extends Risposta {
     /*
       Inserisco sempre nella prima posizione per poi fare il reverse della listView e avere tutto allineato a destra
     */
+    
+    ButtonStyle buttonStyle = ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14.0))));
+
+
     scelte.forEach((element) {
       listBottoni.insert(
           0,
           Padding(
-            padding: EdgeInsets.only(right: 10),
-            child: RaisedButton(
+            padding: EdgeInsets.only(left: 10),
+            child: ElevatedButton(
                 child: Text(element),
+                  style: buttonStyle,
                 // quando viene cliccato, viene inviata al server la tua scelta. E poi ritorna la risposta, non direttamente, ma tramite una notifica di Firebase onMessage
                 onPressed: () {
-                  http.post(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT), body: {
+                  http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
                     "appuntamento_id": idChat.toString(),
                     "messaggio_id": body["id"].toString(),
                     "type": "cambio_orario",
@@ -52,6 +60,7 @@ class CambioOrario extends Risposta {
                     delWidgets([containerResponse]);
                     //risulta importante aggiornare il calendario in quanto dopo un cambio di orario o comunque un cambio di info dell'appuntamento il calendario potrebbe aver subito delle variazioni
                     Utility.updateCalendario();
+                    Utility.updateAppuntamenti();
                   });
                 }),
           ));
@@ -60,29 +69,30 @@ class CambioOrario extends Risposta {
     if (proponiOrario) {
       listBottoni.insert(
           0,
-          RaisedButton(
-              child: Text("Scegli l'orario"),
-              // qua viene aperto il calendario e viene gestito il click sulla disponibilita, anche se quello viene fatto nella funzione callQuandoDisponiblitaOn
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Calendario(
-                            calendario: Utility.calendario,
-                            onTapDisponibilita: (disponibilita) {
-                              callQuandoDisponibilitaOn(
-                                  disponibilita, containerResponse);
-                              Navigator.pop(context);
-                            })));
-              }));
+          Padding(
+              padding: EdgeInsets.only(left: 20),
+              child: ElevatedButton(
+                  child: Text("Scegli l'orario"),
+                  style: buttonStyle,
+                  // qua viene aperto il calendario e viene gestito il click sulla disponibilita, anche se quello viene fatto nella funzione callQuandoDisponiblitaOn
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => Calendario(
+                                calendario: Utility.calendario,
+                                onTapDisponibilita: (disponibilita) {
+                                  callQuandoDisponibilitaOn(
+                                      disponibilita, containerResponse);
+                                  Navigator.pop(context);
+                                })));
+                  })));
     }
 
     containerResponse = Container(
         height: 50,
-        child: ListView(
-            reverse: true,
-            scrollDirection: Axis.horizontal,
-            children: listBottoni));
+        child:
+            ListView(scrollDirection: Axis.horizontal, children: listBottoni));
 
     return containerResponse;
   }
@@ -95,7 +105,7 @@ class CambioOrario extends Risposta {
     print(disponibilita.from);
     print(disponibilita.to);
     //in conformita a quanto scritto su postman viene inviata la richiesta al server
-    http.post(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT), body: {
+    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
       "appuntamento_id": idChat.toString(),
       "messaggio_id": body["id"].toString(),
       "type": "cambio_orario",

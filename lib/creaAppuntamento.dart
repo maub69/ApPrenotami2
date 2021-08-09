@@ -120,7 +120,7 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
     _onPressedAggiungi = null;
     setState(() {});
 
-    http.post(EndPoint.getUrlKey(EndPoint.CREA_APPUNTAMENTO), body: {
+    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CREA_APPUNTAMENTO)), body: {
       "id_calendario": widget.idCalendario,
       "start_time": widget.disponibilita.from.toString(),
       "end_time": widget.disponibilita.to.toString(),

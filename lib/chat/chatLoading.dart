@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/chat/risposte/rispostaFactory.dart';
+import 'package:mia_prima_app/notificationSender.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
+import 'package:mia_prima_app/utility/messagesManager.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:http/http.dart' as http;
 
@@ -25,23 +27,16 @@ class ChatLoading {
     /*
       Qui avviene la gestione del'onMessage, sia della singola chat che globale
     */
-    _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-          // ricordati di mettere i controlli
-          dynamic bodyMessage = jsonDecode(message["data"][
-              "body"]); // non so perche', ma a quanto pare il body non e' un array, ma viene lasciato sotto forma di stringa, quindi bisogna fare il decode
-          listWidget.addAll(RispostaFactory.getRisposta(
-              bodyMessage["action"], bodyMessage, context, delWidgets));
-          update();
-    });
+    _loadFirebaseChat();
 
+    MessagesManager.removeChat(idAppuntamento);
     Map<String, String> parametri = {};
     // qua semplicemente vengono settati i parametri dell'id utente e dell'appuntamento per poi scaricare i messaggi giusti corrispondenti
     parametri["key"] = Utility.utente.id;
     parametri["appuntamento"] = idAppuntamento.toString();
     Uri request =
         new Uri.https(EndPoint.HOST, "/" + EndPoint.GET_CHAT, parametri);
-    http.Response response = await http.get(request.toString());
+    http.Response response = await http.get(Uri.parse(request.toString()));
     List<dynamic> chatJson = jsonDecode(response.body);
     // una volta fatto il decode messaggio per messaggio viene agigunto nella lista, pero' prima viene fatto il factory, cioe' per ogni json del messaggio viene creato il/i widget corrispondenti
     chatJson.forEach((element) {
@@ -49,7 +44,33 @@ class ChatLoading {
       listWidget.addAll(RispostaFactory.getRisposta(
           element["action"], element, context, delWidgets));
     });
+    _sendMesaggioLetto(chatJson.last["id"]);
     return listWidget;
+  }
+
+  void _sendMesaggioLetto(int idMessage) {
+    http.get(Uri.parse((EndPoint.getUrlKey("SET_CHAT_LETTA") + "&message=$idMessage")));
+  }
+
+  void _loadFirebaseChat() {
+    MessagesManager.isNotChat = false;
+    _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+      dynamic bodyMessage = jsonDecode(message["data"]["body"]); // non so perche', ma a quanto pare il body non e' un array, ma viene lasciato sotto forma di stringa, quindi bisogna fare il decode
+      if (bodyMessage["id"].toString() == idAppuntamento.toString()) {
+        // print("risposta: id corrisponde");
+        listWidget.addAll(RispostaFactory.getRisposta(
+            bodyMessage["action"], bodyMessage, context, delWidgets));
+        _sendMesaggioLetto(bodyMessage["id"]);
+        update();
+      } else {
+        MessagesManager.addChat(jsonDecode(message["data"]["body"])["id"]);
+        // print("risposta: non id corrisponde");
+        NotificationSender notificationSender = NotificationSender();
+        notificationSender.showNotificationWithoutSound(
+            message, _loadFirebaseChat);
+      }
+    });
   }
 
   /*

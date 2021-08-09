@@ -264,7 +264,7 @@ class _StateSignIn extends State<SignIn> {
     if (_formKey.currentState.validate()) {
       print(
           "IF di Validazione, valori di formKey: ${_formKey.currentState.value}");
-      http.post("https://prenotamionline.000webhostapp.com/registrazione.php",
+      http.post(Uri.parse("https://prenotamionline.000webhostapp.com/registrazione.php"),
           body: {
             "username": _formKey.currentState.value["nomeUtente"],
             "email": _formKey.currentState.value["email"],

@@ -9,7 +9,7 @@ class MessageTile extends StatelessWidget {
       : super(key: key);
 
   String _getStringFromDateTime(DateTime datetime) {
-    return "${datetime.day}/${datetime.month}/${datetime.year} ${datetime.hour}:${datetime.minute}";
+    return "${datetime.day}/${datetime.month}/${datetime.year} ${datetime.hour}:${(datetime.minute>=10)?datetime.minute:"0" + datetime.minute.toString()}";
   }
 
   @override

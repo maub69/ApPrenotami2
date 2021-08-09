@@ -10,6 +10,7 @@ import 'package:mia_prima_app/main.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/notificationSender.dart';
+import 'package:mia_prima_app/steps.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as nt;
@@ -79,7 +80,7 @@ class _StateVisualizzaPrenotazioneFutura
         setState(() {});
 
         //qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
-        http.post(EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE), body: {
+        http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE)), body: {
           "motivo": response,
           "id_appuntamento": widget.prenotazione["id"].toString()
         }).then((value) {
@@ -93,39 +94,45 @@ class _StateVisualizzaPrenotazioneFutura
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> listWidget = [
+      Text(
+          "#" +
+              widget.prenotazione["id"].toString() +
+              " " +
+              widget.prenotazione["calendario_nome"],
+          style: TextStyle(fontSize: 30)),
+      Text(widget.prenotazione["calendarion_descrizione"],
+          style: TextStyle(fontSize: 20)),
+      Text(widget.prenotazione["start"], style: TextStyle(fontSize: 15)),
+      Text(widget.prenotazione["end"], style: TextStyle(fontSize: 15)),
+      Text(widget.prenotazione["message"], style: TextStyle(fontSize: 15)),
+      Text(widget.prenotazione["message_admin"],
+          style: TextStyle(fontSize: 15)),
+      Text(widget.prenotazione["type"].toString(),
+          style: TextStyle(fontSize: 15)),
+      RaisedButton(
+          onPressed: () {
+            print("Vai alla chat");
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ChatPage(idAppuntamento: widget.prenotazione["id"])),
+            ).then((value) {
+              NotificationSender notificationSender = NotificationSender();
+              notificationSender.configureFirebaseNotification();
+            });
+          },
+          child: Text("Vai alla chat")),
+      RaisedButton(onPressed: onClickElimina, child: buttonElimina),
+    ];
+
+    if (widget.prenotazione["steps"] != null) {
+      listWidget.add(Steps(json: widget.prenotazione['steps']));
+    }
+
     return Model(
-      body: ListView(children: [
-        Text(
-            "#" +
-                widget.prenotazione["id"].toString() +
-                " " +
-                widget.prenotazione["calendario_nome"],
-            style: TextStyle(fontSize: 30)),
-        Text(widget.prenotazione["calendarion_descrizione"],
-            style: TextStyle(fontSize: 20)),
-        Text(widget.prenotazione["start"], style: TextStyle(fontSize: 15)),
-        Text(widget.prenotazione["end"], style: TextStyle(fontSize: 15)),
-        Text(widget.prenotazione["message"], style: TextStyle(fontSize: 15)),
-        Text(widget.prenotazione["message_admin"],
-            style: TextStyle(fontSize: 15)),
-        Text(widget.prenotazione["type"].toString(),
-            style: TextStyle(fontSize: 15)),
-        RaisedButton(
-            onPressed: () {
-              print("Vai alla chat");
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ChatPage(idAppuntamento: widget.prenotazione["id"])),
-              ).then((value) {
-                NotificationSender notificationSender = NotificationSender();
-                notificationSender.configureFirebaseNotification();
-              });
-            },
-            child: Text("Vai alla chat")),
-        RaisedButton(onPressed: onClickElimina, child: buttonElimina)
-      ]),
+      body: ListView(children: listWidget),
     );
   }
 }

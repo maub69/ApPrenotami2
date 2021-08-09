@@ -1,10 +1,14 @@
 //import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/utility/convertSettimanaInCalendario.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/downloadJson.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
+import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:http/http.dart' as http;
 
 /// la classe Utility permette di utilizzare
@@ -27,8 +31,11 @@ class Utility {
   static Utente utente;
 
   static List<Disponibilita> calendario;
+  static List<dynamic> listaPrenotazioni;
 
   static String idCalendario;
+
+  static UploadManager uploadManger = new UploadManager();
 
   static int getSettimana() {
     var now = new DateTime.now();
@@ -57,6 +64,20 @@ class Utility {
     downloadJson.start();
   }
 
+  static void updateAppuntamenti() {
+    DownloadJson downloadJsonListaPrenotazioni = new DownloadJson(
+        url: EndPoint.GET_APPUNTAMENTI,
+        // passo al parametro letturaTerminata la funzione letturaTerminata
+        // che verrà eseguita nella classe DownloadJson
+        letturaTerminata: (http.Response data) {
+          if (data.statusCode == 200) {
+            Utility.listaPrenotazioni = jsonDecode(data.body);
+          }
+        });
+    // funzione presente nella classe DownloadJson tramite url lancia la funzione
+    downloadJsonListaPrenotazioni.start();
+  }
+
   static void letturaTerminataCalendarioRichieste(http.Response data) {
     if (data.statusCode == 200) {
       ConvertSettimanaInCalendario convertSettimana =
@@ -66,4 +87,10 @@ class Utility {
       print("Erorre: ${data.statusCode}");
     }
   }
+
+  static String _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  static Random _rnd = Random();
+
+  static String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 }

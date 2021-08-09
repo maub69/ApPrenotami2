@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/sceltaCalendario.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
+import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:path/path.dart';
@@ -226,12 +227,11 @@ class _LoginState extends State<Login> {
                         });
                         */
     //
-    Uri request = new Uri.https(
-        "prenotamionline.000webhostapp.com",
-        "/login.php",
-        {"email": nameController.text, "password": passwordController.text});
-    
-    http.get(request.toString()).then((value) {
+    http.post(Uri.parse(EndPoint.getUrl(EndPoint.LOGIN)), body: {
+      "email": nameController.text,
+      "password": passwordController.text
+    }).then((value) {
+      print("risposta: ${value.body}");
       if (value.body == "-1") {
         //Alert(message: 'Login errato').show();
         _showMessage("Login errato");

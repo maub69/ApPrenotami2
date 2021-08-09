@@ -26,14 +26,14 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  http: ^0.12.1
+  http: ^0.13.0
   path: ^1.8.0
   webview_flutter: ^2.0.2
   passwordfield: ^0.0.82
   path_provider: ^2.0.1
   syncfusion_flutter_calendar: ^18.4.47
   syncfusion_localizations: ^18.4.47
-  flutter_form_builder: ^5.0.0-alpha.1
+  flutter_form_builder: ^6.0.1
   #dropdownfield: ^1.0.3
   loading: ^1.0.2
   firebase_messaging: ^7.0.3
@@ -43,6 +43,15 @@ dependencies:
   flutter_notification_channel: ^1.0.2
   flutter_local_notifications: 4.0.1+2
   stack: ^0.0.1
+  timelines: ^0.1.0
+  multipart_request: ^0.3.1
+  cached_network_image: ^3.0.0
+  flutter_cache_manager: ^3.1.2
+  images_picker: ^1.2.4
+  video_thumbnail: ^0.4.3
+  cached_video_player: ^1.0.3
+
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -65,8 +74,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - images/play-button.png #https://www.flaticon.com/free-icon/play-button_189638?term=play&page=1&position=74&page=1&position=74&related_id=189638&origin=search
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

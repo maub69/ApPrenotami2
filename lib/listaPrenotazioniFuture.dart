@@ -4,12 +4,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/main.dart';
 import 'package:mia_prima_app/model.dart';
+import 'package:mia_prima_app/utility/messagesManager.dart';
+import 'package:mia_prima_app/utility/utility.dart';
 import 'package:mia_prima_app/visualizzaPrenotazioneFutura.dart';
 
 class ListaPrenotazioniFuture extends StatefulWidget {
-  final List<dynamic> prenotazioni;
-
-  ListaPrenotazioniFuture({this.prenotazioni});
+  ListaPrenotazioniFuture();
 
   @override
   State createState() => _StateListaPrenotazioniFuture();
@@ -18,12 +18,10 @@ class ListaPrenotazioniFuture extends StatefulWidget {
 class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
   Random _random = new Random();
   List<Widget> _listCard = [];
-  List<dynamic> _listPrenotazioni = [];
   BuildContext _context;
 
   @override
   void initState() {
-    _listPrenotazioni = widget.prenotazioni;
     _aggiornaListaPrenotazioniFuture();
   }
 
@@ -33,10 +31,10 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
     Map<String, dynamic> _arrayBody = jsonDecode(body);
     _showMessage("Eliminazione appuntamento", _arrayBody["response"]["message"],
         Colors.red);
-    for (int i = 0; i < _listPrenotazioni.length; i++) {
+    for (int i = 0; i < Utility.listaPrenotazioni.length; i++) {
       //una volta trovata la prenotazione interesssata, viene sostituita con le nuove informazioni
-      if (_listPrenotazioni[i]["id"] == _arrayBody["new_element"]["id"]) {
-        _listPrenotazioni[i] = _arrayBody["new_element"];
+      if (Utility.listaPrenotazioni[i]["id"] == _arrayBody["new_element"]["id"]) {
+        Utility.listaPrenotazioni[i] = _arrayBody["new_element"];
         break;
       }
     }
@@ -47,7 +45,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
 
   //nei fatti non fa altro che popolare _listCard con i nuovi Widget delle prenotazioni
   void _aggiornaListaPrenotazioniFuture() {
-    for (int i = 0; i < _listPrenotazioni.length; i++) {
+    for (int i = 0; i < Utility.listaPrenotazioni.length; i++) {
       _listCard.add(Material(
           key: Key(_random
               .nextInt(100000)
@@ -60,7 +58,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                     MaterialPageRoute(
                         builder: (BuildContext context) =>
                             VisualizzaPrenotazioneFutura(
-                                prenotazione: _listPrenotazioni[i],
+                                prenotazione: Utility.listaPrenotazioni[i],
                                 aggiornaPrenotazioni: _aggiornaPrenotazione)));
               },
               child: Card(
@@ -69,9 +67,9 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       ListTile(
-                        leading: _getIconFromType(_listPrenotazioni[i]["type"]),
-                        title: Text(_listPrenotazioni[i]["calendario_nome"]),
-                        subtitle: Text(_listPrenotazioni[i]["message_admin"]),
+                        leading: _getIconFromType(Utility.listaPrenotazioni[i]["type"]),
+                        title: Text(Utility.listaPrenotazioni[i]["calendario_nome"]),
+                        subtitle: Text(Utility.listaPrenotazioni[i]["message_admin"]),
                       ),
                     ],
                   )))));

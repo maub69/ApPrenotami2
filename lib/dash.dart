@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/creaAppuntamento.dart';
+import 'package:mia_prima_app/steps.dart';
 import 'package:mia_prima_app/listaPrenotazioniFuture.dart';
 import 'package:mia_prima_app/main.dart';
 import 'package:mia_prima_app/model.dart';
@@ -79,9 +80,9 @@ class _StateDash extends State<Dash> {
 
   letturaTerminataListaPrenotazioni(http.Response data) {
     if (data.statusCode == 200) {
-      List<dynamic> listaPrenotazioni = jsonDecode(data.body);
+      Utility.listaPrenotazioni = jsonDecode(data.body);
       onPressedListaPrenotazioniFuture = () {
-        _onPressedListaPrenotazioniFuture(listaPrenotazioni);
+        _onPressedListaPrenotazioniFuture();
       };
 
       if (idAppuntamento != "-1") {
@@ -90,8 +91,8 @@ class _StateDash extends State<Dash> {
         // il parametro aggiornaPrenotazioni permette di modificare la listaPrenotazioni con le nuove info sulla prenotazione
         // non e' necessario aprire la schermata della lista delle prenotazioni, in quanto sono già presenti tutte le info per aprire la sezione di dettaglio da questa schermata
         int idAppuntamentoAprire = -1;
-        for (int i = 0; i < listaPrenotazioni.length; i++) {
-          if (listaPrenotazioni[i]["id"].toString() == idAppuntamento) {
+        for (int i = 0; i < Utility.listaPrenotazioni.length; i++) {
+          if (Utility.listaPrenotazioni[i]["id"].toString() == idAppuntamento) {
             idAppuntamentoAprire = i;
           }
         }
@@ -99,10 +100,11 @@ class _StateDash extends State<Dash> {
             context,
             MaterialPageRoute(
                 builder: (BuildContext context) => VisualizzaPrenotazioneFutura(
-                    prenotazione: listaPrenotazioni[idAppuntamentoAprire],
+                    prenotazione:
+                        Utility.listaPrenotazioni[idAppuntamentoAprire],
                     aggiornaPrenotazioni: (String body) {
                       Map<String, dynamic> _arrayBody = jsonDecode(body);
-                      listaPrenotazioni[idAppuntamentoAprire] =
+                      Utility.listaPrenotazioni[idAppuntamentoAprire] =
                           _arrayBody["new_element"];
                     })));
       }
@@ -113,7 +115,18 @@ class _StateDash extends State<Dash> {
   letturaTerminataNotifiche(http.Response data) {
     if (data.statusCode == 200) {
       List<dynamic> listaNotifiche = jsonDecode(data.body);
-      onPressedNotifiche = () {};
+      onPressedNotifiche = () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => Scaffold(
+                  appBar: AppBar(title: Text("Esempio")),
+                  body: Steps(
+                    json: '{"title": "Processo olive", "started": true, "description": "Le varie fasi per spremere le olive","steps": [{"name": "Fase 1","done": true,"messages": ["prima sotto fase fatta", "seconda sotto fase fatta"]},{"name": "Fase 2", "done": true, "messages": ["prima sotto fase fatta 2","seconda sottofase fatta 2"]}]}'
+                  )
+          ),
+            ));
+      };
       setState(() {});
     }
   }
@@ -217,12 +230,11 @@ class _StateDash extends State<Dash> {
                 })));
   }
 
-  _onPressedListaPrenotazioniFuture(List<dynamic> prenotazioni) {
+  _onPressedListaPrenotazioniFuture() {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (BuildContext context) =>
-                ListaPrenotazioniFuture(prenotazioni: prenotazioni)));
+            builder: (BuildContext context) => ListaPrenotazioniFuture()));
   }
 
   @override
