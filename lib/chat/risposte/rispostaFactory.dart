@@ -1,20 +1,51 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mia_prima_app/chat/risposte/widget/Free.dart';
 import 'package:mia_prima_app/chat/risposte/widget/cambioOrario.dart';
+import 'package:mia_prima_app/chat/risposte/widget/file.dart';
+import 'package:mia_prima_app/chat/risposte/widget/photo.dart';
 import 'package:mia_prima_app/chat/risposte/widget/stepsMessage.dart';
+import 'package:mia_prima_app/chat/risposte/widget/video.dart';
 
 class RispostaFactory {
-  static List<Widget> getRisposta(String type, Map<String, dynamic> body, BuildContext context, Function(List<Widget> listWidget) delWidgets) {
+  static ResponseRispostaFactory getRisposta(String type, Map<String, dynamic> body,
+      BuildContext context, Function(List<Widget> listWidget) delWidgets) {
     DateTime datetime = DateTime.parse(body["datetime"]);
     switch (type) {
       case "free":
-        return Free(body["id"], body["body"], datetime, context, delWidgets).getRisposta();
+        return ResponseRispostaFactory(Free(body["id"], body["body"], datetime, context, delWidgets)
+            .getRisposta(), datetime);
 
       case "cambio-orario":
-        return CambioOrario(body["id"], body["body"], datetime, context, delWidgets).getRisposta();
+        return ResponseRispostaFactory(CambioOrario(
+                body["id"], body["body"], datetime, context, delWidgets)
+            .getRisposta(), datetime);
 
       case "steps":
-        return StepsMessage(body["id"], body["body"], datetime, context, delWidgets).getRisposta();
+        return ResponseRispostaFactory(StepsMessage(
+                body["id"], body["body"], datetime, context, delWidgets)
+            .getRisposta(), datetime);
+
+      case "photo":
+        return ResponseRispostaFactory(Photo(
+                body["id"], body["body"], datetime, context, delWidgets)
+            .getRisposta(), datetime);
+
+      case "video":
+        return ResponseRispostaFactory(Video(
+                body["id"], body["body"], datetime, context, delWidgets)
+            .getRisposta(), datetime);
+
+      case "file":
+        return ResponseRispostaFactory(File(
+                body["id"], body["body"], datetime, context, delWidgets)
+            .getRisposta(), datetime);
     }
   }
+}
+
+class ResponseRispostaFactory {
+  final List<Widget> widgets;
+  final DateTime dateTime;
+
+  ResponseRispostaFactory(this.widgets, this.dateTime);
 }

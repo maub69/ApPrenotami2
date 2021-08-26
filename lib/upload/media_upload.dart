@@ -8,13 +8,23 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:cached_video_player/cached_video_player.dart';
+import 'package:better_player/better_player.dart';
+import 'package:open_file/open_file.dart';
 
 class MediaUpload extends StatefulWidget {
   final ProgressFile progressFile;
   final bool isPhoto;
+  final String url;
+  final DateTime datetime;
+  final bool isAmministratore;
 
-  const MediaUpload({Key key, this.progressFile, this.isPhoto})
+  const MediaUpload(
+      {Key key,
+      this.progressFile,
+      this.isPhoto,
+      this.url,
+      this.datetime,
+      this.isAmministratore = false})
       : super(key: key);
   @override
   State<StatefulWidget> createState() {
@@ -26,17 +36,31 @@ class _MediaUploadState extends State<MediaUpload>
     with AutomaticKeepAliveClientMixin {
   double _progress;
 
+  String _url;
+  DateTime _datetime;
+
   @override
   void initState() {
     super.initState();
 
-    if (widget.progressFile.progress == 100) {
+    if (widget.progressFile == null) {
+      _url = widget.url;
+      _datetime = widget.datetime;
+    } else {
+      _url = widget.progressFile.getUrl();
+      _datetime = widget.progressFile.dateTime;
+    }
+    if(!widget.isPhoto) {
+      print("url_media: $_url");
+    }
+
+    if (widget.progressFile == null || widget.progressFile.progress == 100) {
       _progress = 1;
     } else {
       _progress = 0;
     }
 
-    widget.progressFile.setListener((progress) {
+    widget.progressFile?.setListener((progress) {
       setState(() {
         print("progress-file: $progress");
         _progress = progress.toDouble() / 100;
@@ -59,43 +83,50 @@ class _MediaUploadState extends State<MediaUpload>
 
               if (widget.isPhoto) {
                 widgetShowed = CachedNetworkImage(
-                  imageBuilder: (context, imageProvider) => Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(6),
-                      ),
-                      image: DecorationImage(
-                        image: imageProvider,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  imageUrl: widget.progressFile.getUrl(),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                );
+                    imageBuilder: (context, imageProvider) => Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(
+                              bottom: Radius.circular(6),
+                            ),
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                    imageUrl: _url,
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    placeholder: (context, url) =>
+                        Container(child: CircularProgressIndicator()));
               } else {
+                BetterPlayerController betterPlayerController;
+                BetterPlayerDataSource betterPlayerDataSource;
+                if (widget.progressFile == null) {
+                  betterPlayerDataSource = BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network, _url);
+                } else {
+                  betterPlayerDataSource = BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.file,
+                      widget.progressFile.file.path.toString());
+                }
 
-                // TODO la libreria CachedVideoPlayerController sembra non funzionare, dovete provare a risolvere a cambiare libreria
+                betterPlayerController = BetterPlayerController(
+                    BetterPlayerConfiguration(),
+                    betterPlayerDataSource: betterPlayerDataSource);
 
-                print("video-url: " + widget.progressFile.getUrl());
-                // CachedVideoPlayerController controller =
-                    // CachedVideoPlayerController.network(
-                    //    "https://apprenotami.nlsitalia.com/test/uploads/Uz0Iu1AYqR375p2bHnsD2Ohb23zN1rA2nFsgYuA12hzm7ROkZ87dppJY3VFCTGX6FtrF1S99WvQEYZLmPg8e2JUauF9LtAxA2WYN.mp4");
-                CachedVideoPlayerController controller = CachedVideoPlayerController.network(widget.progressFile.getUrl());
-                controller.initialize().then((_) {
-                  setState(() {});
-                  controller.play();
-                });
+                widgetShowed = BetterPlayer(
+                  controller: betterPlayerController,
+                );
 
-                widgetShowed =
-                    controller.value != null && controller.value.initialized
-                        ? AspectRatio(
-                            child: CachedVideoPlayer(controller),
-                            aspectRatio: controller.value.aspectRatio,
-                          )
-                        : Center(
-                            child: CircularProgressIndicator(),
-                          );
+                /*VideoPlayerController controllerVideo;
+                controllerVideo =
+                    VideoPlayerController.network(widget.progressFile.getUrl())
+                      ..initialize().then((_) {
+                        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+                        setState(() {});
+                        controllerVideo.play();
+                      });
+                widgetShowed = VideoPlayer(controllerVideo);*/
               }
 
               return Scaffold(
@@ -112,24 +143,31 @@ class _MediaUploadState extends State<MediaUpload>
               vertical: 15.0,
               horizontal: 20.0,
             ),
-            alignment: Alignment.centerRight,
+            alignment: widget.isAmministratore
+                ? Alignment.centerLeft
+                : Alignment.centerRight,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   decoration: BoxDecoration(
-                      color: Colors.green[200],
+                      color: widget.isAmministratore
+                          ? Colors.white
+                          : Colors.green[200],
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(10),
                       ),
                       border: Border.all(
-                        color: Colors.green[200],
+                        color: widget.isAmministratore
+                            ? Colors.white
+                            : Colors.green[200],
                         width: 2,
                       )),
                   padding: EdgeInsets.all(5),
                   alignment: Alignment.center,
-                  child: Text("20/2/2021 9:30", style: TextStyle(fontSize: 12)),
+                  child: Text(_getStringFromDateTime(_datetime),
+                      style: TextStyle(fontSize: 12)),
                   width: 300,
                 ),
                 Stack(alignment: Alignment.center, children: <Widget>[
@@ -140,7 +178,9 @@ class _MediaUploadState extends State<MediaUpload>
                             bottom: Radius.circular(10),
                           ),
                           border: Border.all(
-                            color: Colors.green[200],
+                            color: widget.isAmministratore
+                                ? Colors.white
+                                : Colors.green[200],
                             width: 2,
                           )),
                       height: 200,
@@ -158,9 +198,7 @@ class _MediaUploadState extends State<MediaUpload>
                             ),
                           ),
                         ),
-                        imageUrl: (widget.isPhoto
-                            ? widget.progressFile.getUrl()
-                            : widget.progressFile.getUrl() + ".jpeg"),
+                        imageUrl: (widget.isPhoto ? _url : _url + ".jpeg"),
                         errorWidget: (context, url, error) => Icon(Icons.error),
                       )),
                   Container(
@@ -178,11 +216,15 @@ class _MediaUploadState extends State<MediaUpload>
                           ))),
                   Visibility(
                     child: Image(image: AssetImage('images/play-button.png')),
-                    visible: widget.progressFile.progress == 100,
+                    visible: (widget.progressFile == null ||
+                            widget.progressFile.progress == 100) &&
+                        !widget.isPhoto,
                   ),
                   CircularProgressIndicator(
-                      value:
-                          (widget.progressFile.progress == 100 ? 0 : _progress),
+                      value: (widget.progressFile == null ||
+                              widget.progressFile.progress == 100
+                          ? 0
+                          : _progress),
                       semanticsLabel: 'Linear progress indicator'),
                 ]),
               ],
@@ -191,6 +233,10 @@ class _MediaUploadState extends State<MediaUpload>
 
   @override
   bool get wantKeepAlive => true;
+
+  String _getStringFromDateTime(DateTime datetime) {
+    return "${datetime.day}/${datetime.month}/${datetime.year} ${datetime.hour}:${(datetime.minute >= 10) ? datetime.minute : "0" + datetime.minute.toString()}";
+  }
 }
 
 

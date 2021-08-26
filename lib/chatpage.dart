@@ -8,6 +8,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mia_prima_app/chat/chatLoading.dart';
 import 'package:mia_prima_app/chat/risposte/rispostaFactory.dart';
 import 'package:mia_prima_app/messagetile.dart';
+import 'package:mia_prima_app/upload/file_upload.dart';
 import 'package:mia_prima_app/upload/media_upload.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
@@ -38,6 +39,7 @@ class _ChatPage extends State<ChatPage> {
   ChatLoading _chatLoading;
   BuildContext _context;
   List<ProgressFile> _listProgressFile = [];
+  var random = Random();
 
   _focusListener() {
     setState(() {});
@@ -46,13 +48,6 @@ class _ChatPage extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    // all'avvio deve scaricare tutti i progressUpload in corso per questa pagina
-    // in quanto se si esce dalla pagina e poi si rientra deve appunto mostrare il fatto che si sta caricando qualche file
-    _listProgressFile =
-        Utility.uploadManger.getListProgressFile(widget.idAppuntamento);
-    _listProgressFile.forEach((element) {
-      element.setListener((int progress) => print("progress-file: $progress"));
-    });
 
     focus.addListener(_focusListener);
     // qui vengono scaricati i messaggi e inseriti nella _listView per poi essere visualizzati
@@ -80,14 +75,15 @@ class _ChatPage extends State<ChatPage> {
         body: {"datetime": datetime.toString(), "text": text});
     setState(() {
       _listViewChat.addAll(RispostaFactory.getRisposta(
-          "free",
-          {
-            "datetime": datetime.toString(),
-            "id": 120,
-            "body": {"message": text, "isAmministratore": false}
-          },
-          _context,
-          null));
+              "free",
+              {
+                "datetime": datetime.toString(),
+                "id": 120,
+                "body": {"message": text, "isAmministratore": false}
+              },
+              _context,
+              null)
+          .widgets);
     });
     _controller.text = "";
   }
@@ -148,8 +144,8 @@ class _ChatPage extends State<ChatPage> {
   // avvia le operazioni di upload del file
   uploadMedia(File file, bool isPhoto) async {
     // per farlo deve interpellare uploadManager e poi deve aggiungere il progressFIle alla lista dei progress, in quanto altrimenti non potrebbero essere rimossi i listener quando si esce dalla sezione
-    ProgressFile progressFile =
-        Utility.uploadManger.uploadFile(file, widget.idAppuntamento);
+    ProgressFile progressFile = Utility.uploadManger
+        .uploadFile(file, widget.idAppuntamento, isPhoto ? 0 : 1);
     _listProgressFile.add(progressFile);
     Future<void> saveMedia;
     if (isPhoto) {
@@ -159,12 +155,23 @@ class _ChatPage extends State<ChatPage> {
     }
     saveMedia.then((value) {
       setState(() {
-        var random = Random();
         _listViewChat.add(MediaUpload(
             progressFile: progressFile,
             isPhoto: isPhoto,
             key: Key(random.nextInt(10000).toString())));
       });
+    });
+  }
+
+  uploadFile(File file) {
+    ProgressFile progressFile =
+        Utility.uploadManger.uploadFile(file, widget.idAppuntamento, 2);
+    _listProgressFile.add(progressFile);
+    setState(() {
+      var random = Random();
+      _listViewChat.add(FileUpload(
+          progressFile: progressFile,
+          key: Key(random.nextInt(10000).toString())));
     });
   }
 
@@ -187,8 +194,10 @@ class _ChatPage extends State<ChatPage> {
         progressFile.getUrl() + ".jpeg", bytesFile,
         fileExtension: "jpeg", maxAge: Duration(days: 15));
 
-    await DefaultCacheManager().putFile(progressFile.getUrl(), bytesVideo,
-       fileExtension: progressFile.getExtension(), maxAge: Duration(days: 7));
+    // File fileVideo = await DefaultCacheManager().putFile(
+    //    progressFile.getUrl(), bytesVideo,
+    //    fileExtension: progressFile.getExtension(), maxAge: Duration(days: 7));
+    // print("video-url-1: ${fileVideo.path}");
   }
 
   @override
@@ -199,7 +208,39 @@ class _ChatPage extends State<ChatPage> {
           new ChatLoading(widget.idAppuntamento, context, updateView);
       _chatLoading.loadChat().then((value) {
         setState(() {
-          _listViewChat = value;
+          List<ResponseRispostaFactory> responseRispostaFactory = value;
+
+          // all'avvio deve scaricare tutti i progressUpload in corso per questa pagina
+          // in quanto se si esce dalla pagina e poi si rientra deve appunto mostrare il fatto che si sta caricando qualche file
+          _listProgressFile =
+              Utility.uploadManger.getListProgressFile(widget.idAppuntamento);
+          _listProgressFile.forEach((element) {
+            element.setListener(
+                (int progress) => print("progress-file: $progress"));
+          });
+
+          _listProgressFile.forEach((element) {
+            if (element.typeUpload == 0 || element.typeUpload == 1) {
+              responseRispostaFactory.add(ResponseRispostaFactory([
+                MediaUpload(
+                    progressFile: element,
+                    isPhoto: element.typeUpload == 0,
+                    key: Key(random.nextInt(10000).toString()))
+              ], element.dateTime));
+            } else if (element.typeUpload == 2) {
+              responseRispostaFactory.add(ResponseRispostaFactory([
+                FileUpload(
+                    progressFile: element,
+                    key: Key(random.nextInt(10000).toString()))
+              ], element.dateTime));
+            }
+          });
+
+          responseRispostaFactory.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+
+          responseRispostaFactory.forEach((element) {
+            _listViewChat.addAll(element.widgets);
+          });
         });
       });
     }
@@ -333,7 +374,7 @@ class _ChatPage extends State<ChatPage> {
                         List<File> files =
                             result.paths.map((path) => File(path)).toList();
                         files.forEach((file) {
-                          print(file.path);
+                          uploadFile(file);
                         });
                       } else {
                         // User canceled the picker

@@ -12,11 +12,11 @@ class UploadManager {
   Queue<ProgressFile> queueNotSent = Queue<ProgressFile>();
 
   // quando viene aggiunto un nuovo file da caricare, viene creato un progressFile per il corrispondente file che servira per ottenere tutte le informazioni sullo stato dell'upload
-  ProgressFile uploadFile(File file, int idChat) {
+  ProgressFile uploadFile(File file, int idChat, int typeUpload) {
     DateTime now = new DateTime.now();
     String nameUrl = Utility.getRandomString(100);
 
-    ProgressFile progressFile = new ProgressFile(idChat, now, file, nameUrl);
+    ProgressFile progressFile = new ProgressFile(idChat, now, file, nameUrl, typeUpload);
     print("name-file-url: " + progressFile.getUrl());
     _listProgressFile.add(progressFile);
 
@@ -75,8 +75,9 @@ class ProgressFile {
   final String nameUrl;
   int progress = 0;
   Function(int) listenerProgress;
+  final int typeUpload; // 0-> immagine, 1->video, 2->file
 
-  ProgressFile(this.idChat, this.dateTime, this.file, this.nameUrl);
+  ProgressFile(this.idChat, this.dateTime, this.file, this.nameUrl, this.typeUpload);
 
   void setListener(Function(int) listener) {
     listenerProgress = listener;
@@ -100,5 +101,9 @@ class ProgressFile {
   String getExtension() {
     print("extension-file: " + extension(file.path).substring(1));
     return extension(file.path).substring(1);
+  }
+
+  bool get isVideo {
+    return getExtension() == "mp4";
   }
 }
