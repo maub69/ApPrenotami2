@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:ext_storage/ext_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert' show jsonDecode;
@@ -30,13 +31,15 @@ import 'dash.dart';
 import 'package:passwordfield/passwordfield.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/rendering.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
   // la funzione di init main() contiene la funzione di bindig runApp()
   // alla quale viene passata la classe MaterialApp() e quindi il suo costruttore
   // la quale ritorna l'indirizzo dell'oggetto che viene istanziato dal framework
   // e ha come parametro di home la classe MyApp()
-
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MaterialApp(
     home: MyApp(),
   ));
@@ -58,7 +61,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   BuildContext _context;
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   // la classe tra < > sostituisce "T" un template a cui si passa
   // la classe che deve essere utilizzata come tipo
 
@@ -135,6 +137,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    ExtStorage.getExternalStoragePublicDirectory(
+        ExtStorage.DIRECTORY_DOWNLOADS).then((value) => Utility.pathDownload = value);
+
     WidgetsBinding.instance.addObserver(this);
     _getDataLogin().then((id) {
       // se id non esiste
@@ -151,7 +157,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     });
     manageDatabase();
 
-    _firebaseMessaging.getToken().then((token) => print("token-app: $token"));
+    FirebaseMessaging.instance
+        .getToken()
+        .then((token) => print("token-app: $token"));
     FlutterNotificationChannel.registerNotificationChannel(
       description: 'Qui ricevi le notifiche per gli appuntamenti',
       id: 'apprenotami.appuntamenti',
@@ -169,7 +177,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void getMessage() {
     NotificationSender notificationSender = NotificationSender();
-    notificationSender.configureFirebaseNotification();
+    notificationSender.configureFirebaseNotificationOnStart();
   }
 
   @override

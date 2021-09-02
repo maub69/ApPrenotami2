@@ -236,11 +236,13 @@ class _ChatPage extends State<ChatPage> {
             }
           });
 
-          responseRispostaFactory.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+          responseRispostaFactory
+              .sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
           responseRispostaFactory.forEach((element) {
             _listViewChat.addAll(element.widgets);
           });
+          _chatLoading.listWidget = _listViewChat;
         });
       });
     }

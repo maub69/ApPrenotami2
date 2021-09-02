@@ -11,6 +11,7 @@ import 'package:mia_prima_app/model.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as nt;
 import 'package:mia_prima_app/utility/messagesManager.dart';
+import 'package:mia_prima_app/utility/utility.dart';
 
 /*
   Questa classe fa fondamentalmente due cose:
@@ -18,10 +19,10 @@ import 'package:mia_prima_app/utility/messagesManager.dart';
     - configureFirebaseNotification configura interamente firebase, questa e' una funzione fondamentale perche' senza questa dopo aver aperto una chat si perderebbe completamente la gestione delle notifiche di firebase
 */
 class NotificationSender {
-  Future showNotificationWithoutSound(Map<String, dynamic> message,
+  Future showNotificationWithoutSound(RemoteMessage message,
       [Function onNextCallNotification]) async {
     print(message);
-    print(message["data"]["id_appuntamento"].toString());
+    print(message.data["id_appuntamento"].toString());
 
     var initializationSettingsAndroid =
         new nt.AndroidInitializationSettings('ic_launcher');
@@ -46,11 +47,11 @@ class NotificationSender {
     var platformChannelSpecifics =
         new NotificationDetails(android: androidPlatformChannelSpecifics);
     flutterLocalNotificationsPlugin.show(
-      jsonDecode(message["data"]["body"])["id"],
-      message["notification"]["title"],
-      message["notification"]["body"],
+      jsonDecode(message.data["body"])["id"],
+      message.notification.title,
+      message.notification.body,
       platformChannelSpecifics,
-      payload: jsonDecode(message["data"]["body"])["id"].toString(),
+      payload: jsonDecode(message.data["body"])["id"].toString(),
     );
   }
 
@@ -72,39 +73,58 @@ class NotificationSender {
   }
 
   void configureFirebaseNotification() {
+    Utility.onMessageFirebase = _setOnMessage;
+  }
+
+  void configureFirebaseNotificationOnStart() async {
+    configureFirebaseNotification();
     MessagesManager.isNotChat = true;
-    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-    _firebaseMessaging.configure(
-        onResume: (Map<String, dynamic> message) async {
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('on resume $message');
       Navigator.push(
         Model.getContext(),
         MaterialPageRoute(
             builder: (context) => ChatPage(
-                idAppuntamento: jsonDecode(message["data"]["body"])["id"])),
+                idAppuntamento: jsonDecode(message.data["body"])["id"])),
       ).then((value) {
         configureFirebaseNotification();
       });
-    }, onMessage: (Map<String, dynamic> message) async {
-      try {
-        NotificationSender notificationSender = NotificationSender();
-        notificationSender.showNotificationWithoutSound(message);
-        MessagesManager.addChat(jsonDecode(message["data"]["body"])["id"]);
-      } catch (e) {
-        print(e);
-      }
-    }, onLaunch: (Map<String, dynamic> message) async {
-      // in caso dell'onLauch, bisogna settare la variabile del calendario e dell'appuntamento che si vuole aprire, in questo modo il flusso del programma sa che dovra intraprendere delle azioni speciali per aprire un appuntamento
-      idCalendario = message["data"]["id_calendario"];
-      idAppuntamento = jsonDecode(message["data"]["body"])["id"].toString();
-      /*FlutterToast.showToast(
-        msg: message["data"]["id_calendario"],
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0
-      );*/
     });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      Utility.onMessageFirebase(message);
+    });
+
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
+      if (message != null) {
+        // in caso dell'onLauch, bisogna settare la variabile del calendario e dell'appuntamento che si vuole aprire, in questo modo il flusso del programma sa che dovra intraprendere delle azioni speciali per aprire un appuntamento
+        print("contentuto-data: sono qui");
+        print("contentuto-data: ${message.data}");
+        idCalendario = message.data["id_calendario"];
+        idAppuntamento = jsonDecode(message.data["body"])["id"].toString();
+        /*FlutterToast.showToast(
+              msg: message["data"]["id_calendario"],
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0
+            );*/
+      }
+    });
+  }
+
+  void _setOnMessage(RemoteMessage message) {
+    try {
+      print("contentuto-data: sono in onMessage notification sender");
+      NotificationSender notificationSender = NotificationSender();
+      notificationSender.showNotificationWithoutSound(message);
+      MessagesManager.addChat(jsonDecode(message.data["body"])["id"]);
+    } catch (e) {
+      print(e);
+    }
   }
 }

@@ -10,6 +10,7 @@ import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 /// la classe Utility permette di utilizzare
 /// dei dati tra le varie altre classi
@@ -35,7 +36,14 @@ class Utility {
 
   static String idCalendario;
 
+  static String pathDownload;
+
   static UploadManager uploadManger = new UploadManager();
+
+  static String getDateInCorrectFormat(DateTime dateTime) {
+    DateFormat formatter = DateFormat('yyyy-MM-dd_hh-mm-ss');
+    return formatter.format(dateTime);
+  }
 
   static int getSettimana() {
     var now = new DateTime.now();
@@ -88,9 +96,13 @@ class Utility {
     }
   }
 
-  static String _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  static String _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   static Random _rnd = Random();
 
-  static String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+  static String getRandomString(int length) =>
+      String.fromCharCodes(Iterable.generate(
+          length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
+  static Function onMessageFirebase;
 }

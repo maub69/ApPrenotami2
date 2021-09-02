@@ -13,7 +13,6 @@ class ChatLoading {
   final int idAppuntamento;
   final BuildContext context;
   final Function update;
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   List<Widget> listWidget = [];
 
   ChatLoading(this.idAppuntamento, this.context, this.update);
@@ -58,25 +57,28 @@ class ChatLoading {
 
   void _loadFirebaseChat() {
     MessagesManager.isNotChat = false;
-    _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-      dynamic bodyMessage = jsonDecode(message["data"][
+    Utility.onMessageFirebase = (RemoteMessage message) {
+      print("contentuto-data: sono in onMessage chat-loading 1");
+      dynamic bodyMessage = jsonDecode(message.data[
           "body"]); // non so perche', ma a quanto pare il body non e' un array, ma viene lasciato sotto forma di stringa, quindi bisogna fare il decode
       if (bodyMessage["id"].toString() == idAppuntamento.toString()) {
-        // print("risposta: id corrisponde");
+        
+        print("risposta: id corrisponde - ${bodyMessage["action"]}");
+        print("contentuto-data: 1 - ${listWidget.length}");
         listWidget.addAll(RispostaFactory.getRisposta(
                 bodyMessage["action"], bodyMessage, context, delWidgets)
             .widgets);
+        print("contentuto-data: 2 - ${listWidget.length}");
         _sendMesaggioLetto(bodyMessage["id"]);
         update();
       } else {
-        MessagesManager.addChat(jsonDecode(message["data"]["body"])["id"]);
-        // print("risposta: non id corrisponde");
+        MessagesManager.addChat(jsonDecode(message.data["body"])["id"]);
+        print("risposta: non id corrisponde");
         NotificationSender notificationSender = NotificationSender();
         notificationSender.showNotificationWithoutSound(
             message, _loadFirebaseChat);
       }
-    });
+    };
   }
 
   /*
