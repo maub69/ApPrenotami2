@@ -10,8 +10,10 @@ import 'package:path/path.dart';
   Rappresenta il messaggio in chat piu' semplice, quello di testo libero
 */
 class Photo extends Risposta {
+  final String idAppuntamento;
+
   Photo(int idChat, Map<String, dynamic> body, DateTime datetime,
-      BuildContext context, Function(List<Widget> listWidgets) delWidgets)
+      BuildContext context, Function(List<Widget> listWidgets) delWidgets, this.idAppuntamento)
       : super(idChat, body, datetime, context, delWidgets);
 
   @override
@@ -24,7 +26,8 @@ class Photo extends Risposta {
           url: body["url"],
           datetime: datetime,
           isAmministratore: body["isAmministratore"],
-          key: Key(random.nextInt(10000).toString()))
+          key: Key(random.nextInt(10000).toString()),
+          idAppuntamento: idAppuntamento)
     ];
   }
 }

@@ -25,14 +25,18 @@ class FileUpload extends StatefulWidget {
   final DateTime datetime;
   final bool isAmministratore;
   final String name;
+  final int idChat;
+  final String idAppuntamento;
 
-  const FileUpload(
+  FileUpload(
       {Key key,
+      this.idAppuntamento,
       this.progressFile,
       this.url,
       this.datetime,
       this.isAmministratore = false,
-      this.name})
+      this.name,
+      this.idChat})
       : super(key: key);
   @override
   State<StatefulWidget> createState() {
@@ -42,7 +46,7 @@ class FileUpload extends StatefulWidget {
 
 class _FileUploadState extends State<FileUpload>
     with AutomaticKeepAliveClientMixin {
-  double _progress;
+  double _progress = 0;
   String _name;
   bool _isDownloaded = false;
   List<String> _extentionsMoveToTemp = [
@@ -54,6 +58,8 @@ class _FileUploadState extends State<FileUpload>
     ".xls",
     ".xlsx"
   ];
+  bool _inDownloading = false;
+  DateTime _datetime;
 
   @override
   void initState() {
@@ -71,8 +77,10 @@ class _FileUploadState extends State<FileUpload>
 
     if (widget.progressFile == null) {
       _name = widget.name;
+      _datetime = widget.datetime;
     } else {
       _name = basename(widget.progressFile.file.path);
+      _datetime = widget.progressFile.dateTime;
     }
 
     if (widget.progressFile == null || widget.progressFile.progress == 100) {
@@ -89,26 +97,31 @@ class _FileUploadState extends State<FileUpload>
     });
   }
 
-  //TODO ricordadi di impedire un doppio download in contemporanea
+  //TODO fare in modo che i file nella temporanea si cancellino automaticamente dopo n giorni che sono impostabili dall'utente, di default è 7 giorni
+
   void _downloadFile() async {
-    print("Scarica file");
+    if (!_inDownloading) {
+      _inDownloading = true;
 
-    print(widget.url);
+      DownloaderUtils downloaderUtils = DownloaderUtils(
+        progressCallback: (current, total) {
+          setState(() {
+            _progress = current / total;
+          });
+        },
+        file: io.File(_getPathFileDownloaded()),
+        progress: ProgressImplementation(),
+        onDone: () {
+          setState(() {
+            _inDownloading = false;
+            _isDownloaded = true;
+          });
+        },
+        deleteOnCancel: true,
+      );
 
-    DownloaderUtils downloaderUtils = DownloaderUtils(
-      progressCallback: (current, total) {
-        final progress = (current / total) * 100;
-        print('download-file: Downloading: $progress');
-      },
-      file: io.File(_getPathFileDownloaded()),
-      progress: ProgressImplementation(),
-      onDone: () {
-        print("download-file: ho fatto");
-      },
-      deleteOnCancel: true,
-    );
-
-    await Flowder.download(widget.url, downloaderUtils);
+      await Flowder.download(widget.url, downloaderUtils);
+    }
   }
 
   // ricordati di usare questo link per la questione della cache: https://stackoverflow.com/questions/66488125/how-to-store-image-to-cachednetwrok-image-in-flutter
@@ -123,37 +136,12 @@ class _FileUploadState extends State<FileUpload>
             //redis
             if (_isDownloaded) {
               try {
-                if (_extentionsMoveToTemp.contains(extension(widget.name))) {
-                  io.Directory tempDir = await getTemporaryDirectory();
-                  io.File tempFile = await io.File(_getPathFileDownloaded())
-                      .copy('${tempDir.path}/${widget.name}');
-                  OpenFile.open(tempFile.path);
-                } else {
-                  OpenFile.open(_getPathFileDownloaded());
-                }
-
-                io.Directory tempDir = await getTemporaryDirectory();
-                io.File tempFile = await io.File(_getPathFileDownloaded())
-                    .copy('${tempDir.path}/${widget.name}');
-                OpenFile.open(tempFile.path);
+                OpenFile.open(_getPathFileDownloaded());
               } catch (e) {
                 print(e);
               }
             } else {
-              await [
-                Permission.storage,
-                Permission.manageExternalStorage
-              ].request().then((value) {
-                if (value[Permission.storage].isGranted && value[Permission.manageExternalStorage].isGranted) {
-                  _downloadFile();
-                } else {
-                  Alert(
-                        message:
-                            'In assenza di permessi non si può procedere con il download',
-                        shortDuration: false)
-                    .show();
-                }
-              });
+              _downloadFile();
             }
           } else {
             OpenFile.open(widget.progressFile.file.path);
@@ -182,7 +170,8 @@ class _FileUploadState extends State<FileUpload>
                       )),
                   padding: EdgeInsets.all(5),
                   alignment: Alignment.center,
-                  child: Text("20/2/2021 9:30", style: TextStyle(fontSize: 12)),
+                  child: Text(_getStringFromDateTime(_datetime),
+                      style: TextStyle(fontSize: 12)),
                   width: 300,
                 ),
                 Container(
@@ -218,6 +207,12 @@ class _FileUploadState extends State<FileUpload>
                               widget.progressFile.progress != 100,
                         ),
                         Visibility(
+                          child: CircularProgressIndicator(
+                              value: _progress,
+                              semanticsLabel: 'Linear progress indicator'),
+                          visible: _inDownloading,
+                        ),
+                        Visibility(
                           child: Image(
                               image: AssetImage('images/file.png'), height: 45),
                           visible: _isDownloaded &&
@@ -228,7 +223,8 @@ class _FileUploadState extends State<FileUpload>
                           child: Image(
                               image: AssetImage('images/download.png'),
                               height: 35),
-                          visible: !_isDownloaded &&
+                          visible: !_inDownloading &&
+                              !_isDownloaded &&
                               (widget.progressFile == null ||
                                   widget.progressFile.progress == 100),
                         ),
@@ -246,16 +242,14 @@ class _FileUploadState extends State<FileUpload>
 
   Future<bool> _checkIfIsDownloaded() async {
     print("percorso-file: ${_getPathFileDownloaded()}");
-    if (await Permission.storage.isGranted) {
-      io.File file = new io.File(_getPathFileDownloaded());
-      return await file.exists();
-    } else {
-      return false;
-    }
+    io.File file = new io.File(_getPathFileDownloaded());
+    return await file.exists();
   }
 
   String _getPathFileDownloaded() {
     return Utility.pathDownload +
+        "/files/" +
+        widget.idAppuntamento +
         "/" +
         Utility.getDateInCorrectFormat(widget.datetime) +
         "_" +
@@ -284,6 +278,10 @@ class _FileUploadState extends State<FileUpload>
     } else {
       print("permesso-2: non attivo");
     }
+  }
+
+  String _getStringFromDateTime(DateTime datetime) {
+    return "${datetime.day}/${datetime.month}/${datetime.year} ${datetime.hour}:${(datetime.minute >= 10) ? datetime.minute : "0" + datetime.minute.toString()}";
   }
 }
 

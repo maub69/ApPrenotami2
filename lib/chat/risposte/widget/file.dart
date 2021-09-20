@@ -10,10 +10,16 @@ import 'package:path/path.dart';
   Rappresenta il messaggio in chat piu' semplice, quello di testo libero
 */
 class File extends Risposta {
-  File(int idChat, Map<String, dynamic> body, DateTime datetime,
-      BuildContext context, Function(List<Widget> listWidgets) delWidgets)
-      : super(idChat, body, datetime, context, delWidgets);
+  final String idAppuntamento;
 
+  File(
+      int idChat,
+      Map<String, dynamic> body,
+      DateTime datetime,
+      BuildContext context,
+      Function(List<Widget> listWidgets) delWidgets,
+      this.idAppuntamento)
+      : super(idChat, body, datetime, context, delWidgets);
 
   //TODO bisogna fare in modo che se non è scaricato compare il bottone che dice di scaricarlo e si attende lo scaricamento, il file finisce in download secondo le indicazioni su notion
 
@@ -22,12 +28,15 @@ class File extends Risposta {
     Random random = Random();
     return [
       FileUpload(
+          idChat: idChat,
+          idAppuntamento: idAppuntamento,
           progressFile: null,
           url: body["url"],
           name: body["name"],
           datetime: datetime,
           isAmministratore: body["isAmministratore"],
-          key: Key(random.nextInt(10000).toString()))
+          key: Key(random.nextInt(10000).toString(),
+          ))
     ];
   }
 }

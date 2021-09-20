@@ -1,12 +1,14 @@
-import 'dart:io';
+import 'dart:io' as io;
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:file/src/interface/file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mia_prima_app/chat/chatLoading.dart';
 import 'package:mia_prima_app/chat/risposte/rispostaFactory.dart';
+import 'package:mia_prima_app/main.dart';
 import 'package:mia_prima_app/messagetile.dart';
 import 'package:mia_prima_app/upload/file_upload.dart';
 import 'package:mia_prima_app/upload/media_upload.dart';
@@ -16,10 +18,11 @@ import 'package:mia_prima_app/utility/utility.dart';
 import 'package:multipart_request/multipart_request.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
-import 'package:async/async.dart';
 import 'dart:convert';
 import "package:images_picker/images_picker.dart";
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:flutter_cache_manager/src/storage/file_system/file_system.dart';
+import 'package:file/file.dart' as fl;
 
 class ChatPage extends StatefulWidget {
   final Color appBarColor;
@@ -40,6 +43,7 @@ class _ChatPage extends State<ChatPage> {
   BuildContext _context;
   List<ProgressFile> _listProgressFile = [];
   var random = Random();
+  CacheManager _cacheManager;
 
   _focusListener() {
     setState(() {});
@@ -48,7 +52,7 @@ class _ChatPage extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
+    _cacheManager = Utility.getCacheManager(widget.idAppuntamento.toString());
     focus.addListener(_focusListener);
     // qui vengono scaricati i messaggi e inseriti nella _listView per poi essere visualizzati
   }
@@ -82,7 +86,8 @@ class _ChatPage extends State<ChatPage> {
                 "body": {"message": text, "isAmministratore": false}
               },
               _context,
-              null)
+              null,
+              idAppuntamento)
           .widgets);
     });
     _controller.text = "";
@@ -142,7 +147,7 @@ class _ChatPage extends State<ChatPage> {
   }*/
 
   // avvia le operazioni di upload del file
-  uploadMedia(File file, bool isPhoto) async {
+  uploadMedia(io.File file, bool isPhoto) async {
     // per farlo deve interpellare uploadManager e poi deve aggiungere il progressFIle alla lista dei progress, in quanto altrimenti non potrebbero essere rimossi i listener quando si esce dalla sezione
     ProgressFile progressFile = Utility.uploadManger
         .uploadFile(file, widget.idAppuntamento, isPhoto ? 0 : 1);
@@ -156,6 +161,7 @@ class _ChatPage extends State<ChatPage> {
     saveMedia.then((value) {
       setState(() {
         _listViewChat.add(MediaUpload(
+            idAppuntamento: widget.idAppuntamento.toString(),
             progressFile: progressFile,
             isPhoto: isPhoto,
             key: Key(random.nextInt(10000).toString())));
@@ -163,7 +169,7 @@ class _ChatPage extends State<ChatPage> {
     });
   }
 
-  uploadFile(File file) {
+  uploadFile(io.File file) {
     ProgressFile progressFile =
         Utility.uploadManger.uploadFile(file, widget.idAppuntamento, 2);
     _listProgressFile.add(progressFile);
@@ -178,7 +184,7 @@ class _ChatPage extends State<ChatPage> {
   Future<void> cacheImage(ProgressFile progressFile) async {
     Uint8List bytes = progressFile.file.readAsBytesSync();
 
-    await DefaultCacheManager().putFile(progressFile.getUrl(), bytes,
+    await _cacheManager.putFile(progressFile.getUrl(), bytes,
         fileExtension: progressFile.getExtension(), maxAge: Duration(days: 15));
   }
 
@@ -190,7 +196,7 @@ class _ChatPage extends State<ChatPage> {
       imageFormat: ImageFormat.JPEG,
     );
 
-    await DefaultCacheManager().putFile(
+    await _cacheManager.putFile(
         progressFile.getUrl() + ".jpeg", bytesFile,
         fileExtension: "jpeg", maxAge: Duration(days: 15));
 
@@ -223,6 +229,7 @@ class _ChatPage extends State<ChatPage> {
             if (element.typeUpload == 0 || element.typeUpload == 1) {
               responseRispostaFactory.add(ResponseRispostaFactory([
                 MediaUpload(
+                    idAppuntamento: widget.idAppuntamento.toString(),
                     progressFile: element,
                     isPhoto: element.typeUpload == 0,
                     key: Key(random.nextInt(10000).toString()))
@@ -373,8 +380,8 @@ class _ChatPage extends State<ChatPage> {
                           .pickFiles(allowMultiple: true);
 
                       if (result != null) {
-                        List<File> files =
-                            result.paths.map((path) => File(path)).toList();
+                        List<io.File> files =
+                            result.paths.map((path) => io.File(path)).toList();
                         files.forEach((file) {
                           uploadFile(file);
                         });
@@ -405,8 +412,8 @@ class _ChatPage extends State<ChatPage> {
                       );
 
                       if (result != null) {
-                        List<File> files =
-                            result.paths.map((path) => File(path)).toList();
+                        List<io.File> files =
+                            result.paths.map((path) => io.File(path)).toList();
                         files.forEach((element) {
                           print("file-trovato: $element");
                           uploadMedia(element,
@@ -431,7 +438,7 @@ class _ChatPage extends State<ChatPage> {
                         pickType: PickType.image,
                       ).then((value) {
                         if (value != null && value.isNotEmpty) {
-                          uploadMedia(File(value.first.path), true);
+                          uploadMedia(io.File(value.first.path), true);
                         }
                       });
                     },

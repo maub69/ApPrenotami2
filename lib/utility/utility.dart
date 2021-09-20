@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:mia_prima_app/FileSystemNew.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/utility/convertSettimanaInCalendario.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
@@ -11,6 +12,7 @@ import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// la classe Utility permette di utilizzare
 /// dei dati tra le varie altre classi
@@ -36,7 +38,27 @@ class Utility {
 
   static String idCalendario;
 
+  static String pathTmpDownload;
+
   static String pathDownload;
+
+  static Map<String, CacheManager> cacheManager = {};
+
+  static CacheManager getCacheManager(String idAppuntamento) {
+    if (!cacheManager.containsKey(idAppuntamento)) {
+      cacheManager[idAppuntamento] = CacheManager(
+        Config(
+          "images_$idAppuntamento",
+          stalePeriod: const Duration(days: 720),
+          maxNrOfCacheObjects: 1000,
+          repo: JsonCacheInfoRepository(databaseName: "images_$idAppuntamento"),
+          fileSystem: FileSystemNew("images/$idAppuntamento"),
+          fileService: HttpFileService(),
+        ),
+      );
+    }
+    return cacheManager[idAppuntamento];
+  }
 
   static UploadManager uploadManger = new UploadManager();
 

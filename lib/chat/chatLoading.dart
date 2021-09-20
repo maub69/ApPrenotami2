@@ -42,7 +42,7 @@ class ChatLoading {
     chatJson.forEach((element) {
       //la suddivisione sul tipo di messaggio si fa con action, che puo' essere per esempio free o cambio-orario
       ResponseRispostaFactory rrf = RispostaFactory.getRisposta(
-          element["action"], element, context, delWidgets);
+          element["action"], element, context, delWidgets, idAppuntamento.toString());
       responseRispostaFactory.add(rrf);
       listWidget.addAll(rrf.widgets);
     });
@@ -66,7 +66,7 @@ class ChatLoading {
         print("risposta: id corrisponde - ${bodyMessage["action"]}");
         print("contentuto-data: 1 - ${listWidget.length}");
         listWidget.addAll(RispostaFactory.getRisposta(
-                bodyMessage["action"], bodyMessage, context, delWidgets)
+                bodyMessage["action"], bodyMessage, context, delWidgets, idAppuntamento.toString())
             .widgets);
         print("contentuto-data: 2 - ${listWidget.length}");
         _sendMesaggioLetto(bodyMessage["id"]);

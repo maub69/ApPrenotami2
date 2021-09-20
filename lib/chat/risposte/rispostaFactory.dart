@@ -8,7 +8,7 @@ import 'package:mia_prima_app/chat/risposte/widget/video.dart';
 
 class RispostaFactory {
   static ResponseRispostaFactory getRisposta(String type, Map<String, dynamic> body,
-      BuildContext context, Function(List<Widget> listWidget) delWidgets) {
+      BuildContext context, Function(List<Widget> listWidget) delWidgets, String idAppuntamento) {
     DateTime datetime = DateTime.parse(body["datetime"]);
     switch (type) {
       case "free":
@@ -27,17 +27,17 @@ class RispostaFactory {
 
       case "photo":
         return ResponseRispostaFactory(Photo(
-                body["id"], body["body"], datetime, context, delWidgets)
+                body["id"], body["body"], datetime, context, delWidgets, idAppuntamento)
             .getRisposta(), datetime);
 
       case "video":
         return ResponseRispostaFactory(Video(
-                body["id"], body["body"], datetime, context, delWidgets)
+                body["id"], body["body"], datetime, context, delWidgets, idAppuntamento)
             .getRisposta(), datetime);
 
       case "file":
         return ResponseRispostaFactory(File(
-                body["id"], body["body"], datetime, context, delWidgets)
+                body["id"], body["body"], datetime, context, delWidgets, idAppuntamento)
             .getRisposta(), datetime);
     }
   }

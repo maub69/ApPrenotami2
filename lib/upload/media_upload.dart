@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:mia_prima_app/FileSystemNew.dart';
+import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:better_player/better_player.dart';
+import 'package:mia_prima_app/utility/utility.dart';
 import 'package:open_file/open_file.dart';
 
 class MediaUpload extends StatefulWidget {
@@ -17,6 +20,7 @@ class MediaUpload extends StatefulWidget {
   final String url;
   final DateTime datetime;
   final bool isAmministratore;
+  final String idAppuntamento;
 
   const MediaUpload(
       {Key key,
@@ -24,7 +28,8 @@ class MediaUpload extends StatefulWidget {
       this.isPhoto,
       this.url,
       this.datetime,
-      this.isAmministratore = false})
+      this.isAmministratore = false,
+      this.idAppuntamento})
       : super(key: key);
   @override
   State<StatefulWidget> createState() {
@@ -35,13 +40,14 @@ class MediaUpload extends StatefulWidget {
 class _MediaUploadState extends State<MediaUpload>
     with AutomaticKeepAliveClientMixin {
   double _progress;
-
   String _url;
   DateTime _datetime;
+  CacheManager _cacheManager;
 
   @override
   void initState() {
     super.initState();
+    _cacheManager = Utility.getCacheManager(widget.idAppuntamento);
 
     if (widget.progressFile == null) {
       _url = widget.url;
@@ -50,7 +56,7 @@ class _MediaUploadState extends State<MediaUpload>
       _url = widget.progressFile.getUrl();
       _datetime = widget.progressFile.dateTime;
     }
-    if(!widget.isPhoto) {
+    if (!widget.isPhoto) {
       print("url_media: $_url");
     }
 
@@ -83,6 +89,7 @@ class _MediaUploadState extends State<MediaUpload>
 
               if (widget.isPhoto) {
                 widgetShowed = CachedNetworkImage(
+                    cacheManager: _cacheManager,
                     imageBuilder: (context, imageProvider) => Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.vertical(
@@ -99,11 +106,18 @@ class _MediaUploadState extends State<MediaUpload>
                     placeholder: (context, url) =>
                         Container(child: CircularProgressIndicator()));
               } else {
+                // TODO scaricare il plugin better player e modificare il percorso della cache
                 BetterPlayerController betterPlayerController;
                 BetterPlayerDataSource betterPlayerDataSource;
                 if (widget.progressFile == null) {
                   betterPlayerDataSource = BetterPlayerDataSource(
-                      BetterPlayerDataSourceType.network, _url);
+                      BetterPlayerDataSourceType.network, _url,
+                      cacheConfiguration: BetterPlayerCacheConfiguration(
+                        useCache: true,
+                        maxCacheSize: 500 * 1024 * 1024,
+                        maxCacheFileSize: 100 * 1024 * 1024,
+                        pathExtra: widget.idAppuntamento
+                      ));
                 } else {
                   betterPlayerDataSource = BetterPlayerDataSource(
                       BetterPlayerDataSourceType.file,
@@ -187,6 +201,7 @@ class _MediaUploadState extends State<MediaUpload>
                       width: 300,
                       alignment: Alignment.center,
                       child: CachedNetworkImage(
+                        cacheManager: _cacheManager,
                         imageBuilder: (context, imageProvider) => Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.vertical(

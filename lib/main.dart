@@ -13,6 +13,7 @@ import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:flutter_notification_channel/notification_visibility.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/FileSystemNew.dart';
 import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/login.dart';
 import 'package:mia_prima_app/model.dart';
@@ -32,6 +33,7 @@ import 'package:passwordfield/passwordfield.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/rendering.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 void main() async {
   // la funzione di init main() contiene la funzione di bindig runApp()
@@ -138,8 +140,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-    ExtStorage.getExternalStoragePublicDirectory(
-        ExtStorage.DIRECTORY_DOWNLOADS).then((value) => Utility.pathDownload = value);
+    getTemporaryDirectory().then((value) => Utility.pathTmpDownload = value.path);
+    getApplicationSupportDirectory().then((value) => Utility.pathDownload = value.path);
 
     WidgetsBinding.instance.addObserver(this);
     _getDataLogin().then((id) {
