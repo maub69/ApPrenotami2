@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:mia_prima_app/cache_manager_chat.dart';
 import 'package:mia_prima_app/chat/risposte/rispostaFactory.dart';
 import 'package:mia_prima_app/notificationSender.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -14,6 +15,7 @@ class ChatLoading {
   final BuildContext context;
   final Function update;
   List<Widget> listWidget = [];
+  CacheManagerChat _cacheManagerChat;
 
   ChatLoading(this.idAppuntamento, this.context, this.update);
 
@@ -22,12 +24,11 @@ class ChatLoading {
   */
   Future<List<ResponseRispostaFactory>> loadChat() async {
     List<ResponseRispostaFactory> responseRispostaFactory = [];
-    //TODO se quanto arriva il messaggio con onMessage si è dentro la chat, allora mostra semplicemente il messaggio, altrimenti spara una notifica e cliccandoci sopra apre la chat indisitintamente da dove ti trovi e scarica i messaggi della chat
-    // TODO se il messaggio in arrivo conOnMessage non ha lo stesso idChat della chat aperta, allora non deve visualizzare il messaggio, ma deve aprire la chat
     /*
       Qui avviene la gestione del'onMessage, sia della singola chat che globale
     */
     _loadFirebaseChat();
+    _cacheManagerChat = CacheManagerChat(idAppuntamento.toString());
 
     MessagesManager.removeChat(idAppuntamento);
     Map<String, String> parametri = {};
@@ -36,13 +37,22 @@ class ChatLoading {
     parametri["appuntamento"] = idAppuntamento.toString();
     Uri request =
         new Uri.https(EndPoint.HOST, "/" + EndPoint.GET_CHAT, parametri);
-    http.Response response = await http.get(Uri.parse(request.toString()));
-    List<dynamic> chatJson = jsonDecode(response.body);
+
+    String response =
+        await _cacheManagerChat.getMessages(Uri.parse(request.toString()));
+
+    print("sono qui 25: $response");
+
+    List<dynamic> chatJson = jsonDecode(response);
     // una volta fatto il decode messaggio per messaggio viene agigunto nella lista, pero' prima viene fatto il factory, cioe' per ogni json del messaggio viene creato il/i widget corrispondenti
     chatJson.forEach((element) {
       //la suddivisione sul tipo di messaggio si fa con action, che puo' essere per esempio free o cambio-orario
       ResponseRispostaFactory rrf = RispostaFactory.getRisposta(
-          element["action"], element, context, delWidgets, idAppuntamento.toString());
+          element["action"],
+          element,
+          context,
+          delWidgets,
+          idAppuntamento.toString());
       responseRispostaFactory.add(rrf);
       listWidget.addAll(rrf.widgets);
     });
@@ -50,35 +60,40 @@ class ChatLoading {
     return responseRispostaFactory;
   }
 
-  void _sendMesaggioLetto(int idMessage) {
-    http.get(Uri.parse(
-        (EndPoint.getUrlKey("SET_CHAT_LETTA") + "&message=$idMessage")));
+  void _sendMesaggioLetto(String idMessage) {
+    if (Utility.hasInternet) {
+      http.get(Uri.parse(
+          (EndPoint.getUrlKey("SET_CHAT_LETTA") + "&message=$idMessage")));
+    }
   }
 
   void _loadFirebaseChat() {
-    MessagesManager.isNotChat = false;
-    Utility.onMessageFirebase = (RemoteMessage message) {
-      print("contentuto-data: sono in onMessage chat-loading 1");
-      dynamic bodyMessage = jsonDecode(message.data[
-          "body"]); // non so perche', ma a quanto pare il body non e' un array, ma viene lasciato sotto forma di stringa, quindi bisogna fare il decode
-      if (bodyMessage["id"].toString() == idAppuntamento.toString()) {
-        
-        print("risposta: id corrisponde - ${bodyMessage["action"]}");
-        print("contentuto-data: 1 - ${listWidget.length}");
-        listWidget.addAll(RispostaFactory.getRisposta(
-                bodyMessage["action"], bodyMessage, context, delWidgets, idAppuntamento.toString())
-            .widgets);
-        print("contentuto-data: 2 - ${listWidget.length}");
-        _sendMesaggioLetto(bodyMessage["id"]);
-        update();
-      } else {
-        MessagesManager.addChat(jsonDecode(message.data["body"])["id"]);
-        print("risposta: non id corrisponde");
-        NotificationSender notificationSender = NotificationSender();
-        notificationSender.showNotificationWithoutSound(
-            message, _loadFirebaseChat);
-      }
-    };
+      MessagesManager.isNotChat = false;
+      Utility.onMessageFirebase = (RemoteMessage message) {
+        dynamic bodyMessage = jsonDecode(message.data[
+            "body"]); // non so perche', ma a quanto pare il body non e' un array, ma viene lasciato sotto forma di stringa, quindi bisogna fare il decode
+        print("contentuto-data: 1 ${bodyMessage["id_appuntamento"].toString()} - $idAppuntamento");
+        if (bodyMessage["id_appuntamento"].toString() == idAppuntamento.toString()) {
+          print("risposta: id corrisponde - ${bodyMessage["action"]}");
+          print("contentuto-data: 1 - ${listWidget.length}");
+          ResponseRispostaFactory responseRispostaFactory =
+              RispostaFactory.getRisposta(bodyMessage["action"], bodyMessage,
+                  context, delWidgets, idAppuntamento.toString());
+          _cacheManagerChat
+              .append(responseRispostaFactory.response.getJsonResponse());
+          listWidget.addAll(responseRispostaFactory.widgets);
+          print("contentuto-data: 2 - ${listWidget.length}");
+          _sendMesaggioLetto(bodyMessage["id"]);
+          update();
+        } else {
+          MessagesManager.addChat(
+              jsonDecode(message.data["body"])["id_appuntamento"]);
+          print("risposta: non id corrisponde");
+          NotificationSender notificationSender = NotificationSender();
+          notificationSender.showNotificationWithoutSound(
+              message, _loadFirebaseChat);
+        }
+      };
   }
 
   /*

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:mia_prima_app/chat/risposte/popup_menu.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -18,6 +19,7 @@ import 'package:path/path.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
 
 class FileUpload extends StatefulWidget {
   final ProgressFile progressFile;
@@ -25,7 +27,7 @@ class FileUpload extends StatefulWidget {
   final DateTime datetime;
   final bool isAmministratore;
   final String name;
-  final int idChat;
+  final String idChat;
   final String idAppuntamento;
 
   FileUpload(
@@ -97,30 +99,34 @@ class _FileUploadState extends State<FileUpload>
     });
   }
 
-  //TODO fare in modo che i file nella temporanea si cancellino automaticamente dopo n giorni che sono impostabili dall'utente, di default è 7 giorni
-
   void _downloadFile() async {
-    if (!_inDownloading) {
-      _inDownloading = true;
+    final response =
+    await http.head(Uri.parse(widget.url));
 
-      DownloaderUtils downloaderUtils = DownloaderUtils(
-        progressCallback: (current, total) {
-          setState(() {
-            _progress = current / total;
-          });
-        },
-        file: io.File(_getPathFileDownloaded()),
-        progress: ProgressImplementation(),
-        onDone: () {
-          setState(() {
-            _inDownloading = false;
-            _isDownloaded = true;
-          });
-        },
-        deleteOnCancel: true,
-      );
+    if (response.statusCode == 200) {
+      if (!_inDownloading) {
+        _inDownloading = true;
 
-      await Flowder.download(widget.url, downloaderUtils);
+        DownloaderUtils downloaderUtils = DownloaderUtils(
+          progressCallback: (current, total) {
+            setState(() {
+              _progress = current / total;
+            });
+          },
+          file: io.File(_getPathFileDownloaded()),
+          progress: ProgressImplementation(),
+          onDone: () {
+            setState(() {
+              _inDownloading = false;
+              _isDownloaded = true;
+            });
+          },
+          deleteOnCancel: true,
+        );
+        await Flowder.download(widget.url, downloaderUtils);
+      }
+    } else {
+      Alert(message: "Il file non è più disponbile per il downlaod", shortDuration: false).show();
     }
   }
 
@@ -131,6 +137,15 @@ class _FileUploadState extends State<FileUpload>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+        onLongPress: () {
+          PopupMenu.showMenu(
+            context: Model.getContext(),
+            isAmministratore: widget.isAmministratore,
+            isChat: false,
+            idChat: widget.idChat,
+            widget: widget
+          );
+        },
         onTap: () async {
           if (widget.progressFile == null) {
             //redis
@@ -141,7 +156,11 @@ class _FileUploadState extends State<FileUpload>
                 print(e);
               }
             } else {
-              _downloadFile();
+              if (Utility.hasInternet) {
+                _downloadFile();
+              } else {
+                Alert(message: 'Internet assente, non puoi scaricare il file').show();
+              }
             }
           } else {
             OpenFile.open(widget.progressFile.file.path);

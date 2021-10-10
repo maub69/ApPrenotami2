@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/cache_manager_url.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 
-//TODO terminata la parte di downloadChatNonLette per quanto riguarda il primo avvio, ma ora bisogna gestire la casistica di quando l'app viene messa in pausa nel task manager e di quando l'app e aperta e arrivano le notifiche
 /*
   Questa classe permette di conoscere quali chat non sono ancora state lette e offre varie funzioni per maneggiare la lista delle chat non lette
 */
@@ -25,7 +25,7 @@ class MessagesManager {
   }
 
   static downloadChatNonLette() async {
-    http.get(Uri.parse(EndPoint.getUrlKey(EndPoint.GET_CHAT_NON_LETTE))).then((value) {
+    CacheManagerUrl.instance.get(Uri.parse(EndPoint.getUrlKey(EndPoint.GET_CHAT_NON_LETTE))).then((value) {
       _listChatNonLette = [];
       List<dynamic> list = jsonDecode(value.body);
       list.forEach((element) {

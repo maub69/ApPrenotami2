@@ -13,7 +13,7 @@ class File extends Risposta {
   final String idAppuntamento;
 
   File(
-      int idChat,
+      String idChat,
       Map<String, dynamic> body,
       DateTime datetime,
       BuildContext context,
@@ -21,7 +21,8 @@ class File extends Risposta {
       this.idAppuntamento)
       : super(idChat, body, datetime, context, delWidgets);
 
-  //TODO bisogna fare in modo che se non è scaricato compare il bottone che dice di scaricarlo e si attende lo scaricamento, il file finisce in download secondo le indicazioni su notion
+  @override
+  String get type => "file";
 
   @override
   List<Widget> getRisposta() {

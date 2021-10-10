@@ -12,11 +12,13 @@ class UploadManager {
   Queue<ProgressFile> queueNotSent = Queue<ProgressFile>();
 
   // quando viene aggiunto un nuovo file da caricare, viene creato un progressFile per il corrispondente file che servira per ottenere tutte le informazioni sullo stato dell'upload
-  ProgressFile uploadFile(File file, int idChat, int typeUpload) {
+  ProgressFile uploadFile(
+      File file, int idAppuntamento, String idChat, int typeUpload) {
     DateTime now = new DateTime.now();
     String nameUrl = Utility.getRandomString(100);
 
-    ProgressFile progressFile = new ProgressFile(idChat, now, file, nameUrl, typeUpload);
+    ProgressFile progressFile = new ProgressFile(
+        idAppuntamento, idChat, now, file, nameUrl, typeUpload);
     print("name-file-url: " + progressFile.getUrl());
     _listProgressFile.add(progressFile);
 
@@ -30,9 +32,9 @@ class UploadManager {
   }
 
   // lista dei progressFile attivi per una determinata chat
-  List<ProgressFile> getListProgressFile(int idChat) {
+  List<ProgressFile> getListProgressFile(int idAppuntamento) {
     return _listProgressFile.where((element) {
-      return element.idChat == idChat;
+      return element.idAppuntamento == idAppuntamento;
     }).toList();
   }
 
@@ -40,7 +42,7 @@ class UploadManager {
     var request = MultipartRequest();
 
     request.setUrl(EndPoint.getUrlKey(EndPoint.SEND_FILES) +
-        "&datetime=${progressFile.dateTime.toString()}&id_chat=${progressFile.idChat}&name=${progressFile.nameUrl}");
+        "&datetime=${progressFile.dateTime.toString()}&id_appuntamento=${progressFile.idAppuntamento}&name=${progressFile.nameUrl}&id=${progressFile.idChat}");
     request.addFile("file", progressFile.file.path);
 
     Response response = request.send();
@@ -69,7 +71,8 @@ class UploadManager {
 }
 
 class ProgressFile {
-  final int idChat;
+  final int idAppuntamento;
+  final String idChat;
   final DateTime dateTime;
   final File file;
   final String nameUrl;
@@ -77,7 +80,8 @@ class ProgressFile {
   Function(int) listenerProgress;
   final int typeUpload; // 0-> immagine, 1->video, 2->file
 
-  ProgressFile(this.idChat, this.dateTime, this.file, this.nameUrl, this.typeUpload);
+  ProgressFile(this.idAppuntamento, this.idChat, this.dateTime, this.file,
+      this.nameUrl, this.typeUpload);
 
   void setListener(Function(int) listener) {
     listenerProgress = listener;
@@ -92,6 +96,10 @@ class ProgressFile {
     if (listenerProgress != null) {
       listenerProgress(progress);
     }
+  }
+
+  String getNameFile() {
+    return basename(file.path);
   }
 
   String getUrl() {

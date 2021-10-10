@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mia_prima_app/FileSystemNew.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/utility/convertSettimanaInCalendario.dart';
@@ -43,6 +44,8 @@ class Utility {
   static String pathDownload;
 
   static Map<String, CacheManager> cacheManager = {};
+
+  static bool hasInternet = true;
 
   static CacheManager getCacheManager(String idAppuntamento) {
     if (!cacheManager.containsKey(idAppuntamento)) {

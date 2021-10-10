@@ -58,6 +58,9 @@ dependencies:
   firebase_core: ^1.6.0
   alert: ^2.0.1
   flowder: ^0.2.0
+  uuid: ^3.0.4
+  connectivity_plus: ^1.1.0
+  pop_bottom_menu: ^1.0.0
 
 
 

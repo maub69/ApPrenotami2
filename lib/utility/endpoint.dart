@@ -26,6 +26,8 @@ class EndPoint {
 
   static final String SEND_FILES = "test/sendFiles.php";
 
+  static final String DELETE_MESSAGE = "test/deleteMessage.php";
+
   static final String UPLOAD = "test/uploads/";
 
   static String getUrl(String url) {

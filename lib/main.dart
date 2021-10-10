@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,9 @@ void main() async {
   // la quale ritorna l'indirizzo dell'oggetto che viene istanziato dal framework
   // e ha come parametro di home la classe MyApp()
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch(e) { }
   runApp(MaterialApp(
     home: MyApp(),
   ));
@@ -140,8 +143,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-    getTemporaryDirectory().then((value) => Utility.pathTmpDownload = value.path);
-    getApplicationSupportDirectory().then((value) => Utility.pathDownload = value.path);
+    Connectivity().checkConnectivity().then((value) {
+      Utility.hasInternet = value != ConnectivityResult.none;
+    });
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      Utility.hasInternet = result != ConnectivityResult.none;
+    });
+    getTemporaryDirectory()
+        .then((value) => Utility.pathTmpDownload = value.path);
+    getApplicationSupportDirectory()
+        .then((value) => Utility.pathDownload = value.path);
 
     WidgetsBinding.instance.addObserver(this);
     _getDataLogin().then((id) {

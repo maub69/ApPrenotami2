@@ -7,7 +7,7 @@ import 'package:path/path.dart';
   Rappresenta il messaggio in chat piu' semplice, quello di testo libero
 */
 class StepsMessage extends Risposta {
-  StepsMessage(int idChat, Map<String, dynamic> body, DateTime datetime,
+  StepsMessage(String idChat, Map<String, dynamic> body, DateTime datetime,
       BuildContext context, Function(List<Widget> listWidgets) delWidgets)
       : super(idChat, body, datetime, context, delWidgets);
 
@@ -43,4 +43,7 @@ class StepsMessage extends Risposta {
       ]),
     );
   }
+  
+  @override
+  String get type => "steps";
 }

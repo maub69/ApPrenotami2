@@ -8,9 +8,12 @@ import 'package:mia_prima_app/utility/utility.dart';
 import 'package:http/http.dart' as http;
 
 class CambioOrario extends Risposta {
-  CambioOrario(int idChat, Map<String, dynamic> body, DateTime datetime,
+  CambioOrario(String idChat, Map<String, dynamic> body, DateTime datetime,
       BuildContext context, Function(List<Widget> listWidgets) delWidgets)
       : super(idChat, body, datetime, context, delWidgets);
+
+  @override
+  String get type => "cambio-orario";
 
   @override
   List<Widget> getRisposta() {
@@ -19,6 +22,7 @@ class CambioOrario extends Risposta {
         messageText: body["message"],
         isLeft: true,
         datetime: datetime,
+        idChat: idChat,
       ),
       getBottoniScelte(body["scelte"], body["proponi-orario"])
     ];

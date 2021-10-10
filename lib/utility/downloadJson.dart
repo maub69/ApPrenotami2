@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/cache_manager_url.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 
@@ -26,12 +27,11 @@ class DownloadJson {
       parametri = {};
     }
     parametri["key"] = Utility.utente.id;
-    Uri request = new Uri.https(
-        EndPoint.HOST, "/" + url, parametri);
+    Uri request = new Uri.https(EndPoint.HOST, "/" + url, parametri);
 
     print("richiesta: ${request.toString()}");
 
-    http.get(Uri.parse(request.toString())).then((value) {
+    CacheManagerUrl.instance.get(request).then((value) {
       // passandoli alla funzione 'letturaTerminata'
       if (letturaTerminata != null) {
         letturaTerminata(value);

@@ -47,11 +47,11 @@ class NotificationSender {
     var platformChannelSpecifics =
         new NotificationDetails(android: androidPlatformChannelSpecifics);
     flutterLocalNotificationsPlugin.show(
-      jsonDecode(message.data["body"])["id"],
+      jsonDecode(message.data["body"])["id_appuntamento"],
       message.notification.title,
       message.notification.body,
       platformChannelSpecifics,
-      payload: jsonDecode(message.data["body"])["id"].toString(),
+      payload: jsonDecode(message.data["body"])["id_appuntamento"].toString(),
     );
   }
 
@@ -86,7 +86,7 @@ class NotificationSender {
         Model.getContext(),
         MaterialPageRoute(
             builder: (context) => ChatPage(
-                idAppuntamento: jsonDecode(message.data["body"])["id"])),
+                idAppuntamento: jsonDecode(message.data["body"])["id_appuntamento"])),
       ).then((value) {
         configureFirebaseNotification();
       });
@@ -103,8 +103,8 @@ class NotificationSender {
         // in caso dell'onLauch, bisogna settare la variabile del calendario e dell'appuntamento che si vuole aprire, in questo modo il flusso del programma sa che dovra intraprendere delle azioni speciali per aprire un appuntamento
         print("contentuto-data: sono qui");
         print("contentuto-data: ${message.data}");
-        idCalendario = message.data["id_calendario"];
-        idAppuntamento = jsonDecode(message.data["body"])["id"].toString();
+        idCalendario = message.data["id_appuntamento"];
+        idAppuntamento = jsonDecode(message.data["body"])["id_appuntamento"].toString();
         /*FlutterToast.showToast(
               msg: message["data"]["id_calendario"],
               toastLength: Toast.LENGTH_SHORT,

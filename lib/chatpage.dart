@@ -2,12 +2,17 @@ import 'dart:io' as io;
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:alert/alert.dart';
 import 'package:file/src/interface/file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:mia_prima_app/cache_manager_chat.dart';
 import 'package:mia_prima_app/chat/chatLoading.dart';
+import 'package:mia_prima_app/chat/risposte/popup_menu.dart';
+import 'package:mia_prima_app/chat/risposte/risposta.dart';
 import 'package:mia_prima_app/chat/risposte/rispostaFactory.dart';
+import 'package:mia_prima_app/chat/risposte/widget/photo.dart';
 import 'package:mia_prima_app/main.dart';
 import 'package:mia_prima_app/messagetile.dart';
 import 'package:mia_prima_app/upload/file_upload.dart';
@@ -44,6 +49,7 @@ class _ChatPage extends State<ChatPage> {
   List<ProgressFile> _listProgressFile = [];
   var random = Random();
   CacheManager _cacheManager;
+  CacheManagerChat _cacheManagerChat;
 
   _focusListener() {
     setState(() {});
@@ -52,7 +58,11 @@ class _ChatPage extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    _cacheManagerChat = new CacheManagerChat(widget.idAppuntamento.toString());
     _cacheManager = Utility.getCacheManager(widget.idAppuntamento.toString());
+    PopupMenu.listWidget = _listViewChat;
+    PopupMenu.updateView = updateView;
+    PopupMenu.cacheManagerChat = _cacheManagerChat;
     focus.addListener(_focusListener);
     // qui vengono scaricati i messaggi e inseriti nella _listView per poi essere visualizzati
   }
@@ -74,21 +84,30 @@ class _ChatPage extends State<ChatPage> {
 
   // fa due cose: 1) invia il messaggio all'endpoint EndPoint.MESSAGGIO_CHAT; 2) aggiunge il messaggio alla lista dei widget da visualizzare, in questo modo viene inserito al'interno della schermata
   void invioMessaggioTesto(String text) {
+    if (!Utility.hasInternet) {
+      Alert(message: 'Internet assente, non puoi inviare un messaggio').show();
+      return;
+    }
     DateTime datetime = new DateTime.now();
+    String idMessaggio =
+        _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length);
     http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
-        body: {"datetime": datetime.toString(), "text": text});
+        body: {"datetime": datetime.toString(), "text": text, "id": idMessaggio});
     setState(() {
-      _listViewChat.addAll(RispostaFactory.getRisposta(
-              "free",
-              {
-                "datetime": datetime.toString(),
-                "id": 120,
-                "body": {"message": text, "isAmministratore": false}
-              },
-              _context,
-              null,
-              idAppuntamento)
-          .widgets);
+      ResponseRispostaFactory risposta = RispostaFactory.getRisposta(
+          "free",
+          {
+            "datetime": datetime.toString(),
+            "id": idMessaggio,
+            "body": {"message": text, "isAmministratore": false}
+          },
+          _context,
+          null,
+          idAppuntamento);
+
+      _cacheManagerChat.append(risposta.response.getJsonResponse());
+
+      _listViewChat.addAll(risposta.widgets);
     });
     _controller.text = "";
   }
@@ -149,8 +168,11 @@ class _ChatPage extends State<ChatPage> {
   // avvia le operazioni di upload del file
   uploadMedia(io.File file, bool isPhoto) async {
     // per farlo deve interpellare uploadManager e poi deve aggiungere il progressFIle alla lista dei progress, in quanto altrimenti non potrebbero essere rimossi i listener quando si esce dalla sezione
-    ProgressFile progressFile = Utility.uploadManger
-        .uploadFile(file, widget.idAppuntamento, isPhoto ? 0 : 1);
+    ProgressFile progressFile = Utility.uploadManger.uploadFile(
+        file,
+        widget.idAppuntamento,
+        _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length),
+        isPhoto ? 0 : 1);
     _listProgressFile.add(progressFile);
     Future<void> saveMedia;
     if (isPhoto) {
@@ -164,20 +186,43 @@ class _ChatPage extends State<ChatPage> {
             idAppuntamento: widget.idAppuntamento.toString(),
             progressFile: progressFile,
             isPhoto: isPhoto,
+            idChat: _cacheManagerChat.idChat(
+                widget.idAppuntamento, _listViewChat.length),
             key: Key(random.nextInt(10000).toString())));
+
+        _cacheManagerChat.append(Risposta.getJson(
+            _cacheManagerChat.idChat(
+                widget.idAppuntamento, _listViewChat.length),
+            (progressFile.typeUpload == 0 ? "photo" : "video"),
+            DateTime.now(),
+            {"isAmministratore": false, "url": progressFile.getUrl()}));
       });
     });
   }
 
   uploadFile(io.File file) {
-    ProgressFile progressFile =
-        Utility.uploadManger.uploadFile(file, widget.idAppuntamento, 2);
+    ProgressFile progressFile = Utility.uploadManger.uploadFile(
+        file,
+        widget.idAppuntamento,
+        _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length),
+        2);
     _listProgressFile.add(progressFile);
     setState(() {
       var random = Random();
       _listViewChat.add(FileUpload(
           progressFile: progressFile,
+          isAmministratore: true,
+          idChat: _cacheManagerChat.idChat(
+              widget.idAppuntamento, _listViewChat.length),
           key: Key(random.nextInt(10000).toString())));
+      _cacheManagerChat.append(Risposta.getJson(
+          _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length),
+          "file",
+          DateTime.now(), {
+        "isAmministratore": true,
+        "name": progressFile.getNameFile(),
+        "url": progressFile.getUrl()
+      }));
     });
   }
 
@@ -196,8 +241,7 @@ class _ChatPage extends State<ChatPage> {
       imageFormat: ImageFormat.JPEG,
     );
 
-    await _cacheManager.putFile(
-        progressFile.getUrl() + ".jpeg", bytesFile,
+    await _cacheManager.putFile(progressFile.getUrl() + ".jpeg", bytesFile,
         fileExtension: "jpeg", maxAge: Duration(days: 15));
 
     // File fileVideo = await DefaultCacheManager().putFile(
@@ -227,19 +271,22 @@ class _ChatPage extends State<ChatPage> {
 
           _listProgressFile.forEach((element) {
             if (element.typeUpload == 0 || element.typeUpload == 1) {
-              responseRispostaFactory.add(ResponseRispostaFactory([
+              responseRispostaFactory
+                  .add(ResponseRispostaFactory(null, element.dateTime, [
                 MediaUpload(
                     idAppuntamento: widget.idAppuntamento.toString(),
                     progressFile: element,
                     isPhoto: element.typeUpload == 0,
+                    idChat: element.idChat,
                     key: Key(random.nextInt(10000).toString()))
-              ], element.dateTime));
+              ]));
             } else if (element.typeUpload == 2) {
-              responseRispostaFactory.add(ResponseRispostaFactory([
+              responseRispostaFactory.add(ResponseRispostaFactory(
+                  null, element.dateTime, [
                 FileUpload(
                     progressFile: element,
                     key: Key(random.nextInt(10000).toString()))
-              ], element.dateTime));
+              ]));
             }
           });
 

@@ -1,11 +1,13 @@
 import 'dart:typed_data';
 
+import 'package:alert/alert.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mia_prima_app/FileSystemNew.dart';
+import 'package:mia_prima_app/chat/risposte/popup_menu.dart';
 import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
@@ -21,6 +23,7 @@ class MediaUpload extends StatefulWidget {
   final DateTime datetime;
   final bool isAmministratore;
   final String idAppuntamento;
+  final String idChat;
 
   const MediaUpload(
       {Key key,
@@ -29,7 +32,8 @@ class MediaUpload extends StatefulWidget {
       this.url,
       this.datetime,
       this.isAmministratore = false,
-      this.idAppuntamento})
+      this.idAppuntamento,
+      this.idChat})
       : super(key: key);
   @override
   State<StatefulWidget> createState() {
@@ -43,6 +47,7 @@ class _MediaUploadState extends State<MediaUpload>
   String _url;
   DateTime _datetime;
   CacheManager _cacheManager;
+  bool _isAlreadyShown;
 
   @override
   void initState() {
@@ -81,12 +86,20 @@ class _MediaUploadState extends State<MediaUpload>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+        onLongPress: () {
+          PopupMenu.showMenu(
+            context: Model.getContext(),
+            isAmministratore: !widget.isAmministratore,
+            isChat: false,
+            idChat: widget.idChat,
+            widget: widget
+          );
+        },
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) {
               Widget widgetShowed;
-
               if (widget.isPhoto) {
                 widgetShowed = CachedNetworkImage(
                     cacheManager: _cacheManager,
@@ -106,18 +119,17 @@ class _MediaUploadState extends State<MediaUpload>
                     placeholder: (context, url) =>
                         Container(child: CircularProgressIndicator()));
               } else {
-                // TODO scaricare il plugin better player e modificare il percorso della cache
+                _isAlreadyShown = false;
                 BetterPlayerController betterPlayerController;
                 BetterPlayerDataSource betterPlayerDataSource;
                 if (widget.progressFile == null) {
                   betterPlayerDataSource = BetterPlayerDataSource(
                       BetterPlayerDataSourceType.network, _url,
                       cacheConfiguration: BetterPlayerCacheConfiguration(
-                        useCache: true,
-                        maxCacheSize: 500 * 1024 * 1024,
-                        maxCacheFileSize: 100 * 1024 * 1024,
-                        pathExtra: widget.idAppuntamento
-                      ));
+                          useCache: true,
+                          maxCacheSize: 500 * 1024 * 1024,
+                          maxCacheFileSize: 100 * 1024 * 1024,
+                          pathExtra: widget.idAppuntamento));
                 } else {
                   betterPlayerDataSource = BetterPlayerDataSource(
                       BetterPlayerDataSourceType.file,
@@ -127,6 +139,15 @@ class _MediaUploadState extends State<MediaUpload>
                 betterPlayerController = BetterPlayerController(
                     BetterPlayerConfiguration(),
                     betterPlayerDataSource: betterPlayerDataSource);
+
+                betterPlayerController.addEventsListener((event) {
+                  if (!_isAlreadyShown && event.betterPlayerEventType == BetterPlayerEventType.exception) {
+                    if (event.parameters["exception"].toString().toLowerCase().contains("source error")) {
+                      _isAlreadyShown = true;
+                      Alert(message: 'Internet assente, il video non è in cache e perciò non può essere visualizzato', shortDuration: false).show();
+                    }
+                  }
+                });
 
                 widgetShowed = BetterPlayer(
                   controller: betterPlayerController,
