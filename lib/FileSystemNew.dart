@@ -13,7 +13,7 @@ class FileSystemNew implements FileSystem {
   FileSystemNew(this._cacheKey) : _fileDir = createDirectory(_cacheKey);
 
   static Future<Directory> createDirectory(String key) async {
-    var baseDir = await getApplicationSupportDirectory(); //TODO risolvere probelma return null
+    var baseDir = await getApplicationSupportDirectory();
     var path = p.join(baseDir.path, key);
 
     var fs = const LocalFileSystem();
