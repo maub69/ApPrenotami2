@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/creaAppuntamento.dart';
@@ -16,10 +17,8 @@ import 'package:mia_prima_app/visualizzaPrenotazioneFutura.dart';
 /// Pagina Dashboard che contiene il menu principale
 class Dash extends StatefulWidget {
   final String idCalendario;
-  final String nome;
-  final String descrizione;
 
-  Dash({this.idCalendario, this.nome, this.descrizione});
+  Dash({this.idCalendario});
 
   @override
   State createState() => _StateDash();
@@ -196,7 +195,7 @@ class _StateDash extends State<Dash> {
     //per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
     //il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
     //cio' significa che bisgona utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto
-    Scaffold.of(_context).showSnackBar(new SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
       content: Column(
           children: [
             Text(title, style: TextStyle(fontSize: 20)),
@@ -243,34 +242,26 @@ class _StateDash extends State<Dash> {
     // return Text("${widget.utente.username} - ${widget.utente.email}");
     return Model(
         confermaChiusura: true,
-        appBarColor: Color(
-          0xFFFF1744,
-        ),
+        showAppbar: false,
         body: new Builder(builder: (BuildContext context) {
           _context = context;
           return Padding(
               padding: EdgeInsets.all(10),
               child: ListView(children: [
-                Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      'Nome Calendario: ${widget.nome}',
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20),
-                    )),
-                Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      'Descrizione: ${widget.descrizione} ',
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20),
-                    )),
+                CachedNetworkImage(
+                        imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
+                            Utility.idApp +
+                            ".jpg",
+                        height: 200,
+                        fadeInDuration: Duration(seconds: 0),
+                ),
+
+                /*ListView(
+                  children: [
+
+                  ]
+                ),*/
+
                 Container(
                     padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: RaisedButton(

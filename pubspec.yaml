@@ -61,6 +61,8 @@ dependencies:
   uuid: ^3.0.4
   connectivity_plus: ^1.1.0
   pop_bottom_menu: ^1.0.0
+  url_launcher: ^6.0.12
+  flutter_inappwebview: ^5.3.2
 
 
 
@@ -89,6 +91,7 @@ flutter:
     - images/file.png # https://www.flaticon.com/free-icon/document_2258843?term=file&page=1&position=13&page=1&position=13&related_id=2258843&origin=search
     - images/download.png # https://www.flaticon.com/premium-icon/download-arrow_62055?term=download&page=1&position=1&page=1&position=1&related_id=62055&origin=search
     #   - images/a_dot_ham.jpeg
+    - files/cliente.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

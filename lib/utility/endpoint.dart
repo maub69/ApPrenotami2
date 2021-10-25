@@ -30,6 +30,8 @@ class EndPoint {
 
   static final String UPLOAD = "test/uploads/";
 
+  static final String LOGO = "test/images/logos/";
+
   static String getUrl(String url) {
     return "https://" + HOST + "/" + url;
   }

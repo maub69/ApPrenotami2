@@ -19,7 +19,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 /// dei dati tra le varie altre classi
 class Utility {
   //fa riferimento all'id del amministratore del quale dovra' prendere il calendario, ora lo settiamo banalmente qui, ma poi si puo' pensare una logica migliroe per impostarlo
-  static String idApp = "32";
+  static String idApp;
 
   /// Utility.idUtente porta l'id dell'utente letto dal database
   /// e serve a riconoscerlo in modo univoco
@@ -46,6 +46,12 @@ class Utility {
   static Map<String, CacheManager> cacheManager = {};
 
   static bool hasInternet = true;
+
+  static bool isLogged = false;
+
+  static double height;
+
+  static int ageApp = 18;
 
   static CacheManager getCacheManager(String idAppuntamento) {
     if (!cacheManager.containsKey(idAppuntamento)) {

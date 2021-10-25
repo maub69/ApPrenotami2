@@ -1,0 +1,79 @@
+{
+  "comments": [
+    {
+      "canvasID": "s-84862f76-2193-4d75-a208-ce2a077d8f9d",
+      "elementID": "s-Paragraph_3",
+      "canvasURL": "screens/84862f76-2193-4d75-a208-ce2a077d8f9d",
+      "author": "maub69@gmail.com",
+      "authorID" : 30583265,
+      "code": 1,
+      "parentCode": null,
+      "content": "inserire un link quando viene cliccato il tasto \"powered by\" che porta al sito dell'azienda",
+      "timestamp": "1634066418735",
+      "date": "October 12, 2021, 9:20 PM",
+      "fileID": "",
+      "fileName": "",
+      "isRead": true
+    }
+    ,{
+      "canvasID": "s-41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "elementID": "s-Paragraph_1",
+      "canvasURL": "screens/41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "author": "maub69@gmail.com",
+      "authorID" : 30583265,
+      "code": 2,
+      "parentCode": null,
+      "content": "Tutti gli appuntamento che NON sono attivi, perciò per esempio quelli terminati, cancellati... inizialmente rimangono nella schermata principale rispettando l'ordine per data, però possono essere O archiviati O cancellati.\nMentre gli appuntamenti attivi non possono ne essere cancellati ne archiviati, ma cliccandoci dentro può essere inviata la richiesta per terminare l'appuntamento",
+      "timestamp": "1634069254135",
+      "date": "October 12, 2021, 10:07 PM",
+      "fileID": "",
+      "fileName": "",
+      "isRead": true
+    }
+    ,{
+      "canvasID": "s-41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "elementID": "s-Image_24",
+      "canvasURL": "screens/41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "author": "maub69@gmail.com",
+      "authorID" : 30583265,
+      "code": 3,
+      "parentCode": null,
+      "content": "Con il logo dell'archivio, per andare negli archiviati",
+      "timestamp": "1634069529366",
+      "date": "October 12, 2021, 10:12 PM",
+      "fileID": "",
+      "fileName": "",
+      "isRead": true
+    }
+    ,{
+      "canvasID": "s-41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "elementID": "s-Image_74",
+      "canvasURL": "screens/41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "author": "maub69@gmail.com",
+      "authorID" : 30583265,
+      "code": 4,
+      "parentCode": null,
+      "content": "Compaiono solo se l'appuntamento non è attivo",
+      "timestamp": "1634069699544",
+      "date": "October 12, 2021, 10:14 PM",
+      "fileID": "",
+      "fileName": "",
+      "isRead": true
+    }
+    ,{
+      "canvasID": "s-41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "elementID": "s-Triangle",
+      "canvasURL": "screens/41c9db38-bd16-48d7-b7c2-18f328a74b8e",
+      "author": "maub69@gmail.com",
+      "authorID" : 30583265,
+      "code": 5,
+      "parentCode": null,
+      "content": "Icona che esprime lo stato dell'appuntamento.\nL'icona si potrebbe mettere in un cerchio con colorato, ogni colore esprime uno lo stato in cui si trova l'appuntamento",
+      "timestamp": "1634069881766",
+      "date": "October 12, 2021, 10:18 PM",
+      "fileID": "",
+      "fileName": "",
+      "isRead": true
+    }
+  ]
+}

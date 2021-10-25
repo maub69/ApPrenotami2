@@ -11,12 +11,14 @@ class Model extends StatelessWidget {
   final List<Widget> actions;
   final Color appBarColor;
   final bool confermaChiusura;
+  final bool showAppbar;
 
   Model(
       {this.body,
       this.actions,
       this.appBarColor,
-      this.confermaChiusura = false});
+      this.confermaChiusura = false,
+      this.showAppbar = true});
 
   static BuildContext getContext() {
     return stackContext.top();
@@ -61,14 +63,14 @@ class Model extends StatelessWidget {
         //quando si inserisce un widget Builder ricordarsi sempre che deve essere "figlio" dello scaffold, altirmenti non funziona
         //Diventa necessario il widget Builder quando serve il context, in particolare nel nostro codice quando serve il context per showSnackBar
         child: Scaffold(
-            appBar: AppBar(
+            appBar: (showAppbar ? AppBar(
               backgroundColor:
                   (appBarColor == null) ? Colors.green : appBarColor,
               centerTitle: true,
               title: Text('ApPuntamento'),
               actions: (actions == null) ? [] : actions,
-            ),
-            drawer: Drawer(
+            ) : null),
+            /* drawer: Drawer(
               // Add a ListView to the drawer. This ensures the user can scroll
               // through the options in the drawer if there isn't enough vertical
               // space to fit everything.
@@ -113,7 +115,7 @@ class Model extends StatelessWidget {
                           }))
                 ],
               ),
-            ),
+            ),*/
             body: body));
   }
 }

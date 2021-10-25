@@ -1,12 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-//import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-//import 'package:sqflite/sqflite.dart';
-import 'dart:convert' show jsonDecode;
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:passwordfield/passwordfield.dart';
 import 'login.dart';
 // sutto il link per visualizzare una pagina web all'interno di flutter
 //https://github.com/doomoolmori/flutter_inappbrowser
@@ -15,9 +14,6 @@ import 'login.dart';
 /// Permette la registrazione inserendo nomeUtente, password e mail
 /// e accettando la privacy policy (si può leggere da una apposita pagina)
 /// Poi torna alla schermata di login
-
-
-
 
 class SignIn extends StatefulWidget {
   SignIn();
@@ -48,7 +44,7 @@ class _StateSignIn extends State<SignIn> {
     //per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
     //il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
     //cio' significa che bisgona utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto
-    Scaffold.of(_scaffoldContext).showSnackBar(new SnackBar(
+    ScaffoldMessenger.of(_scaffoldContext).showSnackBar(new SnackBar(
       content: new Text(message),
       backgroundColor: Colors.orange,
     ));
@@ -63,10 +59,7 @@ class _StateSignIn extends State<SignIn> {
   Widget build(BuildContext context) {
     contextGlobal = context;
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text('APPRENOTATI'),
-        ),
+        appBar: null,
         body: new Builder(builder: (BuildContext context) {
           _scaffoldContext = context;
           return Padding(
@@ -75,8 +68,16 @@ class _StateSignIn extends State<SignIn> {
                   key: _formKey,
                   child: ListView(
                     children: [
+                      CachedNetworkImage(
+                        imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
+                            Utility.idApp +
+                            ".jpg",
+                        height: 200,
+                        fadeInDuration: Duration(seconds: 0),
+                      ),
                       Container(
-                          padding: EdgeInsets.all(15),
+                          padding: EdgeInsets.only(
+                              top: 30, bottom: 15, left: 15, right: 15),
                           child: Column(children: <Widget>[
                             FormBuilderTextField(
                               name: 'nomeUtente',
@@ -96,9 +97,30 @@ class _StateSignIn extends State<SignIn> {
                               ]),
                               keyboardType: TextInputType.text,
                             ),
-
+                            Container(
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.only(top: 20),
+                              child: FormBuilderTextField(
+                                name: 'email',
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Email',
+                                ),
+                                onChanged: onChangedField,
+                                // valueTransformer: (text) => num.tryParse(text),
+                                //inserire qui tutti i controlli di validazione e verificare se esiste una validazione automatica per il match tra due form per la password
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(context,
+                                      errorText: 'Campo obbligatorio'),
+                                  FormBuilderValidators.minLength(context, 2,
+                                      errorText:
+                                          'Lunghezza minima di 2 caratteri')
+                                ]),
+                                keyboardType: TextInputType.text,
+                              ),
+                            ),
                             Padding(
-                              padding: EdgeInsets.only(top: 20, bottom: 20),
+                              padding: EdgeInsets.only(top: 20, bottom: 0),
                               child: FormBuilderTextField(
                                 name: 'passwordUtente',
                                 obscureText: _isObscure,
@@ -133,41 +155,76 @@ class _StateSignIn extends State<SignIn> {
                                 keyboardType: TextInputType.text,
                               ),
                             ),
+                            Container(
+                              padding: EdgeInsets.only(top: 18),
+                              width: double.infinity,
+                              child: GestureDetector(
+                                  onTap: () {
+                                    ChromeSafariBrowser().open(
+                                        url: Uri.parse(
+                                            "https://www.google.com"));
+                                  },
+                                  child: Row(children: [
+                                    Text("Clicca qui",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue),
+                                        textAlign: TextAlign.left),
+                                    Text(
+                                        " per leggere le condizioni di utilizzo",
+                                        textAlign: TextAlign.left)
+                                  ])),
+                            ),
+
+                            FormBuilderCheckboxGroup(
+                              name: "check",
+                              onChanged: onChangedField,
+                              options: [
+                                FormBuilderFieldOption(
+                                    value: 'policy',
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                'Ho letto e accetto le condizioni di utilizzo dell\'applicazione',
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
+                                    )),
+                                FormBuilderFieldOption(
+                                    value: 'age',
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                'Dichiaro di avere ${Utility.ageApp} o più',
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
+                                    )),
+                              ],
+                            ),
                             //TODO aggingere i campi mancanti per la registrazione
                             //TODO fare in mdoo che il bottone registrati sia largo quanto l'applicazione
                             Container(
                                 height: 50,
-                                padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                child: RaisedButton(
-                                    textColor: Colors.white,
-                                    color: Colors.blue,
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: Colors.blue,
+                                        textStyle:
+                                            TextStyle(color: Colors.white)),
                                     child: Text('Registrati'),
-                                    //con questo if in riga abilito o meno in tasto con il classico approccio, cioe' aggiungendo o rimuovendo la funzione dal bottone
                                     onPressed: (isDisabilitato
                                         ? null
                                         : onPressRegistrati)))
                           ])),
-                      Container(
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.all(10),
-                          child: FormBuilderTextField(
-                              name: 'email',
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'Email',
-                              ),
-                              onChanged: onChangedField,
-                              // valueTransformer: (text) => num.tryParse(text),
-                              //inserire qui tutti i controlli di validazione e verificare se esiste una validazione automatica per il match tra due form per la password
-                              validator: FormBuilderValidators.compose([
-                                FormBuilderValidators.required(context,
-                                    errorText: 'Campo obbligatorio'),
-                                FormBuilderValidators.minLength(context, 2,
-                                    errorText:
-                                        'Lunghezza minima di 2 caratteri')
-                              ]),
-                              keyboardType: TextInputType.text,
-                            ),),
                     ],
                   ))
 
@@ -250,9 +307,15 @@ class _StateSignIn extends State<SignIn> {
   bool thereIsNull(Map<String, dynamic> values) {
     bool thereIs = false;
     values.forEach((key, value) {
-      if (value == null || value.trim() == "") {
+      if (value is bool) {
+        if (!value) {
+          thereIs = true;
+        }
+      } else if (value is List<String> && value.length != 2) {
         thereIs = true;
-      }
+      } else if (value == null || (value is String && value.trim() == "")) {
+        thereIs = true;
+      } 
     });
     return thereIs;
   }
@@ -261,10 +324,13 @@ class _StateSignIn extends State<SignIn> {
   //non c'e' bisogno di fare il setState perche' se ne occupa il validate
   void onPressRegistrati() {
     _formKey.currentState.save();
+    //TODO sistemare la registrazione una volta che viene realizzato il backend
     if (_formKey.currentState.validate()) {
       print(
           "IF di Validazione, valori di formKey: ${_formKey.currentState.value}");
-      http.post(Uri.parse("https://prenotamionline.000webhostapp.com/registrazione.php"),
+      http.post(
+          Uri.parse(
+              "https://prenotamionline.000webhostapp.com/registrazione.php"),
           body: {
             "username": _formKey.currentState.value["nomeUtente"],
             "email": _formKey.currentState.value["email"],
@@ -295,24 +361,5 @@ class _StateSignIn extends State<SignIn> {
     } else {
       print("validation failed");
     }
-  }
-}
-
-/// classe che visualizza in una pagina la policy di gestione dati
-/// presa da uno specifico URL
-class WebViewWebPage extends StatelessWidget {
-  WebViewWebPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text('Web View'),
-        ),
-        body: WebView(
-          initialUrl:
-              'https://docs.google.com/document/d/1TAqTE7MBzuIagISHHzjGxSHoY1z884LXR3iGIojz1sA/edit?usp=sharing',
-        ));
   }
 }

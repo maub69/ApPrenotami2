@@ -44,10 +44,7 @@ class _StateSceltaCalendario extends State<SceltaCalendario> {
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => Dash(
-                        idCalendario: results[idCalendarioAprire]["id"],
-                        nome: results[idCalendarioAprire]["nome"],
-                        descrizione: results[idCalendarioAprire]
-                            ["descrizione"])));
+                        idCalendario: results[idCalendarioAprire]["id"])));
           } else {
             List<dynamic> results = jsonDecode(data.body);
             results.forEach((element) {
@@ -60,13 +57,14 @@ class _StateSceltaCalendario extends State<SceltaCalendario> {
 
               listCalendari.add(GestureDetector(
                   onTap: () {
+                    print("calendario_id: ${element["id"]}");
+                    print("calendario_nome: ${element["nome"]}");
+                    print("calendario_descrizione: ${element["descrizione"]}");
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) => Dash(
-                                idCalendario: element["id"],
-                                nome: element["nome"],
-                                descrizione: element["descrizione"])));
+                                idCalendario: element["id"])));
                   },
                   child: Container(
                       alignment: Alignment.centerLeft,

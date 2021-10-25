@@ -1,17 +1,13 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert' show jsonDecode;
-import 'package:flutter/gestures.dart';
 import 'package:http/http.dart' as http;
-import 'package:mia_prima_app/sceltaCalendario.dart';
+import 'package:mia_prima_app/info_app_basso.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:path/path.dart';
-//import 'package:sqflite/sqflite.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'SignIn.dart';
 import 'dash.dart';
 import 'package:passwordfield/passwordfield.dart';
@@ -48,7 +44,7 @@ class _LoginState extends State<Login> {
     //per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
     //il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
     //cio' significa che bisgona utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto
-    Scaffold.of(_scaffoldContext).showSnackBar(new SnackBar(
+    ScaffoldMessenger.of(_scaffoldContext).showSnackBar(new SnackBar(
       content: new Text(message),
       backgroundColor: Colors.orange,
     ));
@@ -59,108 +55,105 @@ class _LoginState extends State<Login> {
     super.initState();
   }
 
+  //TODO inserire il box sotto informativo come nel wireframe
   @override
   Widget build(BuildContext context) {
     contextGlobal = context;
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text('ApPuntamento'),
-        ),
+        appBar: null,
         //con builder creao un nuovo context, nei fatti a livello grafico aver creato questo builder non porta a nessun tipo di modifica, tuttavia e' fondamentale per lo showSnackBar
         //si puo' vedere nella funzione _showMessage che viene utilizzato _scaffoldContext
         body: new Builder(builder: (BuildContext context) {
           _scaffoldContext = context;
-          return Padding(
-              padding: EdgeInsets.all(10),
-              child: ListView(
-                children: [
-                  Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(10),
-                      child: Text(
-                        'LOGIN',
-                        style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 20),
-                      )),
-                  Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(10),
-                      child: Text(
-                        'Inserisci i tuoi dati per accedere',
-                        style: TextStyle(fontSize: 20),
-                      )),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    child: TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'User Name',
+          return Column(children: [
+            Container(
+                height: Utility.height - InfoAppBasso.height,
+                padding: EdgeInsets.all(10),
+                child: ListView(
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
+                          Utility.idApp +
+                          ".jpg",
+                      height: 200,
+                      fadeInDuration: Duration(seconds: 0),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(
+                          left: 10, right: 10, bottom: 10, top: 40),
+                      child: TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Email',
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    child: PasswordField(
-                      controller: passwordController,
-                      hasFloatingPlaceholder: true,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(2),
-                          borderSide: BorderSide(width: 1, color: Colors.grey)),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(2),
-                          borderSide: BorderSide(width: 2, color: Colors.blue)),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      child: PasswordField(
+                        controller: passwordController,
+                        hasFloatingPlaceholder: true,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2),
+                            borderSide:
+                                BorderSide(width: 1, color: Colors.grey)),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(2),
+                            borderSide:
+                                BorderSide(width: 2, color: Colors.blue)),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 12, right: 0, bottom: 4),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Remember me"),
-                          Checkbox(
-                              value: _isChecked,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isChecked = !_isChecked;
-                                });
-                              })
-                        ]),
-                  ),
-                  Container(
-                      height: 50,
-                      padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: RaisedButton(
-                          textColor: Colors.white,
-                          color: Colors.blue,
-                          child: Text('Login'),
-                          onPressed:
-                              (_isNotPressedLogin ? onPressedLogin : null))),
-                  Container(
+                    Padding(
+                      padding: EdgeInsets.only(left: 12, right: 0, bottom: 4),
                       child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text('Does not have account?'),
-                      FlatButton(
-                        textColor: Colors.blue,
-                        child: Text(
-                          'Sign in',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SignIn()),
-                          );
-                        },
-                      )
-                    ],
-                  ))
-                ],
-              ));
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Ricordami"),
+                            Checkbox(
+                                value: _isChecked,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _isChecked = !_isChecked;
+                                  });
+                                })
+                          ]),
+                    ),
+                    Container(
+                        height: 50,
+                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: Colors.blue,
+                                textStyle: TextStyle(color: Colors.white)),
+                            child: Text('Login'),
+                            onPressed:
+                                (_isNotPressedLogin ? onPressedLogin : null))),
+                    Container(
+                        child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text('Per registrarti', style: TextStyle(fontSize: 18)),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                              textStyle: TextStyle(color: Colors.blue)),
+                          child: Text(
+                            'clicca qui',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SignIn()),
+                            );
+                          },
+                        )
+                      ],
+                    ))
+                  ],
+                )),
+            InfoAppBasso.getInfoContainer()
+          ]);
         }));
   }
 
@@ -239,6 +232,7 @@ class _LoginState extends State<Login> {
         if (_isChecked) {
           salvaLogin(value.body, nameController.text);
         }
+        Utility.isLogged = true;
         Utility.idUtente = value.body;
         Utente utente = Utente(
             email: nameController.text,
@@ -249,7 +243,8 @@ class _LoginState extends State<Login> {
         Navigator.pushReplacement(
             contextGlobal,
             MaterialPageRoute(
-                builder: (BuildContext context) => SceltaCalendario()));
+                builder: (BuildContext context) =>
+                    Dash(idCalendario: Utility.idApp)));
       }
       Utility.databaseHelper = DatabaseHelper();
       _isNotPressedLogin = true;

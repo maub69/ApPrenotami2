@@ -1,40 +1,22 @@
 import 'dart:io';
-import 'dart:math';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ext_storage/ext_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert' show jsonDecode;
-import 'package:flutter/gestures.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as nt;
 import 'package:flutter_notification_channel/flutter_notification_channel.dart';
 import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:flutter_notification_channel/notification_visibility.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
-import 'package:mia_prima_app/FileSystemNew.dart';
-import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/login.dart';
-import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/notificationSender.dart';
-import 'package:mia_prima_app/sceltaCalendario.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/messagesManager.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:path/path.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-//import 'package:sqflite/sqflite.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'SignIn.dart';
 import 'dash.dart';
-import 'package:passwordfield/passwordfield.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/rendering.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 void main() async {
   // la funzione di init main() contiene la funzione di bindig runApp()
@@ -44,7 +26,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
-  } catch(e) { }
+  } catch (e) {}
   runApp(MaterialApp(
     home: MyApp(),
   ));
@@ -109,6 +91,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // che userà questa applicazione per memorizzare i file
     final directory = await getApplicationDocumentsDirectory();
     try {
+      Utility.idApp = await rootBundle.loadString('files/cliente.txt');
       String path = directory.path;
       // id.txt è il nome del file utilizzato
       // da metterre in un file di configurazione?
@@ -131,7 +114,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    if (Utility.isLogged && state == AppLifecycleState.resumed) {
       MessagesManager.downloadChatNonLette();
     }
     /* else if (state == AppLifecycleState.paused) {
@@ -164,6 +147,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         });
         // se id è nel db
       } else {
+        Utility.isLogged = true;
         // chiama la funzione che recupera i dATI UTENTE TRAMITE ID e li passa alla classe Dash
         _goOnDash(id);
       }
@@ -199,7 +183,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _context = context;
     // la funzione _getDataLogin() restituisce un valore 'id'
     // quando arriva l 'id' (attende il then) che poi viene valutata dalla funzione anonima
-
+    Utility.height = MediaQuery.of(context).size.height;
     return _body;
   }
 
@@ -221,7 +205,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     MessagesManager.downloadChatNonLette();
     setState(() {
-      _body = SceltaCalendario();
+      // _body = SceltaCalendario();
+      _body = Dash(idCalendario: Utility.idApp);
     });
     /*setState(() {
       _body = Dash(utente: utente);
