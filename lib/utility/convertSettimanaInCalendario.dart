@@ -7,7 +7,7 @@ import '../calendario.dart';
 
 /// Questa classe serve per trasformarte una lista in un oggetto Meeting per popolare un calendario
 class ConvertSettimanaInCalendario {
-  final String jsonString;
+  final List<dynamic> results;
   /*List<dynamic> settimane = [
     {"start": "1|08:30", "end": "1|09:00", "disponiblita": 5},
     {"start": "1|09:00", "end": "1|09:15", "disponiblita": 2},
@@ -26,7 +26,7 @@ class ConvertSettimanaInCalendario {
     {"start": "5|22:00", "end": "6|02:00", "disponiblita": 2}
   ];*/
 
-  ConvertSettimanaInCalendario({this.jsonString});
+  ConvertSettimanaInCalendario({this.results});
 
   /* entra la lista contenente i blocchi di una specifica settimana
   creare funzione che con ogni blocchettino interno al blocco settimanale crea un meeting
@@ -38,8 +38,6 @@ class ConvertSettimanaInCalendario {
   */
   List<Disponibilita> getCalendarioDisponibilita() {
     List<Disponibilita> meetings = [];
-    //otteniamo la lista delle settimana
-    List<dynamic> results = jsonDecode(jsonString);
     //scansioniamo blocco per blocco delle settimane (guarda struttura file base.json)
     results.forEach((ele) {
       //fornisce la settimana a partire dall'anno zero (28/12/2020)

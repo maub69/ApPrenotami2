@@ -59,6 +59,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                         builder: (BuildContext context) =>
                             VisualizzaPrenotazioneFutura(
                                 prenotazione: Utility.listaPrenotazioni[i],
+                                indexPrenotazioni: i,
                                 aggiornaPrenotazioni: _aggiornaPrenotazione)));
               },
               child: Card(

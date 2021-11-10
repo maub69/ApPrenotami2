@@ -32,8 +32,10 @@ import 'package:file/file.dart' as fl;
 class ChatPage extends StatefulWidget {
   final Color appBarColor;
   final int idAppuntamento;
+  final int indexPrenotazioni;
 
-  const ChatPage({Key key, this.appBarColor, this.idAppuntamento})
+  const ChatPage(
+      {Key key, this.appBarColor, this.idAppuntamento, this.indexPrenotazioni})
       : super(key: key);
 
   @override
@@ -64,6 +66,7 @@ class _ChatPage extends State<ChatPage> {
     PopupMenu.updateView = updateView;
     PopupMenu.cacheManagerChat = _cacheManagerChat;
     focus.addListener(_focusListener);
+    Utility.listaPrenotazioni[widget.indexPrenotazioni]["msg_non_letti"] = 0;
     // qui vengono scaricati i messaggi e inseriti nella _listView per poi essere visualizzati
   }
 
@@ -91,8 +94,11 @@ class _ChatPage extends State<ChatPage> {
     DateTime datetime = new DateTime.now();
     String idMessaggio =
         _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length);
-    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
-        body: {"datetime": datetime.toString(), "text": text, "id": idMessaggio});
+    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
+      "datetime": datetime.toString(),
+      "text": text,
+      "id": idMessaggio
+    });
     setState(() {
       ResponseRispostaFactory risposta = RispostaFactory.getRisposta(
           "free",

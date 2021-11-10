@@ -6,19 +6,23 @@ import 'package:path_provider/path_provider.dart';
 import 'package:stack/stack.dart' as st;
 
 class Model extends StatelessWidget {
-  static st.Stack<BuildContext> stackContext = new st.Stack(); // permette di conservare lo stack con tutti i context attivi, in questo moto si ha sempre nel top il context che si sta visualizzando e dato che model viene usato per tutte le schermate, questa cosa risulta molto utile, per esempio per l'invio delle notifiche dall'interno dell'app
+  static st.Stack<BuildContext> stackContext = new st
+      .Stack(); // permette di conservare lo stack con tutti i context attivi, in questo moto si ha sempre nel top il context che si sta visualizzando e dato che model viene usato per tutte le schermate, questa cosa risulta molto utile, per esempio per l'invio delle notifiche dall'interno dell'app
   final Widget body;
   final List<Widget> actions;
   final Color appBarColor;
   final bool confermaChiusura;
   final bool showAppbar;
+  final String textAppBar;
 
-  Model(
-      {this.body,
-      this.actions,
-      this.appBarColor,
-      this.confermaChiusura = false,
-      this.showAppbar = true});
+  Model({
+    this.body,
+    this.actions,
+    this.appBarColor,
+    this.confermaChiusura = false,
+    this.showAppbar = true,
+    this.textAppBar = "ApPuntamento"
+  });
 
   static BuildContext getContext() {
     return stackContext.top();
@@ -63,13 +67,15 @@ class Model extends StatelessWidget {
         //quando si inserisce un widget Builder ricordarsi sempre che deve essere "figlio" dello scaffold, altirmenti non funziona
         //Diventa necessario il widget Builder quando serve il context, in particolare nel nostro codice quando serve il context per showSnackBar
         child: Scaffold(
-            appBar: (showAppbar ? AppBar(
-              backgroundColor:
-                  (appBarColor == null) ? Colors.green : appBarColor,
-              centerTitle: true,
-              title: Text('ApPuntamento'),
-              actions: (actions == null) ? [] : actions,
-            ) : null),
+            appBar: (showAppbar
+                ? AppBar(
+                    backgroundColor:
+                        (appBarColor == null) ? Colors.green : appBarColor,
+                    centerTitle: true,
+                    title: Text(this.textAppBar),
+                    actions: (actions == null) ? [] : actions,
+                  )
+                : null),
             /* drawer: Drawer(
               // Add a ListView to the drawer. This ensures the user can scroll
               // through the options in the drawer if there isn't enough vertical

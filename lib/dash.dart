@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/creaAppuntamento.dart';
+import 'package:mia_prima_app/info_app_basso.dart';
 import 'package:mia_prima_app/steps.dart';
 import 'package:mia_prima_app/listaPrenotazioniFuture.dart';
 import 'package:mia_prima_app/main.dart';
@@ -28,17 +29,20 @@ class _StateDash extends State<Dash> {
   Function onPressedCalendario;
   Function onPressedListaPrenotazioniFuture;
   Function onPressedNotifiche;
-  BuildContext _context;
+  int _numNotifiche = 0;
+  List<Widget> _listCalendari = [
+    Center(
+      child: SizedBox(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    )
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    //questa classe serve a gestire le richieste get per scasricare i json. Necessita dell'url e della funzione da avviare una volta finito di scaricare il json.
-    //la funzione letturaTerminata viene eseguita una votla che il json viene scaricato
-    //si tratta di una classe generica e' puo' essere usata in qualsiasi contesto serva scaricare un json e poi eseguire una funzione su di esso, NON solo strettamente per il calendario
-    Utility.idCalendario = widget.idCalendario;
+  void updateCalendario() {
     DownloadJson downloadJson = new DownloadJson(
-        url: EndPoint.GET_CALENDARI_SETTIMANE,
+        url: EndPoint.GET_CALENDARI_SETTIMANE_2,
         parametri: {
           "id_calendario": widget.idCalendario,
           "calendari_timestamp": "-1"
@@ -48,6 +52,17 @@ class _StateDash extends State<Dash> {
         letturaTerminata: letturaTerminataCalendarioRichieste);
     // funzione presente nella classe DownloadJson tramite url lancia la funzione
     downloadJson.start();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    //questa classe serve a gestire le richieste get per scasricare i json. Necessita dell'url e della funzione da avviare una volta finito di scaricare il json.
+    //la funzione letturaTerminata viene eseguita una votla che il json viene scaricato
+    //si tratta di una classe generica e' puo' essere usata in qualsiasi contesto serva scaricare un json e poi eseguire una funzione su di esso, NON solo strettamente per il calendario
+
+    Utility.updateCalendario = updateCalendario;
+    updateCalendario();
 
     DownloadJson downloadJsonListaPrenotazioni = new DownloadJson(
         url: EndPoint.GET_APPUNTAMENTI,
@@ -80,6 +95,12 @@ class _StateDash extends State<Dash> {
   letturaTerminataListaPrenotazioni(http.Response data) {
     if (data.statusCode == 200) {
       Utility.listaPrenotazioni = jsonDecode(data.body);
+
+      _numNotifiche = 0;
+      Utility.listaPrenotazioni.forEach((element) {
+        _numNotifiche += element["msg_non_letti"];
+      });
+
       onPressedListaPrenotazioniFuture = () {
         _onPressedListaPrenotazioniFuture();
       };
@@ -121,9 +142,8 @@ class _StateDash extends State<Dash> {
               builder: (BuildContext context) => Scaffold(
                   appBar: AppBar(title: Text("Esempio")),
                   body: Steps(
-                    json: '{"title": "Processo olive", "started": true, "description": "Le varie fasi per spremere le olive","steps": [{"name": "Fase 1","done": true,"messages": ["prima sotto fase fatta", "seconda sotto fase fatta"]},{"name": "Fase 2", "done": true, "messages": ["prima sotto fase fatta 2","seconda sottofase fatta 2"]}]}'
-                  )
-          ),
+                      json:
+                          '{"title": "Processo olive", "started": true, "description": "Le varie fasi per spremere le olive","steps": [{"name": "Fase 1","done": true,"messages": ["prima sotto fase fatta", "seconda sotto fase fatta"]},{"name": "Fase 2", "done": true, "messages": ["prima sotto fase fatta 2","seconda sottofase fatta 2"]}]}')),
             ));
       };
       setState(() {});
@@ -150,12 +170,65 @@ class _StateDash extends State<Dash> {
         });
       });*/
 
-      ConvertSettimanaInCalendario convertSettimana =
-          new ConvertSettimanaInCalendario(jsonString: data.body);
-      Utility.calendario = convertSettimana.getCalendarioDisponibilita();
-      Utility.calendario.forEach((element) {
-        element.showMessage = _showMessage;
+      Utility.calendari = [];
+      List<dynamic> results = jsonDecode(data.body);
+
+      results.forEach((element) {
+        ConvertSettimanaInCalendario convertSettimana =
+            new ConvertSettimanaInCalendario(results: element["body"]);
+        CalendarioBox calendarioBox = CalendarioBox(
+            id: element["id"],
+            name: element["name"],
+            appuntamenti: convertSettimana.getCalendarioDisponibilita());
+        Utility.calendari.add(calendarioBox);
       });
+
+      _listCalendari = [];
+      Utility.calendari.forEach((element) {
+        _listCalendari.add(GestureDetector(
+            onTap: () {
+              Utility.idCalendarioAperto = element.id;
+              _onPressedCal(Utility.calendari
+                  .where((e) => e.id == element.id)
+                  .first
+                  .appuntamenti);
+            },
+            child: Container(
+              margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+              decoration: BoxDecoration(
+                color: Colors.brown[400],
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 7,
+                    offset: Offset(0, 3), // changes position of shadow
+                  ),
+                ],
+              ),
+              width: ((Utility.calendari.length < 3)
+                  ? (Utility.width - 30) / Utility.calendari.length -
+                      ((Utility.calendari.length == 1) ? 0 : 10)
+                  : 160),
+              child: Center(
+                  child: Text(element.name,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 16))),
+            )));
+
+        element.appuntamenti.forEach((element) {
+          element.showMessage = _showMessage;
+        });
+      });
+
       /*var dayOfWeek = 1;
       DateTime date = DateTime.now();
       var lastMonday = date
@@ -180,10 +253,6 @@ class _StateDash extends State<Dash> {
       });
       */
       // onPressedCalendario e' la funzione che viene avviata quando si clicca calendarioRichieste, di base eì nulla
-      onPressedCalendario = () {
-        _onPressedCal(Utility.calendario);
-      };
-
       setState(() {});
     } else {
       print("Erorre: ${data.statusCode}");
@@ -229,11 +298,20 @@ class _StateDash extends State<Dash> {
                 })));
   }
 
+  // TODO schermata dash per adesso completata, ora bisogna passare alla pagina delle prenotazioni e innanzitutto modificare i box graficamente (aggiungendo l'informazione delle notifiche), poi aggiungere i filtri e poi la sezione archivio
   _onPressedListaPrenotazioniFuture() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => ListaPrenotazioniFuture()));
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => ListaPrenotazioniFuture()))
+        .then((_) {
+      setState(() {
+        _numNotifiche = 0;
+        Utility.listaPrenotazioni.forEach((element) {
+          _numNotifiche += element["msg_non_letti"];
+        });
+      });
+    });
   }
 
   @override
@@ -244,46 +322,102 @@ class _StateDash extends State<Dash> {
         confermaChiusura: true,
         showAppbar: false,
         body: new Builder(builder: (BuildContext context) {
-          _context = context;
-          return Padding(
-              padding: EdgeInsets.all(10),
-              child: ListView(children: [
-                CachedNetworkImage(
+          return Column(children: [
+            Container(
+                height: Utility.height - InfoAppBasso.height,
+                padding: EdgeInsets.all(10),
+                child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: ListView(children: [
+                      CachedNetworkImage(
                         imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
                             Utility.idApp +
                             ".jpg",
                         height: 200,
                         fadeInDuration: Duration(seconds: 0),
-                ),
+                      ),
 
-                /*ListView(
-                  children: [
-
-                  ]
-                ),*/
-
-                Container(
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: RaisedButton(
-                        textColor: Colors.white,
-                        color: Colors.blue,
-                        child: Text('Calendario richieste'),
-                        onPressed: onPressedCalendario)),
-                Container(
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: RaisedButton(
-                        textColor: Colors.white,
-                        color: Colors.blue,
-                        child: Text('Lista prenotazioni future'),
-                        onPressed: onPressedListaPrenotazioniFuture)),
-                Container(
-                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: RaisedButton(
-                        textColor: Colors.white,
-                        color: Colors.blue,
-                        child: Text('Notifiche'),
-                        onPressed: onPressedNotifiche))
-              ]));
+                      // TODO inserire il caricamento quando non ha ancora scaricato i calendari
+                      Padding(
+                          padding: EdgeInsets.only(top: 40),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.arrow_back_rounded,
+                                  color: Colors.black87,
+                                  size: 25.0,
+                                  textDirection: TextDirection.ltr,
+                                  semanticLabel: 'Icon',
+                                ),
+                                Flexible(
+                                  child: Padding(
+                                      padding:
+                                          EdgeInsets.only(left: 10, right: 10),
+                                      child: Text(
+                                          "Scegli il calendario per la prenotazione",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold))),
+                                ),
+                                Icon(Icons.arrow_back_rounded,
+                                    color: Colors.black87,
+                                    size: 25.0,
+                                    textDirection: TextDirection.rtl,
+                                    semanticLabel: 'Icon'),
+                              ])),
+                      Container(
+                          height: 135,
+                          padding: EdgeInsets.only(bottom: 15),
+                          margin: EdgeInsets.only(bottom: 20),
+                          child: Center(
+                              child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _listCalendari.length,
+                            itemBuilder: (context, i) {
+                              return _listCalendari[i];
+                            },
+                          ))),
+                      Stack(children: [
+                        Container(
+                            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    minimumSize:
+                                        const Size(double.infinity, 70),
+                                    primary: Colors.green[400]),
+                                child: Stack(
+                                  children: <Widget>[
+                                    // Stroked text as border.
+                                    Text(
+                                      'Lista prenotazioni',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        foreground: Paint()
+                                          ..style = PaintingStyle.stroke
+                                          ..strokeWidth = 1
+                                          ..color = Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Lista prenotazioni',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: onPressedListaPrenotazioniFuture)),
+                        ((_numNotifiche != 0)
+                            ? Utility.getBoxNotification(_numNotifiche)
+                            : Container())
+                      ])
+                    ]))),
+            InfoAppBasso.getInfoContainer()
+          ]);
         }));
   }
 }

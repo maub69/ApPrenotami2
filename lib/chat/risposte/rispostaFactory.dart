@@ -25,7 +25,7 @@ class RispostaFactory {
       case "cambio-orario":
         return ResponseRispostaFactory(
             CambioOrario(
-                body["id"], body["body"], datetime, context, delWidgets),
+                body["id"], body["body"], datetime, body["id_calendario"], context, delWidgets),
             datetime);
 
       case "steps":

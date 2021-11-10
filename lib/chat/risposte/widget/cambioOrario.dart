@@ -8,8 +8,15 @@ import 'package:mia_prima_app/utility/utility.dart';
 import 'package:http/http.dart' as http;
 
 class CambioOrario extends Risposta {
-  CambioOrario(String idChat, Map<String, dynamic> body, DateTime datetime,
-      BuildContext context, Function(List<Widget> listWidgets) delWidgets)
+  final int idCalendario;
+
+  CambioOrario(
+      String idChat,
+      Map<String, dynamic> body,
+      DateTime datetime,
+      this.idCalendario,
+      BuildContext context,
+      Function(List<Widget> listWidgets) delWidgets)
       : super(idChat, body, datetime, context, delWidgets);
 
   @override
@@ -37,12 +44,10 @@ class CambioOrario extends Risposta {
     /*
       Inserisco sempre nella prima posizione per poi fare il reverse della listView e avere tutto allineato a destra
     */
-    
-    ButtonStyle buttonStyle = ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14.0))));
 
+    ButtonStyle buttonStyle = ButtonStyle(
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0))));
 
     scelte.forEach((element) {
       listBottoni.insert(
@@ -51,16 +56,18 @@ class CambioOrario extends Risposta {
             padding: EdgeInsets.only(left: 10),
             child: ElevatedButton(
                 child: Text(element),
-                  style: buttonStyle,
+                style: buttonStyle,
                 // quando viene cliccato, viene inviata al server la tua scelta. E poi ritorna la risposta, non direttamente, ma tramite una notifica di Firebase onMessage
                 onPressed: () {
-                  http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
-                    "appuntamento_id": idChat.toString(),
-                    "messaggio_id": body["id"].toString(),
-                    "type": "cambio_orario",
-                    "is_proposta": "0",
-                    "text": element.toString()
-                  }).then((value) {
+                  http.post(
+                      Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
+                      body: {
+                        "appuntamento_id": idChat.toString(),
+                        "messaggio_id": body["id"].toString(),
+                        "type": "cambio_orario",
+                        "is_proposta": "0",
+                        "text": element.toString()
+                      }).then((value) {
                     delWidgets([containerResponse]);
                     //risulta importante aggiornare il calendario in quanto dopo un cambio di orario o comunque un cambio di info dell'appuntamento il calendario potrebbe aver subito delle variazioni
                     Utility.updateCalendario();
@@ -80,12 +87,18 @@ class CambioOrario extends Risposta {
                   style: buttonStyle,
                   // qua viene aperto il calendario e viene gestito il click sulla disponibilita, anche se quello viene fatto nella funzione callQuandoDisponiblitaOn
                   onPressed: () {
+                    Utility.idCalendarioAperto = idCalendario;
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) => Calendario(
-                                calendario: Utility.calendario,
+                                calendario: Utility.calendari
+                                    .where(
+                                        (element) => element.id == idCalendario)
+                                    .first
+                                    .appuntamenti,
                                 onTapDisponibilita: (disponibilita) {
+                                  Utility.idCalendarioAperto = idCalendario;
                                   callQuandoDisponibilitaOn(
                                       disponibilita, containerResponse);
                                   Navigator.pop(context);

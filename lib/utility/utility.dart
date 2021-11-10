@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mia_prima_app/FileSystemNew.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/utility/convertSettimanaInCalendario.dart';
@@ -34,10 +36,10 @@ class Utility {
   /// questa e la chiave di login con il quale l'utente si connette e manitne la connessione
   static Utente utente;
 
-  static List<Disponibilita> calendario;
+  static List<CalendarioBox> calendari;
   static List<dynamic> listaPrenotazioni;
 
-  static String idCalendario;
+  static int idCalendarioAperto;
 
   static String pathTmpDownload;
 
@@ -48,6 +50,8 @@ class Utility {
   static bool hasInternet = true;
 
   static bool isLogged = false;
+
+  static double width;
 
   static double height;
 
@@ -92,16 +96,7 @@ class Utility {
   /*
     Questa funzione permette semplicemente di aggiornare il calendario che è aperto
   */
-  static void updateCalendario() {
-    DownloadJson downloadJson = new DownloadJson(
-        url: EndPoint.GET_CALENDARI_SETTIMANE,
-        parametri: {"id_calendario": idCalendario, "calendari_timestamp": "-1"},
-        // passo al parametro letturaTerminata la funzione letturaTerminata
-        // che verrà eseguita nella classe DownloadJson
-        letturaTerminata: letturaTerminataCalendarioRichieste);
-    // funzione presente nella classe DownloadJson tramite url lancia la funzione
-    downloadJson.start();
-  }
+  static Function updateCalendario;
 
   static void updateAppuntamenti() {
     DownloadJson downloadJsonListaPrenotazioni = new DownloadJson(
@@ -117,14 +112,29 @@ class Utility {
     downloadJsonListaPrenotazioni.start();
   }
 
-  static void letturaTerminataCalendarioRichieste(http.Response data) {
-    if (data.statusCode == 200) {
-      ConvertSettimanaInCalendario convertSettimana =
-          new ConvertSettimanaInCalendario(jsonString: data.body);
-      Utility.calendario = convertSettimana.getCalendarioDisponibilita();
-    } else {
-      print("Erorre: ${data.statusCode}");
-    }
+  static Positioned getBoxNotification(int numNotifiche) {
+    return Positioned(
+      right: 0,
+      child: Container(
+        padding: EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        constraints: BoxConstraints(
+          minWidth: 28,
+          minHeight: 12,
+        ),
+        child: Text(
+          '$numNotifiche',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 
   static String _chars =

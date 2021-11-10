@@ -183,6 +183,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _context = context;
     // la funzione _getDataLogin() restituisce un valore 'id'
     // quando arriva l 'id' (attende il then) che poi viene valutata dalla funzione anonima
+    Utility.width = MediaQuery.of(context).size.width;
     Utility.height = MediaQuery.of(context).size.height;
     return _body;
   }

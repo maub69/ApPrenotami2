@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/creaAppuntamento.dart';
 import 'package:mia_prima_app/model.dart';
+import 'package:mia_prima_app/utility/utility.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
@@ -9,7 +10,7 @@ class Calendario extends StatefulWidget {
   //questa unzione specifica che cosa fare quando un evento sul calendario viene cliccato, gli viene passato in entrata l'appuntamento cosi' sa che cosa gestire
   final Function(Disponibilita appuntamento) onTapDisponibilita;
 
-  Calendario({this.calendario, this.onTapDisponibilita}); 
+  Calendario({this.calendario, this.onTapDisponibilita});
 
   @override
   State<StatefulWidget> createState() {
@@ -28,7 +29,9 @@ class _StateCalendario extends State<Calendario> {
 
   @override
   Widget build(BuildContext context) {
-    return Model(body: new Builder(builder: (BuildContext context) {
+    return Model(
+      textAppBar: Utility.calendari.where((element) => element.id == Utility.idCalendarioAperto).first.name,
+      body: new Builder(builder: (BuildContext context) {
       return SfCalendar(
         view: CalendarView.week,
         dataSource: meetingDataSource,
@@ -86,7 +89,8 @@ class Disponibilita {
   DateTime to;
   bool isAllDay;
   String prenotato;
-  Function(String title, String body, String messageAdmin, Color color) showMessage;
+  Function(String title, String body, String messageAdmin, Color color)
+      showMessage;
 
   Disponibilita(
       {this.descrizione,
@@ -102,4 +106,12 @@ class Disponibilita {
       return Colors.red;
     }
   }
+}
+
+class CalendarioBox {
+  final int id;
+  final String name;
+  final List<Disponibilita> appuntamenti;
+
+  CalendarioBox({this.id, this.name, this.appuntamenti});
 }

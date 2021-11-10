@@ -7,8 +7,9 @@ class EndPoint {
 
   static final String GET_CALENDARI = "test/getCalendari.php";
 
-  static final String GET_CALENDARI_SETTIMANE =
-      "test/getCalendariSettimane.php";
+  static final String GET_CALENDARI_SETTIMANE = "test/getCalendariSettimane.php";
+  
+  static final String GET_CALENDARI_SETTIMANE_2 = "test/getCalendariSettimane2.php";
 
   static final String CREA_APPUNTAMENTO = "test/creaAppuntamento.php";
 

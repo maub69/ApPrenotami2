@@ -17,9 +17,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
 
 class VisualizzaPrenotazioneFutura extends StatefulWidget {
   final dynamic prenotazione;
+  final int indexPrenotazioni;
   final Function aggiornaPrenotazioni;
 
-  VisualizzaPrenotazioneFutura({this.prenotazione, this.aggiornaPrenotazioni});
+  VisualizzaPrenotazioneFutura({this.prenotazione, this.indexPrenotazioni, this.aggiornaPrenotazioni});
 
   @override
   State createState() => _StateVisualizzaPrenotazioneFutura();
@@ -80,10 +81,11 @@ class _StateVisualizzaPrenotazioneFutura
         setState(() {});
 
         //qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
-        http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE)), body: {
-          "motivo": response,
-          "id_appuntamento": widget.prenotazione["id"].toString()
-        }).then((value) {
+        http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE)),
+            body: {
+              "motivo": response,
+              "id_appuntamento": widget.prenotazione["id"].toString()
+            }).then((value) {
           print("risposta prenotazione: " + value.body);
           widget.aggiornaPrenotazioni(value.body);
           Navigator.pop(context);
@@ -117,7 +119,7 @@ class _StateVisualizzaPrenotazioneFutura
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      ChatPage(idAppuntamento: widget.prenotazione["id"])),
+                      ChatPage(idAppuntamento: widget.prenotazione["id"], indexPrenotazioni: widget.indexPrenotazioni)),
             ).then((value) {
               NotificationSender notificationSender = NotificationSender();
               notificationSender.configureFirebaseNotification();
