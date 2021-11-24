@@ -146,4 +146,8 @@ class Utility {
           length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   static Function onMessageFirebase;
+
+  static String formatStringDatefromString(String start, String end, String dateTimeString) {
+    return DateFormat(end).format(DateFormat(start).parse(dateTimeString));
+  }
 }

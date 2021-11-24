@@ -103,7 +103,7 @@ class _StateVisualizzaPrenotazioneFutura
               " " +
               widget.prenotazione["calendario_nome"],
           style: TextStyle(fontSize: 30)),
-      Text(widget.prenotazione["calendarion_descrizione"],
+      Text(widget.prenotazione["calendario_descrizione"],
           style: TextStyle(fontSize: 20)),
       Text(widget.prenotazione["start"], style: TextStyle(fontSize: 15)),
       Text(widget.prenotazione["end"], style: TextStyle(fontSize: 15)),
