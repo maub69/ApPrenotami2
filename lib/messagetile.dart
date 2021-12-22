@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mia_prima_app/chat/risposte/popup_menu.dart';
+import 'package:mia_prima_app/chat/risposte/popup_menu_chat.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:pop_bottom_menu/pop_bottom_menu.dart';
 
@@ -21,7 +21,7 @@ class MessageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
         onLongPress: () {
-          PopupMenu.showMenu(
+          PopupMenuChat.showMenu(
             context: Model.getContext(),
             isAmministratore: !isLeft,
             isChat: true,

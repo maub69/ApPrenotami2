@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mia_prima_app/filtra_page.dart';
 import 'package:mia_prima_app/list_page.dart';
 import 'package:mia_prima_app/model.dart';
+import 'package:mia_prima_app/popup_menu_appuntamenti.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:mia_prima_app/visualizzaPrenotazioneFutura.dart';
 
@@ -17,6 +19,8 @@ class ListaPrenotazioniFuture extends StatefulWidget {
 class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
   Random _random = new Random();
   List<Widget> _listCard = [];
+  List<TypeFiltro> _filtri = [];
+  List<dynamic> listaPrenotazioniNoArchivio = [];
 
   @override
   void initState() {
@@ -38,18 +42,23 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
         break;
       }
     }
-    _listCard = []; //ricordiarsi, se no aggiunge
     _aggiornaListaPrenotazioniFuture();
     setState(() {});
   }
 
   //nei fatti non fa altro che popolare _listCard con i nuovi Widget delle prenotazioni
-  void _aggiornaListaPrenotazioniFuture() {
-    List<dynamic> listaPrenotazioniNoArchivio = Utility.listaPrenotazioni
-        .where((element) => element["type"] != -5)
+  void _aggiornaListaPrenotazioniFuture({List<int> discard}) {
+    if (discard == null) {
+      discard = [];
+    }
+    discard.add(-5);
+
+    _listCard = [];
+    listaPrenotazioniNoArchivio = Utility.listaPrenotazioni
+        .where((element) => discard.indexOf(element["type"]) == -1)
         .toList();
     for (int i = 0; i < listaPrenotazioniNoArchivio.length; i++) {
-      _listCard.add(getWidgetList(listaPrenotazioniNoArchivio[i], () {
+      _listCard.add(getWidgetList(listaPrenotazioniNoArchivio[i], i, () {
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -67,11 +76,12 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
     return Model(
         textAppBar: "Lista appuntamenti",
         actions: [
-          // TODO realizzare la schermata di filtro, sostanzialmente viene aperta una scherata dove si spunta quali tipi si vuole vedere e quali no, una volta cliccato filtra torna alla pagina prima e ti filtra i contenuti
+          // TODO creare un bottone fluottante per eliminare i filtri che sono stati applicati, usare il codice commentato sopra come partenza
           // TODO se ce un filtro applicato compare un'icona tra l'appbar e il primo box nel quale a e' presente una x che serve per cancellare il filtro
+          // TODO se non ce nessun appuntamento o se per via dei filtri non ce nessun appuntamento compare una scritta che avvisa che non ce nessun appuntamento
           IconButton(
               icon: const Icon(
-                Icons.filter_alt_outlined,
+                Icons.visibility,
                 color: Colors.white,
               ),
               tooltip: "Filtra",
@@ -82,27 +92,18 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ListPage(
-                            title: "Filtra",
-                            list: listaArchiviati,
-                            print: (element, i) {
-                              return getWidgetList(element, () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            VisualizzaPrenotazioneFutura(
-                                                prenotazione:
-                                                    listaArchiviati[i],
-                                                indexPrenotazioni: i,
-                                                aggiornaPrenotazioni:
-                                                    _aggiornaPrenotazione)));
-                              });
+                      builder: (context) => FiltraPage(
+                            filtri: _filtri,
+                            callback: (filtri) {
+                              _filtri = filtri;
+                              _aggiornaListaPrenotazioniFuture(
+                                  discard:
+                                      filtri.map((e) => e.nameInt).toList());
                             },
                           )),
-                );
+                ).then((value) => setState(() {}));
               }),
-              IconButton(
+          IconButton(
               icon: const Icon(
                 Icons.archive,
                 color: Colors.white,
@@ -119,7 +120,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                             title: "Archiviati",
                             list: listaArchiviati,
                             print: (element, i) {
-                              return getWidgetList(element, () {
+                              return getWidgetList(element, i, () {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -137,55 +138,51 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
               })
         ],
         body: new Builder(builder: (BuildContext context) {
-          return ListView(children: _listCard);
-        }));
+          return _listCard.length == 1
+              ? Center(
+                  child: Text(
+                    "Nessun appuntamento da visualizzare",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 25),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _listCard.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _listCard[index];
+                  });
+        }),
+        floatingActionButton: _filtri.length != 0
+            ? FloatingActionButton(
+                backgroundColor: Colors.blue,
+                child: Icon(
+                  Icons.visibility_off,
+                  color: Colors.white,
+                  size: 30.0,
+                  semanticLabel: 'Rimuovi filtro',
+                ),
+                onPressed: () {
+                  setState(() {
+                    _filtri.clear();
+                    _aggiornaListaPrenotazioniFuture();
+                  });
+                })
+            : null);
   }
 
-  String _getNameStateAppuntamento(int state) {
-    switch (state) {
-      case 2:
-        return "PRENOTATO";
-      case 1:
-        return "IN ATTESA DI CONFERMA";
-      case 0:
-        return "DA CONFERMARE";
-      case -1:
-        return "RIFIUTATO";
-      case -2:
-        return "IN ATTESA DI CANCELLAZIONE";
-      case -3:
-        return "CANCELLATO";
-      case -4:
-        return "CONCLUSO";
-      case -5:
-        return "ARCHIVIATO";
-      default:
-        return "";
-    }
-  }
-
-  // (int)2:prenotato|1:in attesa dell'azienda|0:in attesa del cliente|-1:rifituato|-2:in attesa di cancellazione|-3:cancellato|-4:terminato
-  Color _getColorStateAppuntamento(int state) {
-    switch (state) {
-      case 2:
-        return Colors.green[400];
-      case 1:
-        return Colors.orange[300];
-      case 0:
-        return Colors.orange[300];
-      case -1:
-        return Colors.red[400];
-      case -2:
-        return Colors.orange[300];
-      case -3:
-        return Colors.red[400];
-      case -4:
-        return Colors.brown[200];
-      case -5:
-        return Colors.brown[200];
-      default:
-        return Colors.white;
-    }
+  void delWidget(int index, bool isToDelete) {
+    setState(() {
+      dynamic prenotazioneNoarchivio = listaPrenotazioniNoArchivio[index];
+      if (isToDelete) {
+        Utility.listaPrenotazioni.remove(prenotazioneNoarchivio);
+      } else {
+        prenotazioneNoarchivio["type"] = -5;
+      }
+      setState(() {
+        _aggiornaListaPrenotazioniFuture(
+            discard: _filtri.map((e) => e.nameInt).toList());
+      });
+    });
   }
 
   void _showMessage(String title, String body, Color color) {
@@ -202,17 +199,24 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
     ));
   }
 
-  Widget getWidgetList(dynamic prenotazione, Function onTap) {
-    return Material(
+  Widget getWidgetList(dynamic prenotazione, int posWidget, Function onTap) {
+    Widget card = Material(
         key: Key(_random
             .nextInt(100000)
             .toString()), //IMPORTANTE, perche' altrimenti visualizzerebbe ancora i widget vecchi, perche' userebbe quelli in cache
         color: Colors.transparent,
         child: InkWell(
             onTap: onTap,
+            onLongPress: () {
+              PopupMenuAppuntamenti.showMenu(
+                  context: context,
+                  prenotazione: prenotazione,
+                  cardPos: posWidget,
+                  delWidget: delWidget);
+            },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.brown[400],
+                color: Color(0xA9000000),
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
@@ -261,7 +265,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                   Center(
                       child: Container(
                     decoration: BoxDecoration(
-                        color: _getColorStateAppuntamento(prenotazione["type"]),
+                        color: Utility.getColorStateAppuntamento(prenotazione["type"]),
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),
                             topRight: Radius.circular(10),
@@ -270,7 +274,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                     padding:
                         EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
                     margin: EdgeInsets.only(bottom: 5),
-                    child: Text(_getNameStateAppuntamento(prenotazione["type"]),
+                    child: Text(Utility.getNameStateAppuntamento(prenotazione["type"]),
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold)),
                   )),
@@ -292,5 +296,6 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                 ],
               ),
             )));
+    return card;
   }
 }

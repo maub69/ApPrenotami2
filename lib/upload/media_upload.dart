@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mia_prima_app/FileSystemNew.dart';
-import 'package:mia_prima_app/chat/risposte/popup_menu.dart';
+import 'package:mia_prima_app/chat/risposte/popup_menu_chat.dart';
 import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
@@ -87,7 +87,7 @@ class _MediaUploadState extends State<MediaUpload>
   Widget build(BuildContext context) {
     return GestureDetector(
         onLongPress: () {
-          PopupMenu.showMenu(
+          PopupMenuChat.showMenu(
             context: Model.getContext(),
             isAmministratore: !widget.isAmministratore,
             isChat: false,

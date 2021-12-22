@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/login.dart';
+import 'package:mia_prima_app/utility/utility.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stack/stack.dart' as st;
 
@@ -14,15 +15,16 @@ class Model extends StatelessWidget {
   final bool confermaChiusura;
   final bool showAppbar;
   final String textAppBar;
+  final Widget floatingActionButton;
 
-  Model({
-    this.body,
-    this.actions,
-    this.appBarColor,
-    this.confermaChiusura = false,
-    this.showAppbar = true,
-    this.textAppBar = "ApPuntamento"
-  });
+  Model(
+      {this.body,
+      this.actions,
+      this.appBarColor,
+      this.confermaChiusura = false,
+      this.showAppbar = true,
+      this.textAppBar = "ApPuntamento",
+      this.floatingActionButton});
 
   static BuildContext getContext() {
     return stackContext.top();
@@ -70,7 +72,7 @@ class Model extends StatelessWidget {
             appBar: (showAppbar
                 ? AppBar(
                     backgroundColor:
-                        (appBarColor == null) ? Colors.green : appBarColor,
+                        (appBarColor == null) ? Colors.green[900] : appBarColor,
                     centerTitle: true,
                     title: Text(this.textAppBar),
                     actions: (actions == null) ? [] : actions,
@@ -122,7 +124,9 @@ class Model extends StatelessWidget {
                 ],
               ),
             ),*/
-            body: body));
+            body: body,
+            floatingActionButton: floatingActionButton
+          ));
   }
 }
 

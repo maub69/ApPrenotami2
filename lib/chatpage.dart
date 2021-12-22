@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:mia_prima_app/cache_manager_chat.dart';
 import 'package:mia_prima_app/chat/chatLoading.dart';
-import 'package:mia_prima_app/chat/risposte/popup_menu.dart';
+import 'package:mia_prima_app/chat/risposte/popup_menu_chat.dart';
 import 'package:mia_prima_app/chat/risposte/risposta.dart';
 import 'package:mia_prima_app/chat/risposte/rispostaFactory.dart';
 import 'package:mia_prima_app/chat/risposte/widget/photo.dart';
@@ -62,9 +62,9 @@ class _ChatPage extends State<ChatPage> {
     super.initState();
     _cacheManagerChat = new CacheManagerChat(widget.idAppuntamento.toString());
     _cacheManager = Utility.getCacheManager(widget.idAppuntamento.toString());
-    PopupMenu.listWidget = _listViewChat;
-    PopupMenu.updateView = updateView;
-    PopupMenu.cacheManagerChat = _cacheManagerChat;
+    PopupMenuChat.listWidget = _listViewChat;
+    PopupMenuChat.updateView = updateView;
+    PopupMenuChat.cacheManagerChat = _cacheManagerChat;
     focus.addListener(_focusListener);
     Utility.listaPrenotazioni[widget.indexPrenotazioni]["msg_non_letti"] = 0;
     // qui vengono scaricati i messaggi e inseriti nella _listView per poi essere visualizzati

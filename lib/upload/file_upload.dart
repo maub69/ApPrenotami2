@@ -1,23 +1,15 @@
 import 'dart:io' as io;
-import 'dart:typed_data';
 
 import 'package:alert/alert.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:ext_storage/ext_storage.dart';
-import 'package:flowder/flowder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/file.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:mia_prima_app/chat/risposte/popup_menu.dart';
+import 'package:mia_prima_app/chat/risposte/popup_menu_chat.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:better_player/better_player.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:path/path.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
@@ -51,6 +43,7 @@ class _FileUploadState extends State<FileUpload>
   double _progress = 0;
   String _name;
   bool _isDownloaded = false;
+
   List<String> _extentionsMoveToTemp = [
     ".pdf",
     ".doc",
@@ -107,7 +100,7 @@ class _FileUploadState extends State<FileUpload>
       if (!_inDownloading) {
         _inDownloading = true;
 
-        DownloaderUtils downloaderUtils = DownloaderUtils(
+        /*DownloaderUtils downloaderUtils = DownloaderUtils(
           progressCallback: (current, total) {
             setState(() {
               _progress = current / total;
@@ -123,10 +116,41 @@ class _FileUploadState extends State<FileUpload>
           },
           deleteOnCancel: true,
         );
-        await Flowder.download(widget.url, downloaderUtils);
+        await Flowder.download(widget.url, downloaderUtils);*/
+
+        // https://medium.com/flutter-community/how-to-show-download-progress-in-a-flutter-app-8810e294acbd
+        // abbiamo sostituito il plugin precedende per il download utilizzando direttamente le funzionalita' della libreria http
+        // seguendo le istruzioni del link sopra
+
+        http.Request request = http.Request('GET', Uri.parse(widget.url));
+        http.StreamedResponse response = await http.Client().send(request);
+        int contentLength = response.contentLength;
+        io.File file = await io.File(_getPathFileDownloaded());
+        await file.create(recursive: true);
+        List<int> bytes = [];
+
+        response.stream.listen((List<int> newBytes) {
+            bytes.addAll(newBytes);
+            setState(() {
+              _progress = bytes.length / contentLength;
+            });
+          },
+          onDone: () async {
+            await file.writeAsBytes(bytes);
+            setState(() {
+              _inDownloading = false;
+              _isDownloaded = true;
+            });
+          },
+          onError: (e) {
+            print(e);
+          },
+          cancelOnError: true,
+        );
+
       }
     } else {
-      Alert(message: "Il file non è più disponbile per il downlaod", shortDuration: false).show();
+      Alert(message: "Il file non è più disponbile per il download", shortDuration: false).show();
     }
   }
 
@@ -138,7 +162,7 @@ class _FileUploadState extends State<FileUpload>
   Widget build(BuildContext context) {
     return GestureDetector(
         onLongPress: () {
-          PopupMenu.showMenu(
+          PopupMenuChat.showMenu(
             context: Model.getContext(),
             isAmministratore: widget.isAmministratore,
             isChat: false,

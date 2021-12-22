@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 
 import '../../cache_manager_chat.dart';
 
-class PopupMenu {
+class PopupMenuChat {
     static List<Widget> listWidget;
 
     static Function updateView;

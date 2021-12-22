@@ -25,13 +25,12 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
   http: ^0.13.0
   path: ^1.8.0
   webview_flutter: ^2.0.2
   passwordfield: ^0.0.82
   path_provider: ^2.0.1
-  syncfusion_flutter_calendar: ^19.2.57
+  syncfusion_flutter_calendar: ^19.4.38
   syncfusion_localizations: ^19.2.57
   flutter_form_builder: ^6.0.1
   #dropdownfield: ^1.0.3
@@ -41,7 +40,7 @@ dependencies:
   file_picker: ^4.0.0
   fluttertoast: ^5.0.0
   flutter_notification_channel: ^1.0.2
-  flutter_local_notifications: 8.1.1+1
+  flutter_local_notifications: ^9.1.5
   stack: ^0.0.1
   timelines: ^0.1.0
   multipart_request: ^0.3.1
@@ -54,10 +53,9 @@ dependencies:
       url: git@github.com:maub69/better-player.git
   open_file: ^3.2.1
   ext_storage: ^1.0.3
-  permission_handler: ^8.1.4+2
+  permission_handler: ^8.3.0
   firebase_core: ^1.6.0
   alert: ^2.0.1
-  flowder: ^0.2.0
   uuid: ^3.0.4
   connectivity_plus: ^1.1.0
   pop_bottom_menu: ^1.0.0

@@ -150,4 +150,53 @@ class Utility {
   static String formatStringDatefromString(String start, String end, String dateTimeString) {
     return DateFormat(end).format(DateFormat(start).parse(dateTimeString));
   }
+
+  
+
+  // (int)2:prenotato|1:in attesa dell'azienda|0:in attesa del cliente|-1:rifituato|-2:in attesa di cancellazione|-3:cancellato|-4:terminato
+  static Color getColorStateAppuntamento(int state) {
+    switch (state) {
+      case 2:
+        return Colors.green[400];
+      case 1:
+        return Colors.orange[300];
+      case 0:
+        return Colors.orange[300];
+      case -1:
+        return Colors.red[400];
+      case -2:
+        return Colors.orange[300];
+      case -3:
+        return Colors.red[400];
+      case -4:
+        return Colors.brown[200];
+      case -5:
+        return Colors.brown[200];
+      default:
+        return Colors.white;
+    }
+  }
+
+  static String getNameStateAppuntamento(int state) {
+    switch (state) {
+      case 2:
+        return "PRENOTATO";
+      case 1:
+        return "IN ATTESA DI CONFERMA";
+      case 0:
+        return "DA CONFERMARE";
+      case -1:
+        return "RIFIUTATO";
+      case -2:
+        return "IN ATTESA DI CANCELLAZIONE";
+      case -3:
+        return "CANCELLATO";
+      case -4:
+        return "CONCLUSO";
+      case -5:
+        return "ARCHIVIATO";
+      default:
+        return "";
+    }
+  }
 }

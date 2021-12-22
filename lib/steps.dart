@@ -42,12 +42,16 @@ class Steps extends StatelessWidget {
     _Info info = _decodeJson(json);
 
     return Container(
-      margin: EdgeInsets.all(6),
+      margin: EdgeInsets.all(8),
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(width: 0.1),
-        borderRadius: BorderRadius.all(Radius.circular(2.0)),
+        borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10)),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),

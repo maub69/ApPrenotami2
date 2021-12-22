@@ -196,7 +196,7 @@ class _StateDash extends State<Dash> {
             child: Container(
               margin: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
               decoration: BoxDecoration(
-                color: Colors.brown[400],
+                color: Color(0xA9000000),
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
@@ -387,7 +387,7 @@ class _StateDash extends State<Dash> {
                                 style: ElevatedButton.styleFrom(
                                     minimumSize:
                                         const Size(double.infinity, 70),
-                                    primary: Colors.green[400]),
+                                    primary: Colors.green[900]),
                                 child: Stack(
                                   children: <Widget>[
                                     // Stroked text as border.

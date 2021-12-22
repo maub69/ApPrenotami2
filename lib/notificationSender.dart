@@ -42,7 +42,6 @@ class NotificationSender {
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
         'apprenotami.appuntamenti',
         'Appuntamenti',
-        'Qui ricevi le notifiche per gli appuntamenti',
         playSound: false);
     var platformChannelSpecifics =
         new NotificationDetails(android: androidPlatformChannelSpecifics);

@@ -11,6 +11,10 @@ class EndPoint {
   
   static final String GET_CALENDARI_SETTIMANE_2 = "test/getCalendariSettimane2.php";
 
+  static final String APPUNTAMENTO = "test/appuntamento.php";
+
+  static final String ARCHIVIA_APPUNTAMENTO = "test/archiviaAppuntamento.php";
+
   static final String CREA_APPUNTAMENTO = "test/creaAppuntamento.php";
 
   static final String GET_APPUNTAMENTI = "test/getAppuntamenti.php";
