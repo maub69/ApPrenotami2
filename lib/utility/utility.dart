@@ -2,12 +2,9 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mia_prima_app/FileSystemNew.dart';
 import 'package:mia_prima_app/calendario.dart';
-import 'package:mia_prima_app/utility/convertSettimanaInCalendario.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/downloadJson.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -112,13 +109,18 @@ class Utility {
     downloadJsonListaPrenotazioni.start();
   }
 
-  static Positioned getBoxNotification(int numNotifiche) {
-    return Positioned(
-      right: 0,
-      child: Container(
+  static Positioned getBoxNotification(
+    int numNotifiche, {
+    double right = 0,
+    double top = 0,
+    bool hasIcon = false,
+  }) {
+    Widget content;
+    if (hasIcon) {
+      content = Container(
         padding: EdgeInsets.all(3),
         decoration: BoxDecoration(
-          color: Colors.red,
+          color: Colors.green[700],
           borderRadius: BorderRadius.circular(22),
         ),
         constraints: BoxConstraints(
@@ -133,7 +135,38 @@ class Utility {
           ),
           textAlign: TextAlign.center,
         ),
-      ),
+      );
+    } else {
+      content = Stack(
+        alignment: Alignment.center,
+        children: [
+        Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.rotationY(pi),
+          child: Icon(
+            Icons.mode_comment,
+            color: Colors.green[700],
+            size: 40.0,
+            semanticLabel: 'Messaggi non letti',
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(bottom: 6),
+          child: Text(
+            '$numNotifiche',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        )
+      ]);
+    }
+    return Positioned(
+      right: right,
+      top: top,
+      child: content,
     );
   }
 
@@ -147,11 +180,10 @@ class Utility {
 
   static Function onMessageFirebase;
 
-  static String formatStringDatefromString(String start, String end, String dateTimeString) {
+  static String formatStringDatefromString(
+      String start, String end, String dateTimeString) {
     return DateFormat(end).format(DateFormat(start).parse(dateTimeString));
   }
-
-  
 
   // (int)2:prenotato|1:in attesa dell'azienda|0:in attesa del cliente|-1:rifituato|-2:in attesa di cancellazione|-3:cancellato|-4:terminato
   static Color getColorStateAppuntamento(int state) {

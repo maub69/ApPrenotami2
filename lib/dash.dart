@@ -298,7 +298,6 @@ class _StateDash extends State<Dash> {
                 })));
   }
 
-  // TODO schermata dash per adesso completata, ora bisogna passare alla pagina delle prenotazioni e innanzitutto modificare i box graficamente (aggiungendo l'informazione delle notifiche), poi aggiungere i filtri e poi la sezione archivio
   _onPressedListaPrenotazioniFuture() {
     Navigator.push(
             context,

@@ -64,8 +64,11 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
             MaterialPageRoute(
                 builder: (BuildContext context) => VisualizzaPrenotazioneFutura(
                     prenotazione: listaPrenotazioniNoArchivio[i],
-                    indexPrenotazioni: i,
-                    aggiornaPrenotazioni: _aggiornaPrenotazione)));
+                    aggiornaPrenotazioni: _aggiornaPrenotazione))).then((_) {
+                      setState(() {
+                        _aggiornaListaPrenotazioniFuture(discard: discard);
+                      });
+        });
       }));
     }
     _listCard.add(Container(height: 20));
@@ -76,9 +79,6 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
     return Model(
         textAppBar: "Lista appuntamenti",
         actions: [
-          // TODO creare un bottone fluottante per eliminare i filtri che sono stati applicati, usare il codice commentato sopra come partenza
-          // TODO se ce un filtro applicato compare un'icona tra l'appbar e il primo box nel quale a e' presente una x che serve per cancellare il filtro
-          // TODO se non ce nessun appuntamento o se per via dei filtri non ce nessun appuntamento compare una scritta che avvisa che non ce nessun appuntamento
           IconButton(
               icon: const Icon(
                 Icons.visibility,
@@ -86,9 +86,6 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
               ),
               tooltip: "Filtra",
               onPressed: () {
-                List<dynamic> listaArchiviati = Utility.listaPrenotazioni
-                    .where((element) => element["type"] == -5)
-                    .toList();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -128,7 +125,6 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                                             VisualizzaPrenotazioneFutura(
                                                 prenotazione:
                                                     listaArchiviati[i],
-                                                indexPrenotazioni: i,
                                                 aggiornaPrenotazioni:
                                                     _aggiornaPrenotazione)));
                               });
@@ -214,88 +210,98 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                   cardPos: posWidget,
                   delWidget: delWidget);
             },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Color(0xA9000000),
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 7,
-                    offset: Offset(0, 3), // changes position of shadow
-                  ),
-                ],
-              ),
-              margin: EdgeInsets.only(left: 8, right: 8, top: 10),
-              padding: EdgeInsets.only(top: 6, bottom: 5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                      padding: EdgeInsets.only(bottom: 2),
+            child: Stack(children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xA9000000),
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 7,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
+                margin: EdgeInsets.only(left: 8, right: 8, top: 10),
+                padding: EdgeInsets.only(top: 6, bottom: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                        padding: EdgeInsets.only(bottom: 2),
+                        child: Center(
+                            child: Text(prenotazione["calendario_nome"],
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)))),
+                    Padding(
+                      padding: EdgeInsets.only(left: 15, right: 15),
                       child: Center(
-                          child: Text(prenotazione["calendario_nome"],
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)))),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15, right: 15),
-                    child: Center(
+                        child: Text(
+                            'Data richiesta: ' +
+                                Utility.formatStringDatefromString(
+                                    "yyyy-MM-dd HH:mm:ss",
+                                    "dd/MM/yyyy HH:mm",
+                                    prenotazione["richiesto"]),
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12),
+                        child: Divider(color: Colors.white30, thickness: 1.5)),
+                    Center(
+                        child: Container(
+                      decoration: BoxDecoration(
+                          color: Utility.getColorStateAppuntamento(
+                              prenotazione["type"]),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                              bottomLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10))),
+                      padding: EdgeInsets.only(
+                          top: 5, bottom: 5, left: 20, right: 20),
+                      margin: EdgeInsets.only(bottom: 5),
                       child: Text(
-                          'Data richiesta: ' +
+                          Utility.getNameStateAppuntamento(
+                              prenotazione["type"]),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    )),
+                    Padding(
+                      padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                      child: Text(prenotazione["message_admin"],
+                          style: TextStyle(fontSize: 16, color: Colors.white)),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 15, right: 15, bottom: 5),
+                      child: Text(
+                          'Data appuntammento: ' +
                               Utility.formatStringDatefromString(
                                   "yyyy-MM-dd HH:mm:ss",
                                   "dd/MM/yyyy HH:mm",
-                                  prenotazione["richiesto"]),
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  Padding(
-                      padding: EdgeInsets.only(left: 12, right: 12),
-                      child: Divider(color: Colors.white30, thickness: 1.5)),
-                  Center(
-                      child: Container(
-                    decoration: BoxDecoration(
-                        color: Utility.getColorStateAppuntamento(prenotazione["type"]),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
-                            bottomRight: Radius.circular(10))),
-                    padding:
-                        EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
-                    margin: EdgeInsets.only(bottom: 5),
-                    child: Text(Utility.getNameStateAppuntamento(prenotazione["type"]),
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
-                  )),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
-                    child: Text(prenotazione["message_admin"],
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 15, right: 15, bottom: 5),
-                    child: Text(
-                        'Data appuntammento: ' +
-                            Utility.formatStringDatefromString(
-                                "yyyy-MM-dd HH:mm:ss",
-                                "dd/MM/yyyy HH:mm",
-                                prenotazione["start"]),
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
-                  )
-                ],
+                                  prenotazione["start"]),
+                          style: TextStyle(fontSize: 16, color: Colors.white)),
+                    )
+                  ],
+                ),
               ),
-            )));
+              ((prenotazione["msg_non_letti"] != 0)
+                  ? Utility.getBoxNotification(prenotazione["msg_non_letti"],
+                      right: 21, top: 18)
+                  : Container())
+            ])));
     return card;
   }
 }
