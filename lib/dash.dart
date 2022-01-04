@@ -121,12 +121,7 @@ class _StateDash extends State<Dash> {
             MaterialPageRoute(
                 builder: (BuildContext context) => VisualizzaPrenotazioneFutura(
                     prenotazione:
-                        Utility.listaPrenotazioni[idAppuntamentoAprire],
-                    aggiornaPrenotazioni: (String body) {
-                      Map<String, dynamic> _arrayBody = jsonDecode(body);
-                      Utility.listaPrenotazioni[idAppuntamentoAprire] =
-                          _arrayBody["new_element"];
-                    })));
+                        Utility.listaPrenotazioni[idAppuntamentoAprire])));
       }
       setState(() {});
     }
@@ -336,7 +331,6 @@ class _StateDash extends State<Dash> {
                         fadeInDuration: Duration(seconds: 0),
                       ),
 
-                      // TODO inserire il caricamento quando non ha ancora scaricato i calendari
                       Padding(
                           padding: EdgeInsets.only(top: 40),
                           child: Row(

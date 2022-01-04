@@ -28,24 +28,6 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
     _aggiornaListaPrenotazioniFuture();
   }
 
-  //TODO gestire l'evento di quando si clicca fuori dal dialog
-  //questa funzione viene chiamata da visualizzaPrenotazioni future e permette di aggiornare la lista modificando il card d'interesse con le nuove informazioni
-  void _aggiornaPrenotazione(String body) {
-    Map<String, dynamic> _arrayBody = jsonDecode(body);
-    _showMessage("Eliminazione appuntamento", _arrayBody["response"]["message"],
-        Colors.red);
-    for (int i = 0; i < Utility.listaPrenotazioni.length; i++) {
-      //una volta trovata la prenotazione interesssata, viene sostituita con le nuove informazioni
-      if (Utility.listaPrenotazioni[i]["id"] ==
-          _arrayBody["new_element"]["id"]) {
-        Utility.listaPrenotazioni[i] = _arrayBody["new_element"];
-        break;
-      }
-    }
-    _aggiornaListaPrenotazioniFuture();
-    setState(() {});
-  }
-
   //nei fatti non fa altro che popolare _listCard con i nuovi Widget delle prenotazioni
   void _aggiornaListaPrenotazioniFuture({List<int> discard}) {
     if (discard == null) {
@@ -63,11 +45,10 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
             context,
             MaterialPageRoute(
                 builder: (BuildContext context) => VisualizzaPrenotazioneFutura(
-                    prenotazione: listaPrenotazioniNoArchivio[i],
-                    aggiornaPrenotazioni: _aggiornaPrenotazione))).then((_) {
-                      setState(() {
-                        _aggiornaListaPrenotazioniFuture(discard: discard);
-                      });
+                    prenotazione: listaPrenotazioniNoArchivio[i]))).then((_) {
+          setState(() {
+            _aggiornaListaPrenotazioniFuture(discard: discard);
+          });
         });
       }));
     }
@@ -119,14 +100,24 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                             print: (element, i) {
                               return getWidgetList(element, i, () {
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            VisualizzaPrenotazioneFutura(
-                                                prenotazione:
-                                                    listaArchiviati[i],
-                                                aggiornaPrenotazioni:
-                                                    _aggiornaPrenotazione)));
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                VisualizzaPrenotazioneFutura(
+                                                    prenotazione:
+                                                        listaArchiviati[i])))
+                                    .then((value) {
+                                  setState(() {
+                                    listaArchiviati[i]["type"] = 2; // TODO DA SISTEMARE
+                                  });
+                                }).then((value) {
+                                  setState(() {
+                                    _aggiornaListaPrenotazioniFuture(
+                                        discard: _filtri
+                                            .map((e) => e.nameInt)
+                                            .toList());
+                                  });
+                                });
                               });
                             },
                           )),
@@ -179,20 +170,6 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
             discard: _filtri.map((e) => e.nameInt).toList());
       });
     });
-  }
-
-  void _showMessage(String title, String body, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-      content: Column(
-          children: [
-            Text(title, style: TextStyle(fontSize: 20)),
-            Text(body, style: TextStyle(fontSize: 15)),
-          ],
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start),
-      backgroundColor: color,
-      duration: Duration(seconds: 10),
-    ));
   }
 
   Widget getWidgetList(dynamic prenotazione, int posWidget, Function onTap) {

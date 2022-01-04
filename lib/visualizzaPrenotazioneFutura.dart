@@ -1,8 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
+import 'package:mia_prima_app/cache_manager_chat.dart';
 import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:http/http.dart' as http;
@@ -13,9 +16,8 @@ import 'package:mia_prima_app/utility/utility.dart';
 
 class VisualizzaPrenotazioneFutura extends StatefulWidget {
   final dynamic prenotazione;
-  final Function aggiornaPrenotazioni;
 
-  VisualizzaPrenotazioneFutura({this.prenotazione, this.aggiornaPrenotazioni});
+  VisualizzaPrenotazioneFutura({this.prenotazione});
 
   @override
   State createState() => _StateVisualizzaPrenotazioneFutura();
@@ -25,18 +27,22 @@ class _StateVisualizzaPrenotazioneFutura
     extends State<VisualizzaPrenotazioneFutura> {
   Widget buttonElimina = Text("Elimina", style: TextStyle(color: Colors.red));
 
-  void onClickElimina(String title, String doButtonText) async {
+  // value --> // 1=richiesta annullamento, 2=elimina, 3=archivia
+  void onClickElimina(int type, String description,
+      {String title, String doButtonText}) async {
+    String response = "1";
+    if (title != null) {
       TextEditingController testoController = TextEditingController();
       //qui viene chiamato il dialog e la schermata rimane in attesa finche' non viene fornita una risposta
-      String response = await showDialog<String>(
+      response = await showDialog<String>(
         barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             content: Column(children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 15),
-                child: Text(title, textAlign: TextAlign.justify)),
+                  padding: EdgeInsets.only(bottom: 15),
+                  child: Text(title, textAlign: TextAlign.justify)),
               TextField(
                 keyboardType: TextInputType.multiline,
                 minLines: 3,
@@ -61,25 +67,56 @@ class _StateVisualizzaPrenotazioneFutura
           );
         },
       );
+    }
 
-      //se la risposta e' uguale a -1 signica che e' stato cliccato "Annulla"
-      if (response != "-1") {
-        //qui si va a sostiuire il testo del bottone con un caricamento
-        buttonElimina = Loading(
-            indicator: BallPulseIndicator(), size: 40.0, color: Colors.red);
-        setState(() {});
+    //se la risposta e' uguale a -1 signica che e' stato cliccato "Annulla"
+    if (response != "-1") {
+      //qui si va a sostiuire il testo del bottone con un caricamento
+      buttonElimina = Loading(
+          indicator: BallPulseIndicator(), size: 40.0, color: Colors.red);
+      setState(() {});
 
-        //qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
-        http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE)),
-            body: {
-              "motivo": response,
-              "id_appuntamento": widget.prenotazione["id"].toString()
-            }).then((value) {
-          print("risposta prenotazione: " + value.body);
-          widget.aggiornaPrenotazioni(value.body);
+      //qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
+      http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE)),
+          body: {
+            "motivo": response,
+            "type": type.toString(),
+            "id_appuntamento": widget.prenotazione["id"].toString()
+          }).then((value) {
+        Map<String, dynamic> jsonBody = jsonDecode(value.body);
+        widget.prenotazione["type"] = jsonBody["new_element"]["type"];
+        _showMessage(
+            Utility.getNameStateAppuntamento(jsonBody["new_element"]["type"])
+                    .substring(0, 1) +
+                Utility.getNameStateAppuntamento(
+                        jsonBody["new_element"]["type"])
+                    .substring(1)
+                    .toLowerCase(),
+            description,
+            Colors.red);
+        Utility.listaPrenotazioni.remove(widget.prenotazione);
+        if (type == 2) {
           Navigator.pop(context);
-        });
-      }
+          Utility.deletePrenotazione(widget.prenotazione["id"].toString());
+        } else {
+          setState(() {});
+        }
+      });
+    }
+  }
+
+  void _showMessage(String title, String body, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+      content: Column(
+          children: [
+            Text(title, style: TextStyle(fontSize: 20)),
+            Text(body, style: TextStyle(fontSize: 15)),
+          ],
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start),
+      backgroundColor: color,
+      duration: Duration(seconds: 10),
+    ));
   }
 
   @override
@@ -228,36 +265,122 @@ class _StateVisualizzaPrenotazioneFutura
       listWidget.add(Steps(json: widget.prenotazione['steps']));
     }
 
+    List<Widget> actions = [];
+    if (widget.prenotazione["type"] == 2 ||
+        widget.prenotazione["type"] == 1 ||
+        widget.prenotazione["type"] == 0) {
+      actions = [
+        PopupMenuButton<int>(
+            itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                  new PopupMenuItem<int>(
+                      value: 1,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.cancel,
+                            color: Color(0xA9000000),
+                            size: 25.0,
+                            semanticLabel: 'Richiesta di annullamento',
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Text("Richiesta di annullamento",
+                                style: TextStyle(fontSize: 17)),
+                          )
+                        ],
+                      ))
+                ],
+            onSelected: (int value) {
+              onClickElimina(
+                value,
+                "L'operazione è in corso",
+                title:
+                    "Specifica il motivo per il quale vuoi annullare la prenotazione. Questa operazione non è istantanea, ma necessità di essere approvata.",
+                doButtonText: "Invia richiesta annullamento",
+              );
+            })
+      ];
+    } else if (widget.prenotazione["type"] == -1 ||
+        widget.prenotazione["type"] == -3 ||
+        widget.prenotazione["type"] == -4) {
+      actions = [
+        PopupMenuButton<int>(
+            itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                  new PopupMenuItem<int>(
+                      value: 2,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Color(0xA9000000),
+                            size: 25.0,
+                            semanticLabel: 'Elimina',
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child:
+                                Text("Elimina", style: TextStyle(fontSize: 17)),
+                          )
+                        ],
+                      )),
+                  new PopupMenuItem<int>(
+                      value: 3,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.archive,
+                            color: Color(0xA9000000),
+                            size: 25.0,
+                            semanticLabel: 'Archivia',
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: Text("Archivia",
+                                style: TextStyle(fontSize: 17)),
+                          )
+                        ],
+                      ))
+                ],
+            onSelected: (int value) {
+              onClickElimina(value, "L'operazione è stata eseguita");
+            })
+      ];
+    } else if (widget.prenotazione["type"] == -5) {
+      actions = [
+        PopupMenuButton<int>(
+            itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
+                  new PopupMenuItem<int>(
+                      value: 2,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Color(0xA9000000),
+                            size: 25.0,
+                            semanticLabel: 'Elimina',
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child:
+                                Text("Elimina", style: TextStyle(fontSize: 17)),
+                          )
+                        ],
+                      ))
+                ],
+            onSelected: (int value) {
+              onClickElimina(value, "L'operazione è stata eseguita");
+            })
+      ];
+    }
+
     // TODO continuare a occuparsi del bottone di annullamento, cosa successiva da fare è cambiare il testo di quello che compare una volta inviata la richiesta di annullamento
     // TODO poi procedere cambiando lo stato della prenotazione
     // TODO poi fare in modo che per i diversi tipi di prenotazioni ci sono le azioni corrette
+    // TODO procedere facendo in modo che se viene eliminata una chat dall'archivio quella scompare immediatamente dalla lista delle archiviazioni
+    // TODO inoltre fare in modo di ripristinare dall'archivio nella lista normale
+    // TODO inserire data per "IN ATTESA DI CANCELLAZIONE"
     return Model(
-        actions: [
-          PopupMenuButton<int>(
-              itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
-                    new PopupMenuItem<int>(
-                        value: 1,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.cancel,
-                              color: Color(0xA9000000),
-                              size: 25.0,
-                              semanticLabel: 'Elimina',
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 5),
-                              child: Text("Richiesta di annullamento",
-                                  style: TextStyle(fontSize: 17)),
-                            )
-                          ],
-                        ))
-                  ],
-              onSelected: (int value) {
-                onClickElimina("Specifica il motivo per il quale vuoi annullare la prenotazione. Questa operazione non è istantanea, ma necessità di essere approvata.",
-                               "Invia richiesta annullamento");
-              })
-        ],
+        actions: actions,
         body: ListView(children: listWidget),
         floatingActionButton: Stack(
           children: [

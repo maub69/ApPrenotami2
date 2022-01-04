@@ -1,5 +1,6 @@
 //import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -229,6 +230,29 @@ class Utility {
         return "ARCHIVIATO";
       default:
         return "";
+    }
+  }
+
+  static void deletePrenotazione(String idPrenotazione) {
+    File fileChat = File(Utility.pathDownload +
+        "/chats/" +
+        idPrenotazione);
+    if (fileChat.existsSync()) {
+      fileChat.deleteSync();
+    }
+
+    Directory filesDir = Directory(Utility.pathDownload +
+        "/files/" +
+        idPrenotazione);
+    if (filesDir.existsSync()) {
+      filesDir.deleteSync(recursive: true);
+    }
+
+    Directory imagesDir = Directory(Utility.pathDownload +
+        "/images/" +
+        idPrenotazione);
+    if (imagesDir.existsSync()) {
+      imagesDir.deleteSync(recursive: true);
     }
   }
 }
