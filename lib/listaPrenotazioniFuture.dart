@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/filtra_page.dart';
-import 'package:mia_prima_app/list_page.dart';
+import 'package:mia_prima_app/list_page_archiviati.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/popup_menu_appuntamenti.dart';
 import 'package:mia_prima_app/utility/utility.dart';
@@ -94,34 +93,18 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ListPage(
-                            title: "Archiviati",
-                            list: listaArchiviati,
-                            print: (element, i) {
-                              return getWidgetList(element, i, () {
-                                Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                VisualizzaPrenotazioneFutura(
-                                                    prenotazione:
-                                                        listaArchiviati[i])))
-                                    .then((value) {
-                                  setState(() {
-                                    listaArchiviati[i]["type"] = 2; // TODO DA SISTEMARE
-                                  });
-                                }).then((value) {
-                                  setState(() {
-                                    _aggiornaListaPrenotazioniFuture(
-                                        discard: _filtri
-                                            .map((e) => e.nameInt)
-                                            .toList());
-                                  });
-                                });
-                              });
-                            },
-                          )),
-                );
+                    builder: (context) => ListPage(
+                      title: "Archiviati",
+                      list: listaArchiviati,
+                      getWidget: getWidgetList,
+                    ),
+                  ),
+                ).then((value) {
+                  setState(() {
+                    _aggiornaListaPrenotazioniFuture(
+                        discard: _filtri.map((e) => e.nameInt).toList());
+                  });
+                });
               })
         ],
         body: new Builder(builder: (BuildContext context) {
@@ -163,6 +146,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
       if (isToDelete) {
         Utility.listaPrenotazioni.remove(prenotazioneNoarchivio);
       } else {
+        prenotazioneNoarchivio["prev_type"] = prenotazioneNoarchivio["type"];
         prenotazioneNoarchivio["type"] = -5;
       }
       setState(() {
@@ -174,111 +158,111 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
 
   Widget getWidgetList(dynamic prenotazione, int posWidget, Function onTap) {
     Widget card = Material(
-        key: Key(_random
-            .nextInt(100000)
-            .toString()), //IMPORTANTE, perche' altrimenti visualizzerebbe ancora i widget vecchi, perche' userebbe quelli in cache
-        color: Colors.transparent,
-        child: InkWell(
-            onTap: onTap,
-            onLongPress: () {
-              PopupMenuAppuntamenti.showMenu(
-                  context: context,
-                  prenotazione: prenotazione,
-                  cardPos: posWidget,
-                  delWidget: delWidget);
-            },
-            child: Stack(children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Color(0xA9000000),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 7,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
+      key: Key(_random
+          .nextInt(100000)
+          .toString()), //IMPORTANTE, perche' altrimenti visualizzerebbe ancora i widget vecchi, perche' userebbe quelli in cache
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: () {
+          PopupMenuAppuntamenti.showMenu(
+              context: context,
+              prenotazione: prenotazione,
+              cardPos: posWidget,
+              delWidget: delWidget);
+        },
+        child: Stack(children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Color(0xA9000000),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // changes position of shadow
                 ),
-                margin: EdgeInsets.only(left: 8, right: 8, top: 10),
-                padding: EdgeInsets.only(top: 6, bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.only(bottom: 2),
-                        child: Center(
-                            child: Text(prenotazione["calendario_nome"],
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold)))),
-                    Padding(
-                      padding: EdgeInsets.only(left: 15, right: 15),
-                      child: Center(
-                        child: Text(
-                            'Data richiesta: ' +
-                                Utility.formatStringDatefromString(
-                                    "yyyy-MM-dd HH:mm:ss",
-                                    "dd/MM/yyyy HH:mm",
-                                    prenotazione["richiesto"]),
+              ],
+            ),
+            margin: EdgeInsets.only(left: 8, right: 8, top: 10),
+            padding: EdgeInsets.only(top: 6, bottom: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                    padding: EdgeInsets.only(bottom: 2),
+                    child: Center(
+                        child: Text(prenotazione["calendario_nome"],
                             style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 20,
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(left: 12, right: 12),
-                        child: Divider(color: Colors.white30, thickness: 1.5)),
-                    Center(
-                        child: Container(
-                      decoration: BoxDecoration(
-                          color: Utility.getColorStateAppuntamento(
-                              prenotazione["type"]),
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
-                              bottomLeft: Radius.circular(10),
-                              bottomRight: Radius.circular(10))),
-                      padding: EdgeInsets.only(
-                          top: 5, bottom: 5, left: 20, right: 20),
-                      margin: EdgeInsets.only(bottom: 5),
-                      child: Text(
-                          Utility.getNameStateAppuntamento(
-                              prenotazione["type"]),
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold)),
-                    )),
-                    Padding(
-                      padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
-                      child: Text(prenotazione["message_admin"],
-                          style: TextStyle(fontSize: 16, color: Colors.white)),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 15, right: 15, bottom: 5),
-                      child: Text(
-                          'Data appuntammento: ' +
-                              Utility.formatStringDatefromString(
-                                  "yyyy-MM-dd HH:mm:ss",
-                                  "dd/MM/yyyy HH:mm",
-                                  prenotazione["start"]),
-                          style: TextStyle(fontSize: 16, color: Colors.white)),
-                    )
-                  ],
+                                fontWeight: FontWeight.bold)))),
+                Padding(
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  child: Center(
+                    child: Text(
+                        'Data richiesta: ' +
+                            Utility.formatStringDatefromString(
+                                "yyyy-MM-dd HH:mm:ss",
+                                "dd/MM/yyyy HH:mm",
+                                prenotazione["richiesto"]),
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
                 ),
-              ),
-              ((prenotazione["msg_non_letti"] != 0)
-                  ? Utility.getBoxNotification(prenotazione["msg_non_letti"],
-                      right: 21, top: 18)
-                  : Container())
-            ])));
+                Padding(
+                    padding: EdgeInsets.only(left: 12, right: 12),
+                    child: Divider(color: Colors.white30, thickness: 1.5)),
+                Center(
+                    child: Container(
+                  decoration: BoxDecoration(
+                      color: Utility.getColorStateAppuntamento(
+                          prenotazione["type"]),
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10))),
+                  padding:
+                      EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
+                  margin: EdgeInsets.only(bottom: 5),
+                  child: Text(
+                      Utility.getNameStateAppuntamento(prenotazione["type"]),
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
+                )),
+                Padding(
+                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                  child: Text(prenotazione["message_admin"],
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 5),
+                  child: Text(
+                      'Data appuntammento: ' +
+                          Utility.formatStringDatefromString(
+                              "yyyy-MM-dd HH:mm:ss",
+                              "dd/MM/yyyy HH:mm",
+                              prenotazione["start"]),
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                )
+              ],
+            ),
+          ),
+          ((prenotazione["msg_non_letti"] != 0)
+              ? Utility.getBoxNotification(prenotazione["msg_non_letti"],
+                  right: 21, top: 18)
+              : Container())
+        ]),
+      ),
+    );
     return card;
   }
 }

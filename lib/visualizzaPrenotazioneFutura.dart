@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
-import 'package:mia_prima_app/cache_manager_chat.dart';
 import 'package:mia_prima_app/chatpage.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:http/http.dart' as http;
@@ -39,28 +37,36 @@ class _StateVisualizzaPrenotazioneFutura
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: Color(0xFD292929),
             content: Column(children: [
               Padding(
                   padding: EdgeInsets.only(bottom: 15),
-                  child: Text(title, textAlign: TextAlign.justify)),
+                  child: Text("RICHIESTA ANNULLAMENTO", style: TextStyle(color: Colors.blue[400], fontSize: 16, fontWeight: FontWeight.bold))),
+              Padding(
+                  padding: EdgeInsets.only(bottom: 15),
+                  child: Text(title, textAlign: TextAlign.justify, style: TextStyle(color: Colors.white))),
               TextField(
+                style: TextStyle(color: Colors.white),
                 keyboardType: TextInputType.multiline,
                 minLines: 3,
                 maxLines: null,
+                cursorColor: Colors.white,
                 controller: testoController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Inserisci la motivazione',
+                  labelStyle: TextStyle(color: Colors.white),
+
                 ),
               )
             ], mainAxisSize: MainAxisSize.min),
             actions: <Widget>[
               TextButton(
-                  child: Text(doButtonText),
+                  child: Text(doButtonText, style: TextStyle(fontSize: 15)),
                   onPressed: () =>
                       Navigator.pop(context, testoController.text)),
               TextButton(
-                  child: const Text('Annulla'),
+                  child: const Text('ANNULLA', style: TextStyle(fontSize: 15)),
                   // Return "No" when dismissed.
                   onPressed: () => Navigator.pop(context, '-1')),
             ],
@@ -84,6 +90,9 @@ class _StateVisualizzaPrenotazioneFutura
             "id_appuntamento": widget.prenotazione["id"].toString()
           }).then((value) {
         Map<String, dynamic> jsonBody = jsonDecode(value.body);
+        if (jsonBody["new_element"]["type"] == -4) {
+          widget.prenotazione["prev_type"] = widget.prenotazione["type"];
+        }
         widget.prenotazione["type"] = jsonBody["new_element"]["type"];
         _showMessage(
             Utility.getNameStateAppuntamento(jsonBody["new_element"]["type"])
@@ -93,11 +102,11 @@ class _StateVisualizzaPrenotazioneFutura
                     .substring(1)
                     .toLowerCase(),
             description,
-            Colors.red);
-        Utility.listaPrenotazioni.remove(widget.prenotazione);
+            Colors.green[900]);
         if (type == 2) {
           Navigator.pop(context);
           Utility.deletePrenotazione(widget.prenotazione["id"].toString());
+          Utility.listaPrenotazioni.remove(widget.prenotazione);
         } else {
           setState(() {});
         }
@@ -296,7 +305,7 @@ class _StateVisualizzaPrenotazioneFutura
                 "L'operazione è in corso",
                 title:
                     "Specifica il motivo per il quale vuoi annullare la prenotazione. Questa operazione non è istantanea, ma necessità di essere approvata.",
-                doButtonText: "Invia richiesta annullamento",
+                doButtonText: "INVIA RICHIESTA",
               );
             })
       ];
@@ -365,6 +374,23 @@ class _StateVisualizzaPrenotazioneFutura
                                 Text("Elimina", style: TextStyle(fontSize: 17)),
                           )
                         ],
+                      )),
+                      new PopupMenuItem<int>(
+                      value: 4,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.settings_backup_restore_rounded,
+                            color: Color(0xA9000000),
+                            size: 25.0,
+                            semanticLabel: 'Ripristina',
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child:
+                                Text("Ripristina", style: TextStyle(fontSize: 17)),
+                          )
+                        ],
                       ))
                 ],
             onSelected: (int value) {
@@ -373,12 +399,8 @@ class _StateVisualizzaPrenotazioneFutura
       ];
     }
 
-    // TODO continuare a occuparsi del bottone di annullamento, cosa successiva da fare è cambiare il testo di quello che compare una volta inviata la richiesta di annullamento
-    // TODO poi procedere cambiando lo stato della prenotazione
-    // TODO poi fare in modo che per i diversi tipi di prenotazioni ci sono le azioni corrette
-    // TODO procedere facendo in modo che se viene eliminata una chat dall'archivio quella scompare immediatamente dalla lista delle archiviazioni
-    // TODO inoltre fare in modo di ripristinare dall'archivio nella lista normale
     // TODO inserire data per "IN ATTESA DI CANCELLAZIONE"
+    // TODO in teoria procedere con la chat
     return Model(
         actions: actions,
         body: ListView(children: listWidget),
