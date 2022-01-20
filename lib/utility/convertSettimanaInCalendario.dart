@@ -53,7 +53,8 @@ class ConvertSettimanaInCalendario {
             descrizione: disponibilita.toString(),
             from: start,
             to: end,
-            prenotato: "1"));
+            prenotato: "1",
+            hasDurata: element["has_durata"]));
       });
     });
     return meetings;

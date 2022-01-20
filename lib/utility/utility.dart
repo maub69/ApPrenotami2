@@ -78,6 +78,35 @@ class Utility {
     return formatter.format(dateTime);
   }
 
+  static String getDateStringFromDateTime(DateTime dateTime, String format) {
+    DateFormat formatter = DateFormat(format);
+    return formatter.format(dateTime);
+  }
+
+  static String formattaDurata(DateTime from, DateTime to) {
+    String output = "";
+    Duration duration = to.difference(from);
+    if (duration.inDays > 1) {
+      output = "${duration.inDays} giorni ";
+    }
+    if (duration.inDays == 1) {
+      output = "${duration.inDays} giorno ";
+    }
+    if (duration.inHours % 24 > 1) {
+      output = output + "${duration.inHours % 24} ore ";
+    }
+    if (duration.inHours % 24 == 1) {
+      output = output + "${duration.inHours % 24} ora ";
+    }
+    if (duration.inMinutes % 60 > 1) {
+      output = output + "${duration.inMinutes % 60} minuti ";
+    }
+    if (duration.inMinutes % 60 == 1) {
+      output = output + "${duration.inHours % 60} minuto ";
+    }
+    return output.trim();
+  }
+
   static int getSettimana() {
     var now = new DateTime.now();
     int adesso = now.millisecondsSinceEpoch;
@@ -138,9 +167,7 @@ class Utility {
         ),
       );
     } else {
-      content = Stack(
-        alignment: Alignment.center,
-        children: [
+      content = Stack(alignment: Alignment.center, children: [
         Transform(
           alignment: Alignment.center,
           transform: Matrix4.rotationY(pi),
@@ -234,23 +261,19 @@ class Utility {
   }
 
   static void deletePrenotazione(String idPrenotazione) {
-    File fileChat = File(Utility.pathDownload +
-        "/chats/" +
-        idPrenotazione);
+    File fileChat = File(Utility.pathDownload + "/chats/" + idPrenotazione);
     if (fileChat.existsSync()) {
       fileChat.deleteSync();
     }
 
-    Directory filesDir = Directory(Utility.pathDownload +
-        "/files/" +
-        idPrenotazione);
+    Directory filesDir =
+        Directory(Utility.pathDownload + "/files/" + idPrenotazione);
     if (filesDir.existsSync()) {
       filesDir.deleteSync(recursive: true);
     }
 
-    Directory imagesDir = Directory(Utility.pathDownload +
-        "/images/" +
-        idPrenotazione);
+    Directory imagesDir =
+        Directory(Utility.pathDownload + "/images/" + idPrenotazione);
     if (imagesDir.existsSync()) {
       imagesDir.deleteSync(recursive: true);
     }

@@ -156,6 +156,7 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
     });
   }
 
+  // TODO ricordarsi di sistemare il popup per la chiusura dell'app
   Widget getWidgetList(dynamic prenotazione, int posWidget, Function onTap) {
     Widget card = Material(
       key: Key(_random
@@ -217,6 +218,21 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
                             fontWeight: FontWeight.bold)),
                   ),
                 ),
+                prenotazione['type'] == -2 ? Padding(
+                  padding: EdgeInsets.only(top: 5, left: 15, right: 15),
+                  child: Center(
+                    child: Text(
+                        'Richiesta cancellazione: ' +
+                            Utility.formatStringDatefromString(
+                                "yyyy-MM-dd HH:mm:ss",
+                                "dd/MM/yyyy HH:mm",
+                                prenotazione["richiesto_cancellazione"]),
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ) : Container(),
                 Padding(
                     padding: EdgeInsets.only(left: 12, right: 12),
                     child: Divider(color: Colors.white30, thickness: 1.5)),

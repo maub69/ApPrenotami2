@@ -55,7 +55,6 @@ class _LoginState extends State<Login> {
     super.initState();
   }
 
-  //TODO inserire il box sotto informativo come nel wireframe
   @override
   Widget build(BuildContext context) {
     contextGlobal = context;

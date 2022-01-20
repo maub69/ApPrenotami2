@@ -6,9 +6,8 @@ import 'package:loading/loading.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
-import 'package:mia_prima_app/utility/utility.dart';
-import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/utility/utility.dart';
 
 class CreaAppuntamento extends StatefulWidget {
   final Disponibilita disponibilita;
@@ -28,24 +27,9 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
   Widget childAggiungi = Text("Aggiungi");
   Function _onPressedAggiungi;
 
-  String _defaulVolteRicorsivo = "1";
-  String _correnteVolteRicorsivo;
-  List<String> _volteRicorsivo = [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-  ];
-
   @override
   void initState() {
-    _correnteVolteRicorsivo = _defaulVolteRicorsivo;
+    super.initState();
     _onPressedAggiungi = _aggiungiFrase;
   }
 
@@ -55,55 +39,69 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
     return Model(
       body: ListView(children: [
         Padding(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.only(top: 30, bottom: 20),
           child: Text(
-            "Richiesta prenotazione per il giorno ${widget.disponibilita.from.day} ${widget.disponibilita.from.month} ${widget.disponibilita.from.year} alle ore ${widget.disponibilita.from.hour}:${widget.disponibilita.from.minute}",
-            style: TextStyle(fontSize: 25),
+            "Richiesta prenotazione",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
         ),
+        Padding(
+          padding: EdgeInsets.only(bottom: 20, right: 10, left: 10),
+          child: Text(
+            Utility.getDateStringFromDateTime(
+                                widget.disponibilita.from,
+                                "Per il giorno dd/MM/yyyy ") + "alle ore " + 
+                                Utility.getDateStringFromDateTime(
+                                widget.disponibilita.from,
+                                "HH:mm"),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+        widget.disponibilita.hasDurata ? Padding(
+          padding: EdgeInsets.only(bottom: 20, right: 10, left: 10),
+          child: Text(
+            "Durata prevista ${Utility.formattaDurata(widget.disponibilita.from, widget.disponibilita.to)}",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20),
+          ),
+        ) : Container(),
         Container(
           padding: EdgeInsets.all(10),
           child: TextField(
-            keyboardType: TextInputType.multiline,
-            minLines: 3,
-            maxLines: null,
-            controller: testoController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Inserisci titolo',
-            ),
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.all(10),
-          child: DropdownButton<String>(
-            value: _correnteVolteRicorsivo,
-            iconSize: 24,
-            elevation: 16,
-            style: TextStyle(color: Colors.deepPurple),
-            underline: Container(
-              height: 2,
-              color: Colors.deepPurpleAccent,
-            ),
-            onChanged: (String newValue) {
-              setState(() {
-                _correnteVolteRicorsivo = newValue;
-              });
-            },
-            items:
-                _volteRicorsivo.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
+                style: TextStyle(color: Colors.black),
+                keyboardType: TextInputType.multiline,
+                minLines: 3,
+                maxLines: null,
+                cursorColor: Colors.black,
+                controller: testoController,
+                decoration: InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                  border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                          borderSide: BorderSide(
+                            color: Colors.black,
+                            width: 1.0,
+                            style: BorderStyle.solid,
+                          ),
+                        ),
+                  labelText: 'Inserisci la richiesta',
+                  labelStyle: TextStyle(color: Colors.black),
+                  
+                ),
+                
+              ),
         ),
         Container(
             padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-            child: RaisedButton(
-                textColor: Colors.white,
-                color: Colors.blue,
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.green[900],
+                  textStyle: TextStyle(color: Colors.white)
+                ),
                 child: Center(
                   child: childAggiungi,
                 ),
@@ -124,7 +122,6 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
       "id_calendario": widget.idCalendario,
       "start_time": widget.disponibilita.from.toString(),
       "end_time": widget.disponibilita.to.toString(),
-      "ricorsiva": _correnteVolteRicorsivo,
       "descrizione": testoController.text.trim(),
     }).then((value) {
       print("testo: " + EndPoint.getUrl(EndPoint.CREA_APPUNTAMENTO));
@@ -132,7 +129,13 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
       Navigator.pop(context);
       Navigator.pop(context);
       Map<String, dynamic> jsonResponse = jsonDecode(value.body);
-      widget.disponibilita.showMessage((jsonResponse["response"] == 1)?"Richiesta ricevuta correttamente":"Richiesta non inoltrata", jsonResponse["messagge"], jsonResponse["messagge_admin"], (jsonResponse["response"] == 1)?Colors.green:Colors.red);
+      widget.disponibilita.showMessage(
+          (jsonResponse["response"] == 1)
+              ? "Richiesta ricevuta correttamente"
+              : "Richiesta non inoltrata",
+          jsonResponse["messagge"],
+          jsonResponse["messagge_admin"],
+          (jsonResponse["response"] == 1) ? Colors.green : Colors.red);
     });
   }
 }

@@ -187,6 +187,21 @@ class _StateVisualizzaPrenotazioneFutura
                           fontWeight: FontWeight.bold)),
                 ),
               ),
+              widget.prenotazione['type'] == -2 ? Padding(
+                  padding: EdgeInsets.only(top: 5, left: 15, right: 15),
+                  child: Center(
+                    child: Text(
+                        'Richiesta cancellazione: ' +
+                            Utility.formatStringDatefromString(
+                                "yyyy-MM-dd HH:mm:ss",
+                                "dd/MM/yyyy HH:mm",
+                                widget.prenotazione["richiesto_cancellazione"]),
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ) : Container(),
               Padding(
                 padding:
                     EdgeInsets.only(left: 15, right: 15, bottom: 5, top: 10),
@@ -399,8 +414,6 @@ class _StateVisualizzaPrenotazioneFutura
       ];
     }
 
-    // TODO inserire data per "IN ATTESA DI CANCELLAZIONE"
-    // TODO in teoria procedere con la chat
     return Model(
         actions: actions,
         body: ListView(children: listWidget),

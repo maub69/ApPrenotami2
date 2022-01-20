@@ -30,25 +30,28 @@ class _StateCalendario extends State<Calendario> {
   @override
   Widget build(BuildContext context) {
     return Model(
-      textAppBar: Utility.calendari.where((element) => element.id == Utility.idCalendarioAperto).first.name,
-      body: new Builder(builder: (BuildContext context) {
-      return SfCalendar(
-        view: CalendarView.week,
-        dataSource: meetingDataSource,
-        onTap: (CalendarTapDetails details) {
-          List<dynamic> appuntamenti = details.appointments;
-          if (appuntamenti == null) {
-            print("risposta: non ci sono appuntamenti");
-          } else {
-            widget.onTapDisponibilita((appuntamenti[0] as Disponibilita));
-          }
-        },
-        timeSlotViewSettings: TimeSlotViewSettings(
-            startHour: 0,
-            endHour: 24,
-            nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]),
-      );
-    }));
+        textAppBar: Utility.calendari
+            .where((element) => element.id == Utility.idCalendarioAperto)
+            .first
+            .name,
+        body: new Builder(builder: (BuildContext context) {
+          return SfCalendar(
+            view: CalendarView.week,
+            dataSource: meetingDataSource,
+            onTap: (CalendarTapDetails details) {
+              List<dynamic> appuntamenti = details.appointments;
+              if (appuntamenti == null) {
+                print("risposta: non ci sono appuntamenti");
+              } else {
+                widget.onTapDisponibilita((appuntamenti[0] as Disponibilita));
+              }
+            },
+            timeSlotViewSettings: TimeSlotViewSettings(
+                startHour: 0,
+                endHour: 24,
+                nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]),
+          );
+        }));
   }
 }
 
@@ -87,6 +90,7 @@ class Disponibilita {
   String descrizione;
   DateTime from;
   DateTime to;
+  bool hasDurata;
   bool isAllDay;
   String prenotato;
   Function(String title, String body, String messageAdmin, Color color)
@@ -97,7 +101,8 @@ class Disponibilita {
       this.from,
       this.to,
       this.prenotato,
-      this.isAllDay = false});
+      this.isAllDay = false, 
+      this.hasDurata});
 
   Color get background {
     if (prenotato == "1") {

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:alert/alert.dart';
-import 'package:file/src/interface/file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -12,22 +11,16 @@ import 'package:mia_prima_app/chat/chatLoading.dart';
 import 'package:mia_prima_app/chat/risposte/popup_menu_chat.dart';
 import 'package:mia_prima_app/chat/risposte/risposta.dart';
 import 'package:mia_prima_app/chat/risposte/rispostaFactory.dart';
-import 'package:mia_prima_app/chat/risposte/widget/photo.dart';
 import 'package:mia_prima_app/main.dart';
-import 'package:mia_prima_app/messagetile.dart';
 import 'package:mia_prima_app/upload/file_upload.dart';
 import 'package:mia_prima_app/upload/media_upload.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:multipart_request/multipart_request.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import "package:images_picker/images_picker.dart";
 import 'package:video_thumbnail/video_thumbnail.dart';
-import 'package:flutter_cache_manager/src/storage/file_system/file_system.dart';
-import 'package:file/file.dart' as fl;
 
 class ChatPage extends StatefulWidget {
   final Color appBarColor;
@@ -310,7 +303,7 @@ class _ChatPage extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor:
-            (widget.appBarColor == null) ? Colors.green : widget.appBarColor,
+            (widget.appBarColor == null) ? Colors.green[900] : widget.appBarColor,
         centerTitle: true,
         title: Text('ApPuntamento'),
       ),
@@ -365,22 +358,22 @@ class _ChatPage extends State<ChatPage> {
                         filled: true,
                         fillColor: Colors.white,
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green),
+                          borderSide: BorderSide(color: Colors.black38),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15.0)),
                           borderSide: BorderSide(
-                            color: Colors.black,
+                            color: Colors.black87,
                             width: 1.0,
                             style: BorderStyle.solid,
                           ),
                         ),
-                        focusColor: Colors.green,
+                        focusColor: Colors.green[900],
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         labelText: 'Scrivi qui...',
                         labelStyle: TextStyle(
                             color:
-                                focus.hasFocus ? Colors.black : Colors.green),
+                                focus.hasFocus ? Colors.black : Colors.black87),
                       ),
                     ),
                   ),
@@ -395,15 +388,17 @@ class _ChatPage extends State<ChatPage> {
                 child: Container(
                   width: 50.0,
                   height: 50.0,
-                  child: RaisedButton(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50.0),
+                      ),
+                      primary: Colors.green[900],
+                    ),
                     child: Icon(
                       Icons.send,
                       color: Colors.white,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0),
-                    ),
-                    color: Colors.green,
                     onPressed: () {
                       invioMessaggioTesto(_controller.text.trim());
                     },
@@ -419,13 +414,15 @@ class _ChatPage extends State<ChatPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  RaisedButton(
-                    color: Colors.white,
-                    elevation: 0.0,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        elevation: 0.0
+                    ),
                     child: Column(
                       children: [
-                        Icon(Icons.file_copy),
-                        Text('File'),
+                        Icon(Icons.file_copy, color: Colors.black),
+                        Text('File', style: TextStyle(color: Colors.black)),
                       ],
                     ),
                     onPressed: () async {
@@ -443,13 +440,15 @@ class _ChatPage extends State<ChatPage> {
                       }
                     },
                   ),
-                  RaisedButton(
-                    color: Colors.white,
-                    elevation: 0.0,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        elevation: 0.0
+                    ),
                     child: Column(
                       children: [
-                        Icon(Icons.image),
-                        Text('Media'),
+                        Icon(Icons.image, color: Colors.black),
+                        Text('Media', style: TextStyle(color: Colors.black)),
                       ],
                     ),
                     onPressed: () async {
@@ -477,13 +476,15 @@ class _ChatPage extends State<ChatPage> {
                       }
                     },
                   ),
-                  RaisedButton(
-                    color: Colors.white,
-                    elevation: 0.0,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.white,
+                        elevation: 0.0
+                    ),
                     child: Column(
                       children: [
-                        Icon(Icons.photo_camera),
-                        Text('Foto'),
+                        Icon(Icons.photo_camera, color: Colors.black),
+                        Text('Foto', style: TextStyle(color: Colors.black)),
                       ],
                     ),
                     onPressed: () {
