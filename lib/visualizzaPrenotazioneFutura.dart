@@ -37,6 +37,7 @@ class _StateVisualizzaPrenotazioneFutura
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15.0))),
             backgroundColor: Color(0xFD292929),
             content: Column(children: [
               Padding(

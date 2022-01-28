@@ -40,22 +40,40 @@ class Model extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: Text("Confermi l'uscita?"),
-                      content: Text("Fai tap su Si per uscire"),
-                      actions: [
+                      contentPadding: EdgeInsets.only(top: 10.0),
+                      title: Text("Confermi l'uscita dall'app?"),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                      // content: Text("Fai tap su Si per uscire"),
+                      content: Container(
+                        margin: EdgeInsets.only(top: 15),
+                        padding: EdgeInsets.only(bottom: 2, top: 2, right: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+                          color: Colors.green[900]
+                        ),
+                        child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).pop(false);
                           },
-                          child: Text("No"),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 10, left: 10, right: 25, bottom: 10),
+                            child: Text("Annulla", style: TextStyle(fontSize: 19, color: Colors.white)),
+                          ),
                         ),
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).pop(true);
                           },
-                          child: Text("Si"),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 10, right: 15, bottom: 10),
+                            child: Text("Ok", style: TextStyle(fontSize: 19, color: Colors.white)),
+                          ),
                         )
-                      ],
+                      ]),
+                      ),
                     );
                   },
                 ) ??

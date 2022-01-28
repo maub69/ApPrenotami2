@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mia_prima_app/calendario.dart';
 import 'package:mia_prima_app/creaAppuntamento.dart';
 import 'package:mia_prima_app/info_app_basso.dart';
+import 'package:mia_prima_app/settings.dart';
 import 'package:mia_prima_app/steps.dart';
 import 'package:mia_prima_app/listaPrenotazioniFuture.dart';
 import 'package:mia_prima_app/main.dart';
@@ -14,6 +15,7 @@ import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:mia_prima_app/visualizzaPrenotazioneFutura.dart';
+import 'dart:ui';
 
 /// Pagina Dashboard che contiene il menu principale
 class Dash extends StatefulWidget {
@@ -314,11 +316,25 @@ class _StateDash extends State<Dash> {
     // return Text("${widget.utente.username} - ${widget.utente.email}");
     return Model(
         confermaChiusura: true,
-        showAppbar: false,
+        showAppbar: true,
+        actions: [
+          IconButton(
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.white,
+              ),
+              tooltip: "Filtra",
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => Settings()));
+              })
+        ],
         body: new Builder(builder: (BuildContext context) {
           return Column(children: [
             Container(
-                height: Utility.height - InfoAppBasso.height,
+                height: Utility.height - 100 - MediaQueryData.fromWindow(window).padding.top,
                 padding: EdgeInsets.all(10),
                 child: Padding(
                     padding: EdgeInsets.all(10),
@@ -326,7 +342,7 @@ class _StateDash extends State<Dash> {
                       CachedNetworkImage(
                         imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
                             Utility.idApp +
-                            ".jpg",
+                            ".png",
                         height: 200,
                         fadeInDuration: Duration(seconds: 0),
                       ),
