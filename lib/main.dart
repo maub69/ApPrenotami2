@@ -13,6 +13,7 @@ import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/messagesManager.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dash.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -29,6 +30,9 @@ void main() async {
   } catch (e) {}
   runApp(MaterialApp(
     home: MyApp(),
+    theme: ThemeData(
+      primaryColor: Colors.green[900],
+    ),
   ));
 }
 
@@ -154,22 +158,24 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     });
     manageDatabase();
 
-    FirebaseMessaging.instance
+    SharedPreferences.getInstance().then((value) {
+      FirebaseMessaging.instance
         .getToken()
         .then((token) => print("token-app: $token"));
-    FlutterNotificationChannel.registerNotificationChannel(
-      description: 'Qui ricevi le notifiche per gli appuntamenti',
-      id: 'apprenotami.appuntamenti',
-      importance: NotificationImportance.IMPORTANCE_HIGH,
-      name: 'Appuntamenti',
-      visibility: NotificationVisibility.VISIBILITY_PUBLIC,
-      allowBubbles: true,
-      enableVibration: true,
-      enableSound: true,
-      showBadge: true,
-    );
+      FlutterNotificationChannel.registerNotificationChannel(
+        description: 'Qui ricevi le notifiche per gli appuntamenti',
+        id: 'apprenotami.appuntamenti',
+        importance: NotificationImportance.IMPORTANCE_HIGH,
+        name: 'Appuntamenti',
+        visibility: NotificationVisibility.VISIBILITY_PUBLIC,
+        allowBubbles: value.getBool("notifica-attiva-bubble"),
+        enableVibration: value.getBool("notifica-attiva-vibrazione"),
+        enableSound: value.getBool("notifica-attiva-suono"),
+        showBadge: true,
+      );
 
-    getMessage();
+      getMessage();
+    });
   }
 
   void getMessage() {

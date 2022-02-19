@@ -29,6 +29,8 @@ class EndPoint {
 
   static final String GET_CHAT_NON_LETTE = "test/getChatNonLette.php";
 
+  static final String SET_NOTIFICHE = "test/setNotifiche.php";
+
   static final String SEND_FILES = "test/sendFiles.php";
 
   static final String DELETE_MESSAGE = "test/deleteMessage.php";
@@ -38,10 +40,10 @@ class EndPoint {
   static final String LOGO = "test/images/logos/";
 
   static String getUrl(String url) {
-    return "https://" + HOST + "/" + url;
+    return "http://" + HOST + "/" + url;
   }
 
   static String getUrlKey(String url) {
-    return "https://" + HOST + "/" + url + "?key=" + Utility.utente.id;
+    return "http://" + HOST + "/" + url + "?key=" + Utility.utente.id;
   }
 }

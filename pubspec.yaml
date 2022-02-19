@@ -28,11 +28,9 @@ dependencies:
   http: ^0.13.0
   path: ^1.8.0
   webview_flutter: ^2.0.2
-  passwordfield: ^0.0.82
   path_provider: ^2.0.1
   syncfusion_flutter_calendar: ^19.4.38
   syncfusion_localizations: ^19.2.57
-  flutter_form_builder: ^6.0.1
   #dropdownfield: ^1.0.3
   loading: ^1.0.2
   firebase_messaging: ^10.0.6
@@ -62,7 +60,7 @@ dependencies:
   url_launcher: ^6.0.12
   flutter_inappwebview: ^5.3.2
   settings_ui: ^2.0.2
-  shared_preferences: ^2.0.12
+  shared_preferences: ^2.0.13
 
 
 

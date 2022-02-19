@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/TextFieldCustomized.dart';
 import 'package:mia_prima_app/info_app_basso.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -10,7 +11,6 @@ import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'SignIn.dart';
 import 'dash.dart';
-import 'package:passwordfield/passwordfield.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// classe per il login
@@ -73,34 +73,29 @@ class _LoginState extends State<Login> {
                     CachedNetworkImage(
                       imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
                           Utility.idApp +
-                          ".jpg",
+                          ".png",
                       height: 200,
                       fadeInDuration: Duration(seconds: 0),
                     ),
                     Container(
                       padding: EdgeInsets.only(
                           left: 10, right: 10, bottom: 10, top: 40),
-                      child: TextField(
+                      child: TextFieldCustomized(
                         controller: nameController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Email',
-                        ),
+                        iconPrefix: Icons.mail,
+                        isPassword: false,
+                        labelText: "Email",
                       ),
                     ),
                     Container(
                       padding: EdgeInsets.all(10),
-                      child: PasswordField(
+                      // TODO modificare questo plugin con un altro in quanto non ci permette di cambiare il colori come vogliamo, in particolare la scritta interna e la scritta che compare nel bordo quando scrivi
+                      // TODO vedere:  https://androidride.com/flutter-textfield-password/
+                      child: TextFieldCustomized(
                         controller: passwordController,
-                        hasFloatingPlaceholder: true,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2),
-                            borderSide:
-                                BorderSide(width: 1, color: Colors.grey)),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(2),
-                            borderSide:
-                                BorderSide(width: 2, color: Colors.blue)),
+                        iconPrefix: Icons.lock,
+                        isPassword: true,
+                        labelText: "Password",
                       ),
                     ),
                     Padding(
@@ -123,7 +118,7 @@ class _LoginState extends State<Login> {
                         padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                         child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
+                                primary: Colors.green[900],
                                 textStyle: TextStyle(color: Colors.white)),
                             child: Text('Login'),
                             onPressed:
@@ -135,10 +130,11 @@ class _LoginState extends State<Login> {
                         Text('Per registrarti', style: TextStyle(fontSize: 18)),
                         TextButton(
                           style: TextButton.styleFrom(
-                              textStyle: TextStyle(color: Colors.blue)),
+                              textStyle: TextStyle(color: Colors.green[900])),
                           child: Text(
                             'clicca qui',
-                            style: TextStyle(fontSize: 18),
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.green[900]),
                           ),
                           onPressed: () {
                             Navigator.push(

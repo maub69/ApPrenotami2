@@ -42,13 +42,13 @@ class Model extends StatelessWidget {
                     return AlertDialog(
                       contentPadding: EdgeInsets.only(top: 10.0),
                       title: Text("Confermi l'uscita dall'app?"),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
                       // content: Text("Fai tap su Si per uscire"),
                       content: Container(
                         margin: EdgeInsets.only(top: 15),
                         padding: EdgeInsets.only(bottom: 2, top: 2, right: 10),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
                           color: Colors.green[900]
                         ),
                         child: Row(

@@ -14,7 +14,6 @@ import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// la classe Utility permette di utilizzare
 /// dei dati tra le varie altre classi
@@ -280,7 +279,14 @@ class Utility {
     }
   }
 
+
+
+  // TODO https://pub.dev/packages/get_storage
   // TODO https://pub.dev/packages/shared_preferences
   // TODO gestire le impostazioni, sia notifiche che logout, in particolare le notifiche gestiscile con questa libreria
-  static SharedPreferences preferences;
+  // TODO - gestione notifiche, attivarle o no e tutte le cose ricollegate
+
+ // TODO - fai una segnalazione
+ // TODO - librerie opensource utilizzate
+ // TODO - logout
 }

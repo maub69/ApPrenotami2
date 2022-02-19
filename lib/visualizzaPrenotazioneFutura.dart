@@ -37,15 +37,22 @@ class _StateVisualizzaPrenotazioneFutura
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15.0))),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15.0))),
             backgroundColor: Color(0xFD292929),
             content: Column(children: [
               Padding(
                   padding: EdgeInsets.only(bottom: 15),
-                  child: Text("RICHIESTA ANNULLAMENTO", style: TextStyle(color: Colors.blue[400], fontSize: 16, fontWeight: FontWeight.bold))),
+                  child: Text("RICHIESTA ANNULLAMENTO",
+                      style: TextStyle(
+                          color: Colors.blue[400],
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold))),
               Padding(
                   padding: EdgeInsets.only(bottom: 15),
-                  child: Text(title, textAlign: TextAlign.justify, style: TextStyle(color: Colors.white))),
+                  child: Text(title,
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(color: Colors.white))),
               TextField(
                 style: TextStyle(color: Colors.white),
                 keyboardType: TextInputType.multiline,
@@ -57,7 +64,6 @@ class _StateVisualizzaPrenotazioneFutura
                   border: OutlineInputBorder(),
                   labelText: 'Inserisci la motivazione',
                   labelStyle: TextStyle(color: Colors.white),
-
                 ),
               )
             ], mainAxisSize: MainAxisSize.min),
@@ -109,6 +115,7 @@ class _StateVisualizzaPrenotazioneFutura
           Utility.deletePrenotazione(widget.prenotazione["id"].toString());
           Utility.listaPrenotazioni.remove(widget.prenotazione);
         } else {
+          widget.prenotazione['richiesto_cancellazione'] = Utility.getDateStringFromDateTime(DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
           setState(() {});
         }
       });
@@ -188,21 +195,24 @@ class _StateVisualizzaPrenotazioneFutura
                           fontWeight: FontWeight.bold)),
                 ),
               ),
-              widget.prenotazione['type'] == -2 ? Padding(
-                  padding: EdgeInsets.only(top: 5, left: 15, right: 15),
-                  child: Center(
-                    child: Text(
-                        'Richiesta cancellazione: ' +
-                            Utility.formatStringDatefromString(
-                                "yyyy-MM-dd HH:mm:ss",
-                                "dd/MM/yyyy HH:mm",
-                                widget.prenotazione["richiesto_cancellazione"]),
-                        style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                ) : Container(),
+              widget.prenotazione['type'] == -2
+                  ? Padding(
+                      padding: EdgeInsets.only(top: 5, left: 15, right: 15),
+                      child: Center(
+                        child: Text(
+                            'Richiesta cancellazione: ' +
+                                Utility.formatStringDatefromString(
+                                    "yyyy-MM-dd HH:mm:ss",
+                                    "dd/MM/yyyy HH:mm",
+                                    widget.prenotazione[
+                                        "richiesto_cancellazione"]),
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    )
+                  : Container(),
               Padding(
                 padding:
                     EdgeInsets.only(left: 15, right: 15, bottom: 5, top: 10),
@@ -391,7 +401,7 @@ class _StateVisualizzaPrenotazioneFutura
                           )
                         ],
                       )),
-                      new PopupMenuItem<int>(
+                  new PopupMenuItem<int>(
                       value: 4,
                       child: Row(
                         children: [
@@ -403,8 +413,8 @@ class _StateVisualizzaPrenotazioneFutura
                           ),
                           Padding(
                             padding: EdgeInsets.only(left: 5),
-                            child:
-                                Text("Ripristina", style: TextStyle(fontSize: 17)),
+                            child: Text("Ripristina",
+                                style: TextStyle(fontSize: 17)),
                           )
                         ],
                       ))
