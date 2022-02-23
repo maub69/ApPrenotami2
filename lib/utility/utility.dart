@@ -14,6 +14,7 @@ import 'package:mia_prima_app/utility/uploadManager.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:path/path.dart';
 
 /// la classe Utility permette di utilizzare
 /// dei dati tra le varie altre classi
@@ -279,14 +280,44 @@ class Utility {
     }
   }
 
-
+  static void displaySnackBar(String message, BuildContext _scaffoldContext,
+      {String actionMessage, VoidCallback onClick, int type = 1}) {
+    Color colorType;
+    if (type == 1) {
+      //success
+      colorType = Colors.green[900];
+    } else if (type == 2) {
+      //warning
+      colorType = Colors.orange;
+    } else {
+      //error
+      colorType = Colors.red;
+    }
+    ScaffoldMessenger.of(_scaffoldContext).showSnackBar(SnackBar(
+      content: Text(
+        message,
+        style: TextStyle(color: Colors.white, fontSize: 14.0),
+      ),
+      action: (actionMessage != null)
+          ? SnackBarAction(
+              textColor: Colors.white,
+              label: actionMessage,
+              onPressed: () {
+                return onClick != null ? onClick() : () {};
+              },
+            )
+          : null,
+      duration: Duration(seconds: 3),
+      backgroundColor: colorType,
+    ));
+  }
 
   // TODO https://pub.dev/packages/get_storage
   // TODO https://pub.dev/packages/shared_preferences
   // TODO gestire le impostazioni, sia notifiche che logout, in particolare le notifiche gestiscile con questa libreria
   // TODO - gestione notifiche, attivarle o no e tutte le cose ricollegate
 
- // TODO - fai una segnalazione
- // TODO - librerie opensource utilizzate
- // TODO - logout
+  // TODO - fai una segnalazione
+  // TODO - librerie opensource utilizzate
+  // TODO - logout
 }

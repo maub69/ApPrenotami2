@@ -13,11 +13,14 @@ class InfoAppBasso {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Text("Powered by "),
             GestureDetector(
-                onTap: () => launch("https://www.google.com"),
-                child: Text("ApPrenotami",
-                    style: TextStyle(fontWeight: FontWeight.bold)))
+              onTap: () => launch("https://www.google.com"),
+              child: Text(
+                "ApPrenotami",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            )
           ]),
-          Text("App personalizzate per la tua azienda")
+          Text("App personalizzate per la tua azienda"),
         ],
       ),
     );

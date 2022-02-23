@@ -39,17 +39,6 @@ class _LoginState extends State<Login> {
   BuildContext contextGlobal;
   BuildContext _scaffoldContext;
 
-  //questa funzione fa comparire il messaggio di avviso da sotto l'applicazione
-  void _showMessage(String message) {
-    //per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
-    //il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
-    //cio' significa che bisgona utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto
-    ScaffoldMessenger.of(_scaffoldContext).showSnackBar(new SnackBar(
-      content: new Text(message),
-      backgroundColor: Colors.orange,
-    ));
-  }
-
   @override
   void initState() {
     super.initState();
@@ -221,8 +210,11 @@ class _LoginState extends State<Login> {
     }).then((value) {
       print("risposta: ${value.body}");
       if (value.body == "-1") {
-        //Alert(message: 'Login errato').show();
-        _showMessage("Login errato");
+        Utility.displaySnackBar(
+            "Login errato",
+          _scaffoldContext,
+          type: 3,
+          actionMessage: "CHIUDI");
       } else {
         if (_isChecked) {
           salvaLogin(value.body, nameController.text);

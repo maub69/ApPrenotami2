@@ -7,7 +7,7 @@ class TextFieldCustomized extends StatefulWidget {
   final IconData iconPrefix;
   final String labelText;
   final Function onChanged;
-  final RegExp validator;
+  final Function validator;
 
   const TextFieldCustomized(
       {Key key,
@@ -29,11 +29,16 @@ class _TextFieldCustomizedState extends State<TextFieldCustomized> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
         cursorColor: widget.primaryColor,
         onChanged: widget.onChanged,
         controller: widget.controller,
-        obscureText: widget.isPassword,
+        validator: widget.validator != null
+            ? (value) {
+                return widget.validator(value);
+              }
+            : null,
+        obscureText: _hidePassword && widget.isPassword,
         decoration: InputDecoration(
           labelText: widget.labelText,
           labelStyle: TextStyle(color: widget.primaryColor),

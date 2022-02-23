@@ -3,6 +3,8 @@ import 'package:mia_prima_app/utility/utility.dart';
 class EndPoint {
   static final String HOST = "apprenotami.nlsitalia.com";
 
+  static final String REGISTRAZIONE = "test/signin.php";
+
   static final String LOGIN = "test/login.php";
 
   static final String GET_CALENDARI = "test/getCalendari.php";

@@ -30,11 +30,12 @@ class _StateCalendario extends State<Calendario> {
   @override
   Widget build(BuildContext context) {
     return Model(
-        textAppBar: Utility.calendari
-            .where((element) => element.id == Utility.idCalendarioAperto)
-            .first
-            .name,
-        body: new Builder(builder: (BuildContext context) {
+      textAppBar: Utility.calendari
+          .where((element) => element.id == Utility.idCalendarioAperto)
+          .first
+          .name,
+      body: new Builder(
+        builder: (BuildContext context) {
           return SfCalendar(
             view: CalendarView.week,
             dataSource: meetingDataSource,
@@ -51,7 +52,9 @@ class _StateCalendario extends State<Calendario> {
                 endHour: 24,
                 nonWorkingDays: <int>[DateTime.friday, DateTime.saturday]),
           );
-        }));
+        },
+      ),
+    );
   }
 }
 
@@ -101,7 +104,7 @@ class Disponibilita {
       this.from,
       this.to,
       this.prenotato,
-      this.isAllDay = false, 
+      this.isAllDay = false,
       this.hasDurata});
 
   Color get background {

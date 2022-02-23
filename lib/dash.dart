@@ -182,7 +182,8 @@ class _StateDash extends State<Dash> {
 
       _listCalendari = [];
       Utility.calendari.forEach((element) {
-        _listCalendari.add(GestureDetector(
+        _listCalendari.add(
+          GestureDetector(
             onTap: () {
               Utility.idCalendarioAperto = element.id;
               _onPressedCal(Utility.calendari
@@ -195,10 +196,11 @@ class _StateDash extends State<Dash> {
               decoration: BoxDecoration(
                 color: Color(0xA9000000),
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10)),
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
@@ -219,7 +221,9 @@ class _StateDash extends State<Dash> {
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           fontSize: 16))),
-            )));
+            ),
+          ),
+        );
 
         element.appuntamenti.forEach((element) {
           element.showMessage = _showMessage;
@@ -278,21 +282,25 @@ class _StateDash extends State<Dash> {
   // avvia la pagina contenenete il calendario, e' fondamentale passargli in ingresso gli appuntamenti, dovrebbe essere generica per tutti i calendari
   _onPressedCal(List<Disponibilita> meetings) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => Calendario(
-                calendario: meetings,
-                onTapDisponibilita: (Disponibilita appuntamento) {
-                  //sequenza avvia la pagina che permette di richiedere un appuntamento
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => CreaAppuntamento(
-                                disponibilita: appuntamento,
-                                idCalendario: widget.idCalendario,
-                              )));
-                  print("risposta: ${appuntamento.descrizione}");
-                })));
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => Calendario(
+            calendario: meetings,
+            onTapDisponibilita: (Disponibilita appuntamento) {
+              //sequenza avvia la pagina che permette di richiedere un appuntamento
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => CreaAppuntamento(
+                    disponibilita: appuntamento,
+                    idCalendario: widget.idCalendario,
+                  ),
+                ),
+              );
+              print("risposta: ${appuntamento.descrizione}");
+            }),
+      ),
+    );
   }
 
   _onPressedListaPrenotazioniFuture() {
@@ -315,118 +323,125 @@ class _StateDash extends State<Dash> {
     Model.stackContext.push(context);
     // return Text("${widget.utente.username} - ${widget.utente.email}");
     return Model(
-        confermaChiusura: true,
-        showAppbar: true,
-        actions: [
-          IconButton(
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.white,
-              ),
-              tooltip: "Filtra",
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Settings()));
-              })
-        ],
-        body: new Builder(builder: (BuildContext context) {
-          return Column(children: [
-            Container(
-                height: Utility.height - 100 - MediaQueryData.fromWindow(window).padding.top,
-                padding: EdgeInsets.all(10),
-                child: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: ListView(children: [
-                      CachedNetworkImage(
-                        imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
-                            Utility.idApp +
-                            ".png",
-                        height: 200,
-                        fadeInDuration: Duration(seconds: 0),
-                      ),
-
-                      Padding(
-                          padding: EdgeInsets.only(top: 40),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.arrow_back_rounded,
-                                  color: Colors.black87,
-                                  size: 25.0,
-                                  textDirection: TextDirection.ltr,
-                                  semanticLabel: 'Icon',
+      confermaChiusura: true,
+      showAppbar: true,
+      actions: [
+        IconButton(
+            icon: const Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
+            tooltip: "Filtra",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => Settings()));
+            })
+      ],
+      body: new Builder(builder: (BuildContext context) {
+        return Column(children: [
+          Container(
+            height: Utility.height -
+                100 -
+                MediaQueryData.fromWindow(window).padding.top,
+            padding: EdgeInsets.all(10),
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: ListView(children: [
+                CachedNetworkImage(
+                  imageUrl:
+                      EndPoint.getUrl(EndPoint.LOGO) + Utility.idApp + ".png",
+                  height: 200,
+                  fadeInDuration: Duration(seconds: 0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.black87,
+                          size: 25.0,
+                          textDirection: TextDirection.ltr,
+                          semanticLabel: 'Icon',
+                        ),
+                        Flexible(
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              child: Text(
+                                  "Scorri orizontalmente l'elenco sottostante per scegliere dove effettuare la prenotazione",
+                                  textAlign: TextAlign.center,
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                        ),
+                        Icon(Icons.arrow_back_rounded,
+                            color: Colors.black87,
+                            size: 25.0,
+                            textDirection: TextDirection.rtl,
+                            semanticLabel: 'Icon'),
+                      ]),
+                ),
+                Container(
+                  height: 135,
+                  padding: EdgeInsets.only(bottom: 15),
+                  margin: EdgeInsets.only(bottom: 20),
+                  child: Center(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _listCalendari.length,
+                      itemBuilder: (context, i) {
+                        return _listCalendari[i];
+                      },
+                    ),
+                  ),
+                ),
+                // TODO esempio orizzontal scroll https://pub.dev/packages/flutter_swiper
+                // TODO https://pub.dev/packages/flutter_swiper_plus/example
+                Stack(children: [
+                  Container(
+                    
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 70),
+                              primary: Colors.green[900]),
+                          child: Stack(
+                            children: <Widget>[
+                              // Stroked text as border.
+                              Text(
+                                'Lista prenotazioni',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  foreground: Paint()
+                                    ..style = PaintingStyle.stroke
+                                    ..strokeWidth = 1
+                                    ..color = Colors.black,
                                 ),
-                                Flexible(
-                                  child: Padding(
-                                      padding:
-                                          EdgeInsets.only(left: 10, right: 10),
-                                      child: Text(
-                                          "Scegli il calendario per la prenotazione",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold))),
+                              ),
+                              Text(
+                                'Lista prenotazioni',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
                                 ),
-                                Icon(Icons.arrow_back_rounded,
-                                    color: Colors.black87,
-                                    size: 25.0,
-                                    textDirection: TextDirection.rtl,
-                                    semanticLabel: 'Icon'),
-                              ])),
-                      Container(
-                          height: 135,
-                          padding: EdgeInsets.only(bottom: 15),
-                          margin: EdgeInsets.only(bottom: 20),
-                          child: Center(
-                              child: ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _listCalendari.length,
-                            itemBuilder: (context, i) {
-                              return _listCalendari[i];
-                            },
-                          ))),
-                      Stack(children: [
-                        Container(
-                            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    minimumSize:
-                                        const Size(double.infinity, 70),
-                                    primary: Colors.green[900]),
-                                child: Stack(
-                                  children: <Widget>[
-                                    // Stroked text as border.
-                                    Text(
-                                      'Lista prenotazioni',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        foreground: Paint()
-                                          ..style = PaintingStyle.stroke
-                                          ..strokeWidth = 1
-                                          ..color = Colors.black,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Lista prenotazioni',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                onPressed: onPressedListaPrenotazioniFuture)),
-                        ((_numNotifiche != 0)
-                            ? Utility.getBoxNotification(_numNotifiche)
-                            : Container())
-                      ])
-                    ]))),
-            InfoAppBasso.getInfoContainer()
-          ]);
-        }));
+                              ),
+                            ],
+                          ),
+                          onPressed: onPressedListaPrenotazioniFuture)),
+                  ((_numNotifiche != 0)
+                      ? Utility.getBoxNotification(_numNotifiche)
+                      : Container())
+                ])
+              ]),
+            ),
+          ),
+          InfoAppBasso.getInfoContainer()
+        ]);
+      }),
+    );
   }
 }

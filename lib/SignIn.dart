@@ -25,30 +25,20 @@ class _StateSignIn extends State<SignIn> {
   // creazione istanze di oggetti per la memorizzazione dei dati del form
   TextEditingController nomeUtente = TextEditingController();
   TextEditingController passwordUtente = TextEditingController();
+  TextEditingController passwordUtente2 = TextEditingController();
   TextEditingController email = TextEditingController();
   BuildContext contextGlobal;
   BuildContext _scaffoldContext;
   bool firstCheck = false;
   bool secondCheck = false;
-
+  bool _isDisabled = false;
+  bool _userExists = false;
   bool isSwitched = false;
-  // String _textPolicy = "Policy";
   bool okPassword = false;
   bool okNome = false;
   bool okMail = false;
-  bool isDisabilitato = true;
-  bool _isObscure = true;
-  bool _registrazioneOk = false;
-
-  void _showMessage(String message) {
-    //per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
-    //il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
-    //cio' significa che bisgona utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto
-    ScaffoldMessenger.of(_scaffoldContext).showSnackBar(new SnackBar(
-      content: new Text(message),
-      backgroundColor: Colors.orange,
-    ));
-  }
+  bool isDisabilitato = false;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -64,214 +54,198 @@ class _StateSignIn extends State<SignIn> {
           _scaffoldContext = context;
           return Padding(
               padding: EdgeInsets.all(10),
-              child: ListView(
-                children: [
-                  CachedNetworkImage(
-                    imageUrl:
-                        EndPoint.getUrl(EndPoint.LOGO) + Utility.idApp + ".png",
-                    height: 200,
-                    fadeInDuration: Duration(seconds: 0),
-                  ),
-                  Container(
-                      padding: EdgeInsets.only(
-                          top: 30, bottom: 15, left: 15, right: 15),
-                      child: Column(children: <Widget>[
-                        TextFieldCustomized(
-                          controller: nomeUtente,
-                          iconPrefix: Icons.people,
-                          labelText: "Nome e Cognome",
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.only(top: 20),
-                          child: TextFieldCustomized(
-                            controller: email,
-                            iconPrefix: Icons.mail,
-                            labelText: "Email",
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 20, bottom: 0),
-                          child: TextFieldCustomized(
-                            controller: passwordUtente,
-                            iconPrefix: Icons.lock,
-                            isPassword: true,
-                            labelText: "Password",
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.only(top: 18),
-                          width: double.infinity,
-                          child: GestureDetector(
-                              onTap: () {
-                                ChromeSafariBrowser().open(
-                                    url: Uri.parse("https://www.google.com"));
-                              },
-                              child: Row(children: [
-                                Text("Clicca qui",
-                                    style: TextStyle( //TODO concludere la sezione registrazione, fare in modo che il bottone registrazione prenda vita e che vengano fatte le dovute validazioni
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green[900]),
-                                    textAlign: TextAlign.left),
-                                Text(" per leggere le condizioni di utilizzo",
-                                    textAlign: TextAlign.left)
-                              ])),
-                        ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Checkbox(
-                              value: firstCheck,
-                              activeColor: Colors.green[900],
-                              onChanged: (value) {
-                                setState(() {
-                                  firstCheck = value;
-                                });
-                              },
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Ho letto e accetto le condizioni',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Checkbox(
-                              value: secondCheck,
-                              activeColor: Colors.green[900],
-                              onChanged: (value) {
-                                setState(() {
-                                  secondCheck = value;
-                                });
-                              },
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text:
-                                    'Dichiaro di avere ${Utility.ageApp} o più',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        )
-                        /*FormBuilderCheckboxGroup(
-                              name: "check",
-                              onChanged: onChangedField,
-                              options: [
-                                FormBuilderFieldOption(
-                                    value: 'policy',
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                'Ho letto e accetto le condizioni di utilizzo dell\'applicazione',
-                                            style:
-                                                TextStyle(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                    )),
-                                FormBuilderFieldOption(
-                                    value: 'age',
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                'Dichiaro di avere ${Utility.ageApp} o più',
-                                            style:
-                                                TextStyle(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
-                                    )),
-                              ],
-                            )*/
-                        ,
-                        //TODO aggingere i campi mancanti per la registrazione
-                        //TODO fare in mdoo che il bottone registrati sia largo quanto l'applicazione
-                        Container(
-                            height: 50,
-                            width: double.infinity,
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    primary: Colors.blue,
-                                    textStyle: TextStyle(color: Colors.white)),
-                                child: Text('Registrati'),
-                                onPressed: (isDisabilitato
-                                    ? null
-                                    : onPressRegistrati)))
-                      ])),
-                ],
-              )
-
-/*ListView(
-            children: [
-              Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    'REGISTRAZIONE',
-                    style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20),
-                  )),
-              Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    'Inserisci i dati per la registrazione',
-                    style: TextStyle(fontSize: 16),
-                  )),
-              
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 10, right: 10, bottom: 5),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Form(
+                  key: _formKey,
+                  child: ListView(
                     children: [
-                      Padding(
-                          padding: EdgeInsets.only(right: 20),
-                          child: GestureDetector(
-                              child: Text(_textPolicy),
-                              onTap: () {
-                                Navigator.of(context).push(
-                                    MaterialPageRoute<Null>(
-                                        builder: (BuildContext context) {
-                                  return new WebViewWebPage();
-                                }));
-                              })),
-                      Switch(
-                        value: isSwitched,
-                        onChanged: (value) {
-                          if (value) {
-                            _textPolicy = "Policy (accettata)";
-                          } else {
-                            _textPolicy = "Policy";
-                          }
-                          isSwitched = value;
-                          print(isSwitched);
-                          setState(() {});
-                        },
-                        activeTrackColor: Colors.lightGreenAccent,
-                        activeColor: Colors.green,
-                      )
-                    ]),
-              ),
-          )*/
-              );
+                      CachedNetworkImage(
+                        imageUrl: EndPoint.getUrl(EndPoint.LOGO) +
+                            Utility.idApp +
+                            ".png",
+                        height: 200,
+                        fadeInDuration: Duration(seconds: 0),
+                      ),
+                      Container(
+                          padding: EdgeInsets.only(
+                              top: 30, bottom: 15, left: 15, right: 15),
+                          child: Column(children: <Widget>[
+                            TextFieldCustomized(
+                              controller: nomeUtente,
+                              iconPrefix: Icons.people,
+                              labelText: "Nome e Cognome",
+                              validator: (String value) {
+                                String name = value.trim();
+                                if (name == "") {
+                                  return "Nome e Cognome mancanti";
+                                } else {
+                                  Pattern pattern =
+                                      r"^([ \u00c0-\u01ffa-zA-Z'\-])+$";
+                                  RegExp regex = new RegExp(pattern);
+                                  if (regex.hasMatch(name)) {
+                                    return null;
+                                  } else {
+                                    return "Nome non valido";
+                                  }
+                                }
+                              },
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.only(top: 20),
+                              child: TextFieldCustomized(
+                                  controller: email,
+                                  iconPrefix: Icons.mail,
+                                  labelText: "Email",
+                                  validator: (String value) {
+                                    if (_userExists) {
+                                      return "Email già registrata";
+                                    }
+                                    String email = value.trim();
+                                    Pattern pattern =
+                                        r'^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+                                    RegExp regex = new RegExp(pattern);
+                                    if (regex.hasMatch(email)) {
+                                      return null;
+                                    } else {
+                                      return "Email errata";
+                                    }
+                                  }),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(top: 20, bottom: 0),
+                              child: TextFieldCustomized(
+                                  controller: passwordUtente,
+                                  iconPrefix: Icons.lock,
+                                  isPassword: true,
+                                  labelText: "Password",
+                                  validator: (String value) {
+                                    Pattern pattern =
+                                        r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$';
+                                    RegExp regex = new RegExp(pattern);
+                                    if (regex.hasMatch(value)) {
+                                      return null;
+                                    } else {
+                                      return "La password deve contenere:\n8 caratteri e un numero";
+                                    }
+                                  }),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(top: 20, bottom: 0),
+                              child: TextFieldCustomized(
+                                  controller: passwordUtente2,
+                                  iconPrefix: Icons.lock,
+                                  isPassword: true,
+                                  labelText: "Ridigita la Password",
+                                  validator: (String value) {
+                                    if (value == passwordUtente.text) {
+                                      return null;
+                                    } else {
+                                      return "Le password non corrispondono";
+                                    }
+                                  }),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 18),
+                              width: double.infinity,
+                              child: GestureDetector(
+                                  onTap: () {
+                                    ChromeSafariBrowser().open(
+                                        url: Uri.parse(
+                                            "https://www.google.com"));
+                                  },
+                                  child: Row(children: [
+                                    Text("Clicca qui",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green[900]),
+                                        textAlign: TextAlign.left),
+                                    Text(
+                                        " per leggere le condizioni di utilizzo",
+                                        textAlign: TextAlign.left)
+                                  ])),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  width: 24.0,
+                                  child: Checkbox(
+                                    value: firstCheck,
+                                    activeColor: Colors.green[900],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        firstCheck = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () =>
+                                      setState(() => firstCheck = !firstCheck),
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                              'Ho letto e accetto le condizioni',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  width: 24.0,
+                                  child: Checkbox(
+                                    value: secondCheck,
+                                    activeColor: Colors.green[900],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        secondCheck = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => setState(
+                                      () => secondCheck = !secondCheck),
+                                  child: RichText(
+                                    text: TextSpan(
+                                      text:
+                                          'Dichiaro di avere ${Utility.ageApp} o più anni',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 24.0,
+                            ),
+                            Container(
+                                height: 50,
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        primary: Colors.blue,
+                                        textStyle:
+                                            TextStyle(color: Colors.white)),
+                                    child: Text('Registrati'),
+                                    onPressed: (!_isDisabled &&
+                                            firstCheck &&
+                                            secondCheck
+                                        ? onPressRegistrati
+                                        : null)))
+                          ])),
+                    ],
+                  )));
         }));
   }
 
@@ -311,39 +285,51 @@ class _StateSignIn extends State<SignIn> {
   //qui effettivamente fa la validazione e se ci sono problemi aggiunge gli avvisi a livello grafico
   //non c'e' bisogno di fare il setState perche' se ne occupa il validate
   void onPressRegistrati() {
-    //TODO sistemare la registrazione una volta che viene realizzato il backend
-    if (true) {
+    print(nomeUtente.text);
+    print(email.text);
+    print(passwordUtente.text);
+    print(passwordUtente2.text);
+    _userExists = false;
+    if (_formKey.currentState.validate()) {
+      bool registrazioneOk = false;
       //_formKey.currentState.validate()
-      http.post(
-          Uri.parse(
-              "https://prenotamionline.000webhostapp.com/registrazione.php"),
-          body: {
-            "username": nomeUtente.text,
-            "email": email.text,
-            "password": passwordUtente.text
-          }).then((value) {
+      setState(() {
+        _isDisabled = true;
+      });
+      http.post(Uri.parse(EndPoint.getUrl(EndPoint.REGISTRAZIONE)), body: {
+        "username": nomeUtente.text,
+        "email": email.text,
+        "password": passwordUtente.text
+      }).then((value) {
+        setState(() {
+          _isDisabled = false;
+        });
         print("Registrazione: ${value.body.toString()}");
         if (value.body == "0") {
-          print("Username già esistente, digitare un diverso Username");
-          _showMessage("Username già esistente, digitare un diverso Username");
-          _registrazioneOk = false;
+          _userExists = true;
+          _formKey.currentState.validate();
         } else if (value.body == "1") {
           print("Registrazione Utente eseguita correttamente");
-          _showMessage("Registrazione Utente eseguita correttamente");
-          _registrazioneOk = true;
+          Utility.displaySnackBar(
+              "Registrazione utente eseguita correttamente", _scaffoldContext);
+          // _registrazioneOk = true;
+          registrazioneOk = true;
         } else {
           print("Errore imprevisto, riprovare più tardi");
-          _showMessage("Errore imprevisto, riprovare più tardi");
-          _registrazioneOk = false;
+          Utility.displaySnackBar(
+              "Errore imprevisto, riprovare più tardi", _scaffoldContext);
+          // _registrazioneOk = false;
         }
 
         //TODO se la risposta e' 0 allora da l'avviso di email occupata, altrimenti ti reindirizza al login
         //TODO intanto che aspetta la risposta il bottone registrati devi disattvarlo
+        if (registrazioneOk) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Login()),
+          );
+        }
       });
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Login()),
-      );
     } else {
       print("validation failed");
     }
