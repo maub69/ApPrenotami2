@@ -399,8 +399,6 @@ class _StateDash extends State<Dash> {
                     ),
                   ),
                 ),
-                // TODO esempio orizzontal scroll https://pub.dev/packages/flutter_swiper
-                // TODO https://pub.dev/packages/flutter_swiper_plus/example
                 Stack(children: [
                   Container(
                     

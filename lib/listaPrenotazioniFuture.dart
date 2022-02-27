@@ -142,12 +142,12 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
 
   void delWidget(int index, bool isToDelete) {
     setState(() {
-      dynamic prenotazioneNoarchivio = listaPrenotazioniNoArchivio[index];
+      dynamic prenotazioneNoArchivio = listaPrenotazioniNoArchivio[index];
       if (isToDelete) {
-        Utility.listaPrenotazioni.remove(prenotazioneNoarchivio);
+        Utility.listaPrenotazioni.remove(prenotazioneNoArchivio);
       } else {
-        prenotazioneNoarchivio["prev_type"] = prenotazioneNoarchivio["type"];
-        prenotazioneNoarchivio["type"] = -5;
+        prenotazioneNoArchivio["prev_type"] = prenotazioneNoArchivio["type"];
+        prenotazioneNoArchivio["type"] = -5;
       }
       setState(() {
         _aggiornaListaPrenotazioniFuture(
@@ -156,7 +156,6 @@ class _StateListaPrenotazioniFuture extends State<ListaPrenotazioniFuture> {
     });
   }
 
-  // TODO ricordarsi di sistemare il popup per la chiusura dell'app
   Widget getWidgetList(dynamic prenotazione, int posWidget, Function onTap) {
     Widget card = Material(
       key: Key(_random

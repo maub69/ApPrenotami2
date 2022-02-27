@@ -195,7 +195,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   // recupera i dATI UTENTE TRAMITE ID e li passa alla classe Dash
-  void _goOnDash(String id) async {
+  void _goOnDash(String key) async {
     /*List<Map> list = await Utility.database
         .rawQuery("SELECT * FROM User WHERE id = ?", [id]);
     Utente utente = Utente(
@@ -204,8 +204,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         username: list[0]["username"],
         password: list[0]["password"]);*/
 
-    //TODO RINOMINARE id in key, questo perche' non e' piu' l'id dell'utente, ma la chiave che usa quest'ultimo per collegarsi
-    List<String> idEmail = id.split(":");
+    List<String> idEmail = key.split(":");
     Utente utente =
         Utente(email: idEmail[1], id: idEmail[0], username: "", password: "");
     Utility.utente = utente;

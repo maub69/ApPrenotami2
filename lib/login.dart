@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/TextFieldCustomized.dart';
 import 'package:mia_prima_app/info_app_basso.dart';
+import 'package:mia_prima_app/resetPassword.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
@@ -48,13 +49,15 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     contextGlobal = context;
     return Scaffold(
-        appBar: null,
-        //con builder creao un nuovo context, nei fatti a livello grafico aver creato questo builder non porta a nessun tipo di modifica, tuttavia e' fondamentale per lo showSnackBar
-        //si puo' vedere nella funzione _showMessage che viene utilizzato _scaffoldContext
-        body: new Builder(builder: (BuildContext context) {
+      appBar: null,
+      //con builder creao un nuovo context, nei fatti a livello grafico aver creato questo builder non porta a nessun tipo di modifica, tuttavia e' fondamentale per lo showSnackBar
+      //si puo' vedere nella funzione _showMessage che viene utilizzato _scaffoldContext
+      body: new Builder(
+        builder: (BuildContext context) {
           _scaffoldContext = context;
-          return Column(children: [
-            Container(
+          return Column(
+            children: [
+              Container(
                 height: Utility.height - InfoAppBasso.height,
                 padding: EdgeInsets.all(10),
                 child: ListView(
@@ -78,8 +81,6 @@ class _LoginState extends State<Login> {
                     ),
                     Container(
                       padding: EdgeInsets.all(10),
-                      // TODO modificare questo plugin con un altro in quanto non ci permette di cambiare il colori come vogliamo, in particolare la scritta interna e la scritta che compare nel bordo quando scrivi
-                      // TODO vedere:  https://androidride.com/flutter-textfield-password/
                       child: TextFieldCustomized(
                         controller: passwordController,
                         iconPrefix: Icons.lock,
@@ -113,32 +114,82 @@ class _LoginState extends State<Login> {
                             onPressed:
                                 (_isNotPressedLogin ? onPressedLogin : null))),
                     Container(
+                        margin: EdgeInsets.only(left: 12, top: 18),
                         child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text('Per registrarti', style: TextStyle(fontSize: 18)),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                              textStyle: TextStyle(color: Colors.green[900])),
-                          child: Text(
-                            'clicca qui',
-                            style: TextStyle(
-                                fontSize: 18, color: Colors.green[900]),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(
+                                Icons.login,
+                                color: Colors.green[900],
+                                size: 28.0,
+                              ),
+                            ),
+                            Text('Per registrarti',
+                                style: TextStyle(fontSize: 18)),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                  textStyle:
+                                      TextStyle(color: Colors.green[900])),
+                              child: Text(
+                                'clicca qui',
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.green[900]),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SignIn()),
+                                );
+                              },
+                            )
+                          ],
+                        )),
+                    Container(
+                      margin: EdgeInsets.only(left: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(right: 10),
+                            child: Icon(
+                              Icons.settings_backup_restore_outlined,
+                              color: Colors.green[900],
+                              size: 28.0,
+                            ),
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignIn()),
-                            );
-                          },
-                        )
-                      ],
-                    ))
+                          Text('Password dimenticata?',
+                              style: TextStyle(fontSize: 18)),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                                textStyle: TextStyle(color: Colors.green[900])),
+                            child: Text(
+                              'clicca qui',
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.green[900]),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ResetPassword()),
+                              );
+                            },
+                          )
+                        ],
+                      ),
+                    )
                   ],
-                )),
-            InfoAppBasso.getInfoContainer()
-          ]);
-        }));
+                ),
+              ),
+              InfoAppBasso.getInfoContainer()
+            ],
+          );
+        },
+      ),
+    );
   }
 
   /// funzione che riceve i dati id e password
@@ -210,11 +261,8 @@ class _LoginState extends State<Login> {
     }).then((value) {
       print("risposta: ${value.body}");
       if (value.body == "-1") {
-        Utility.displaySnackBar(
-            "Login errato",
-          _scaffoldContext,
-          type: 3,
-          actionMessage: "CHIUDI");
+        Utility.displaySnackBar("Login errato", _scaffoldContext,
+            type: 3, actionMessage: "CHIUDI");
       } else {
         if (_isChecked) {
           salvaLogin(value.body, nameController.text);

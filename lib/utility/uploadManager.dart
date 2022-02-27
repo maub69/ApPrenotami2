@@ -2,10 +2,10 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:multipart_request/multipart_request.dart';
 import 'package:path/path.dart';
+import 'package:dio/dio.dart';
 
-// questa classe gestisce tutto l'apparato dell'upload, si tratat di una classe globale che viene conservata in utility
+// questa classe gestisce tutto l'apparato dell'upload, si tratta di una classe globale che viene conservata in utility
 class UploadManager {
   List<ProgressFile> _listProgressFile =
       []; // questa e' la lista degli upload che non solo ancora terminati
@@ -39,7 +39,31 @@ class UploadManager {
   }
 
   void _uploadFile(ProgressFile progressFile) {
-    var request = MultipartRequest();
+    // TODO verificare se fa l'upload correttamnte, in ongi caso sotto è commentato il codice vecchio
+    Dio dio = Dio();
+    dio.post(
+      EndPoint.getUrlKey(EndPoint.SEND_FILES) +
+          "&datetime=${progressFile.dateTime.toString()}&id_appuntamento=${progressFile.idAppuntamento}&name=${progressFile.nameUrl}&id=${progressFile.idChat}",
+      data: FormData.fromMap({
+        'file': MultipartFile.fromFile(progressFile.file.path, filename: progressFile.getNameFile())
+      }),
+      onSendProgress: (int sent, int total) {
+        progressFile.setProgress((sent/total*100).toInt());
+        if(sent~/total == 1) {
+          _listProgressFile.remove(progressFile);
+          if (queueNotSent.isNotEmpty) {
+            _uploadFile(queueNotSent.removeFirst());
+          }
+        }
+      },
+    );
+
+
+
+
+
+
+    /*var request = MultipartRequest();
 
     request.setUrl(EndPoint.getUrlKey(EndPoint.SEND_FILES) +
         "&datetime=${progressFile.dateTime.toString()}&id_appuntamento=${progressFile.idAppuntamento}&name=${progressFile.nameUrl}&id=${progressFile.idChat}");
@@ -66,7 +90,7 @@ class UploadManager {
     // ogni volta che c'e' un aggiornamento invia l'informazione al ProgressFile, in questo modo se c'e' un listener, questo lo viene a sapere
     response.progress.listen((int progress) {
       progressFile.setProgress(progress);
-    });
+    });*/
   }
 }
 

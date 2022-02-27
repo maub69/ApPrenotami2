@@ -157,13 +157,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.6"
-  ext_storage:
+  dio:
     dependency: "direct main"
     description:
-      name: ext_storage
+      name: dio
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "4.0.4"
   fake_async:
     dependency: transitive
     description:
@@ -387,13 +387,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.7.0"
-  multipart_request:
-    dependency: "direct main"
-    description:
-      name: multipart_request
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.1"
   nm:
     dependency: transitive
     description:

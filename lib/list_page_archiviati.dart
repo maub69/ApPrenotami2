@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/model.dart';
-import 'package:mia_prima_app/utility/utility.dart';
 import 'package:mia_prima_app/visualizzaPrenotazioneFutura.dart';
 
 class ListPage extends StatefulWidget {

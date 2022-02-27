@@ -21,11 +21,10 @@ class _StateSceltaCalendario extends State<SceltaCalendario> {
 
   @override
   void initState() {
+    super.initState();
     List<Widget> listCalendari = [];
 
     //in questo punto scarico tutti i calendari di un determinato amministratore, l'obiettivo e' quello di scaricarli e poi decidere quale visualizzare
-    //TODO un qualche cosa da mettere nel body in attesa
-    //TODO sistemare la visualizzazione del container ricordandosi di inserire anche la descrizione
     DownloadJson downloadJson = new DownloadJson(
         url: EndPoint.GET_CALENDARI,
         parametri: {"id": Utility.idApp},
@@ -43,8 +42,8 @@ class _StateSceltaCalendario extends State<SceltaCalendario> {
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => Dash(
-                        idCalendario: results[idCalendarioAprire]["id"])));
+                    builder: (BuildContext context) =>
+                        Dash(idCalendario: results[idCalendarioAprire]["id"])));
           } else {
             List<dynamic> results = jsonDecode(data.body);
             results.forEach((element) {
@@ -63,8 +62,8 @@ class _StateSceltaCalendario extends State<SceltaCalendario> {
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (BuildContext context) => Dash(
-                                idCalendario: element["id"])));
+                            builder: (BuildContext context) =>
+                                Dash(idCalendario: element["id"])));
                   },
                   child: Container(
                       alignment: Alignment.centerLeft,

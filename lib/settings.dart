@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mia_prima_app/login.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:path_provider/path_provider.dart';
@@ -156,6 +157,12 @@ class _SettingsState extends State<Settings> {
                     String path = directory.path;
                     File file = File('$path/id.txt');
                     file.delete();
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => Login(),
+                        ),
+                        ModalRoute.withName('/'));
                   }
                 });
               },

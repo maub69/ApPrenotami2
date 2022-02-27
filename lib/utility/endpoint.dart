@@ -37,15 +37,17 @@ class EndPoint {
 
   static final String DELETE_MESSAGE = "test/deleteMessage.php";
 
+  static final String RESET_PASSWORD = "test/resetPassword.php";
+
   static final String UPLOAD = "test/uploads/";
 
   static final String LOGO = "test/images/logos/";
 
   static String getUrl(String url) {
-    return "http://" + HOST + "/" + url;
+    return "https://" + HOST + "/" + url;
   }
 
   static String getUrlKey(String url) {
-    return "http://" + HOST + "/" + url + "?key=" + Utility.utente.id;
+    return "https://" + HOST + "/" + url + "?key=" + Utility.utente.id;
   }
 }

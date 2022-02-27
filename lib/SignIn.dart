@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/TextFieldCustomized.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'login.dart';
 // sutto il link per visualizzare una pagina web all'interno di flutter
 //https://github.com/doomoolmori/flutter_inappbrowser
 
@@ -291,7 +290,6 @@ class _StateSignIn extends State<SignIn> {
     print(passwordUtente2.text);
     _userExists = false;
     if (_formKey.currentState.validate()) {
-      bool registrazioneOk = false;
       //_formKey.currentState.validate()
       setState(() {
         _isDisabled = true;
@@ -312,22 +310,12 @@ class _StateSignIn extends State<SignIn> {
           print("Registrazione Utente eseguita correttamente");
           Utility.displaySnackBar(
               "Registrazione utente eseguita correttamente", _scaffoldContext);
-          // _registrazioneOk = true;
-          registrazioneOk = true;
+          Navigator.pop(context);
         } else {
           print("Errore imprevisto, riprovare più tardi");
           Utility.displaySnackBar(
               "Errore imprevisto, riprovare più tardi", _scaffoldContext);
           // _registrazioneOk = false;
-        }
-
-        //TODO se la risposta e' 0 allora da l'avviso di email occupata, altrimenti ti reindirizza al login
-        //TODO intanto che aspetta la risposta il bottone registrati devi disattvarlo
-        if (registrazioneOk) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Login()),
-          );
         }
       });
     } else {
