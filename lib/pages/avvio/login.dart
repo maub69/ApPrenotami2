@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/TextFieldCustomized.dart';
 import 'package:mia_prima_app/info_app_basso.dart';
-import 'package:mia_prima_app/resetPassword.dart';
+import 'resetPassword.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'SignIn.dart';
-import 'dash.dart';
+import '../../dash.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// classe per il login
@@ -96,6 +96,7 @@ class _LoginState extends State<Login> {
                             Text("Ricordami"),
                             Checkbox(
                                 value: _isChecked,
+                                activeColor: Colors.green[900],
                                 onChanged: (value) {
                                   setState(() {
                                     _isChecked = !_isChecked;

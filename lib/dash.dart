@@ -411,7 +411,7 @@ class _StateDash extends State<Dash> {
                             children: <Widget>[
                               // Stroked text as border.
                               Text(
-                                'Lista prenotazioni',
+                                'Lista appuntamenti',
                                 style: TextStyle(
                                   fontSize: 20,
                                   foreground: Paint()
@@ -421,7 +421,7 @@ class _StateDash extends State<Dash> {
                                 ),
                               ),
                               Text(
-                                'Lista prenotazioni',
+                                'Lista appuntamenti',
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.white,

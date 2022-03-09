@@ -19,7 +19,7 @@ class UploadManager {
 
     ProgressFile progressFile = new ProgressFile(
         idAppuntamento, idChat, now, file, nameUrl, typeUpload);
-    print("name-file-url: " + progressFile.getUrl());
+    // print("name-file-url: " + progressFile.getUrl());
     _listProgressFile.add(progressFile);
 
     if (_listProgressFile.length == 1) {
@@ -38,14 +38,14 @@ class UploadManager {
     }).toList();
   }
 
-  void _uploadFile(ProgressFile progressFile) {
-    // TODO verificare se fa l'upload correttamnte, in ongi caso sotto è commentato il codice vecchio
+  void _uploadFile(ProgressFile progressFile) async {
     Dio dio = Dio();
+
     dio.post(
       EndPoint.getUrlKey(EndPoint.SEND_FILES) +
           "&datetime=${progressFile.dateTime.toString()}&id_appuntamento=${progressFile.idAppuntamento}&name=${progressFile.nameUrl}&id=${progressFile.idChat}",
       data: FormData.fromMap({
-        'file': MultipartFile.fromFile(progressFile.file.path, filename: progressFile.getNameFile())
+        'file': await MultipartFile.fromFile(progressFile.file.path, filename: progressFile.getNameFile())
       }),
       onSendProgress: (int sent, int total) {
         progressFile.setProgress((sent/total*100).toInt());
@@ -57,40 +57,6 @@ class UploadManager {
         }
       },
     );
-
-
-
-
-
-
-    /*var request = MultipartRequest();
-
-    request.setUrl(EndPoint.getUrlKey(EndPoint.SEND_FILES) +
-        "&datetime=${progressFile.dateTime.toString()}&id_appuntamento=${progressFile.idAppuntamento}&name=${progressFile.nameUrl}&id=${progressFile.idChat}");
-    request.addFile("file", progressFile.file.path);
-
-    Response response = request.send();
-
-    // quando termina l'upload si puo' tranquillamente rimuovere dalla lista perche' non e' piu' in corso
-    response.onError = () {
-      _listProgressFile.remove(progressFile);
-      if (queueNotSent.isNotEmpty) {
-        _uploadFile(queueNotSent.removeFirst());
-      }
-    };
-
-    // quando termina l'upload si puo' tranquillamente rimuovere dalla lista perche' non e' piu' in corso
-    response.onComplete = (response) {
-      _listProgressFile.remove(progressFile);
-      if (queueNotSent.isNotEmpty) {
-        _uploadFile(queueNotSent.removeFirst());
-      }
-    };
-
-    // ogni volta che c'e' un aggiornamento invia l'informazione al ProgressFile, in questo modo se c'e' un listener, questo lo viene a sapere
-    response.progress.listen((int progress) {
-      progressFile.setProgress(progress);
-    });*/
   }
 }
 
@@ -131,7 +97,7 @@ class ProgressFile {
   }
 
   String getExtension() {
-    print("extension-file: " + extension(file.path).substring(1));
+    // "extension-file: " + extension(file.path).substring(1));
     return extension(file.path).substring(1);
   }
 

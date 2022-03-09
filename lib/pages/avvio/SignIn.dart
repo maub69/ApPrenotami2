@@ -233,7 +233,7 @@ class _StateSignIn extends State<SignIn> {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                        primary: Colors.blue,
+                                        primary: Colors.green[900],
                                         textStyle:
                                             TextStyle(color: Colors.white)),
                                     child: Text('Registrati'),

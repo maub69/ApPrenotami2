@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:mia_prima_app/login.dart';
+import 'pages/avvio/login.dart';
 import 'package:mia_prima_app/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:path_provider/path_provider.dart';

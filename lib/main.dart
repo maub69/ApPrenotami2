@@ -7,7 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
 import 'package:flutter_notification_channel/flutter_notification_channel.dart';
 import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:flutter_notification_channel/notification_visibility.dart';
-import 'package:mia_prima_app/login.dart';
+import 'pages/avvio/login.dart';
 import 'package:mia_prima_app/notificationSender.dart';
 import 'package:mia_prima_app/utility/databaseHelper.dart';
 import 'package:mia_prima_app/utility/messagesManager.dart';
@@ -168,9 +168,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         importance: NotificationImportance.IMPORTANCE_HIGH,
         name: 'Appuntamenti',
         visibility: NotificationVisibility.VISIBILITY_PUBLIC,
-        allowBubbles: value.getBool("notifica-attiva-bubble"),
-        enableVibration: value.getBool("notifica-attiva-vibrazione"),
-        enableSound: value.getBool("notifica-attiva-suono"),
+        allowBubbles: value.getBool("notifica-attiva-bubble") ?? true,
+        enableVibration: value.getBool("notifica-attiva-vibrazione") ?? true,
+        enableSound: value.getBool("notifica-attiva-suono") ?? true,
         showBadge: true,
       );
 
