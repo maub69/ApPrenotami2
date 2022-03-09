@@ -3,15 +3,15 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mia_prima_app/TextFieldCustomized.dart';
-import 'package:mia_prima_app/info_app_basso.dart';
+import '../global/text_field_customized.dart';
+import '../global/info_app_basso.dart';
 import 'resetPassword.dart';
-import 'package:mia_prima_app/utility/databaseHelper.dart';
+import 'package:mia_prima_app/utility/database_helper.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'SignIn.dart';
-import '../../dash.dart';
+import '../dash/dash.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// classe per il login

@@ -4,13 +4,13 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mia_prima_app/FileSystemNew.dart';
-import 'package:mia_prima_app/calendario.dart';
-import 'package:mia_prima_app/utility/databaseHelper.dart';
-import 'package:mia_prima_app/utility/downloadJson.dart';
+import 'file_system_new.dart';
+import '../pages/dash/calendari/calendario.dart';
+import 'package:mia_prima_app/utility/database_helper.dart';
+import 'package:mia_prima_app/utility/download_json.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
-import 'package:mia_prima_app/utility/uploadManager.dart';
+import 'package:mia_prima_app/utility/upload_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';

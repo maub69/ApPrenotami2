@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:mia_prima_app/TextFieldCustomized.dart';
-import 'package:mia_prima_app/model.dart';
+import '../global/text_field_customized.dart';
+import '../global/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:http/http.dart' as http;
