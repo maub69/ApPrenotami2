@@ -90,7 +90,8 @@ class _ChatPage extends State<ChatPage> {
     http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
       "datetime": datetime.toString(),
       "text": text,
-      "id": idMessaggio
+      "id": idMessaggio,
+      "type": "free"
     });
     setState(() {
       ResponseRispostaFactory risposta = RispostaFactory.getRisposta(

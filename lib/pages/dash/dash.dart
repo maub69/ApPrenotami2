@@ -44,10 +44,9 @@ class _StateDash extends State<Dash> {
 
   void updateCalendario() {
     DownloadJson downloadJson = new DownloadJson(
-        url: EndPoint.GET_CALENDARI_SETTIMANE_2,
+        url: EndPoint.GET_CALENDARI_AZIENDA,
         parametri: {
-          "id_calendario": widget.idCalendario,
-          "calendari_timestamp": "-1"
+          "id_azienda": widget.idCalendario
         },
         // passo al parametro letturaTerminata la funzione letturaTerminata
         // che verrà eseguita nella classe DownloadJson
@@ -67,7 +66,7 @@ class _StateDash extends State<Dash> {
     updateCalendario();
 
     DownloadJson downloadJsonListaPrenotazioni = new DownloadJson(
-        url: EndPoint.GET_APPUNTAMENTI,
+        url: EndPoint.GET_LISTA_PRENOTAZIONI,
         // passo al parametro letturaTerminata la funzione letturaTerminata
         // che verrà eseguita nella classe DownloadJson
         letturaTerminata: letturaTerminataListaPrenotazioni);
@@ -75,7 +74,7 @@ class _StateDash extends State<Dash> {
     downloadJsonListaPrenotazioni.start();
 
     DownloadJson downloadNotifiche = new DownloadJson(
-        url: EndPoint.GET_APPUNTAMENTI,
+        url: EndPoint.GET_LISTA_PRENOTAZIONI,
         // passo al parametro letturaTerminata la funzione letturaTerminata
         // che verrà eseguita nella classe DownloadJson
         letturaTerminata: letturaTerminataNotifiche);

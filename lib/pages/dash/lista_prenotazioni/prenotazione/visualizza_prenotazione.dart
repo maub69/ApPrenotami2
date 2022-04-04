@@ -90,7 +90,7 @@ class _StateVisualizzaPrenotazione
       setState(() {});
 
       //qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
-      http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE)),
+      http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_PRENOTAZIONE)),
           body: {
             "motivo": response,
             "type": type.toString(),

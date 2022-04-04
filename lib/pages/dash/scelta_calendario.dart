@@ -26,24 +26,25 @@ class _StateSceltaCalendario extends State<SceltaCalendario> {
 
     //in questo punto scarico tutti i calendari di un determinato amministratore, l'obiettivo e' quello di scaricarli e poi decidere quale visualizzare
     DownloadJson downloadJson = new DownloadJson(
-        url: EndPoint.GET_CALENDARI,
-        parametri: {"id": Utility.idApp},
+        url: EndPoint.GET_INFO_AZIENDA,
+        parametri: {"id": Utility.idApp, "azienda": idCalendario},
         letturaTerminata: (http.Response data) {
           if (idCalendario != "-1") {
             // se idCalendario != "-1", cio' significa che e' presente un calendario che deve essere automanticamente aperto
             // nelle righe successive a partire dall'idCalendario si cerca l'oggetto del calendario corrispondente e viene aperta automaticamente la schermata della dash del calendario
-            int idCalendarioAprire = -1;
+            /*int idCalendarioAprire = -1;
             List<dynamic> results = jsonDecode(data.body);
             for (int i = 0; i < results.length; i++) {
               if (results[i]["id"] == idCalendario) {
                 idCalendarioAprire = i;
               }
-            }
+            }*/
+            dynamic result = jsonDecode(data.body);
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) =>
-                        Dash(idCalendario: results[idCalendarioAprire]["id"])));
+                        Dash(idCalendario: result)));
           } else {
             List<dynamic> results = jsonDecode(data.body);
             results.forEach((element) {

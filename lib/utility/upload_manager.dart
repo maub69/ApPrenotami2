@@ -43,7 +43,7 @@ class UploadManager {
 
     dio.post(
       EndPoint.getUrlKey(EndPoint.SEND_FILES) +
-          "&datetime=${progressFile.dateTime.toString()}&id_appuntamento=${progressFile.idAppuntamento}&name=${progressFile.nameUrl}&id=${progressFile.idChat}",
+          "&datetime=${progressFile.dateTime.toString()}&id_appuntamento=${progressFile.idAppuntamento}&name=${progressFile.nameUrl}",
       data: FormData.fromMap({
         'file': await MultipartFile.fromFile(progressFile.file.path, filename: progressFile.getNameFile())
       }),

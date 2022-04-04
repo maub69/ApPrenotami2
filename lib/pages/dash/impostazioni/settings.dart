@@ -55,7 +55,7 @@ class _SettingsState extends State<Settings> {
               onToggle: (value) {
                 _switchToggle("notifica-attiva", value);
                 http.get(Uri.parse(
-                    EndPoint.getUrlKey(EndPoint.DEL_PRENOTAZIONE) +
+                    EndPoint.getUrlKey(EndPoint.SET_NOTIFICHE) +
                         "&enabled=" +
                         (value ? "1" : "0")));
               },

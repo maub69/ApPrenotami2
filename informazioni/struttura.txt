@@ -1,0 +1,26 @@
+- avvio/
+ - login
+ - registrati
+ - password dimenticata
+
+- dash/
+ - dash.dart
+ - impostazioni/
+  - impostazioni
+ - calendari/
+  - calendari.dart
+  - richiesta prenotazione/
+   - richiesta prenotazione.dart
+ - lista appuntamenti/
+  - filtro/
+   - filtro.dart
+  - archivio/
+   - archivio.dart
+  - appuntamento/
+   - appuntamento.dart
+   - processo/
+    - processo.dart
+   - richiesta annullamento/
+    - richiesta annullamento.dart
+   - chat/
+    - tutti i file della chat

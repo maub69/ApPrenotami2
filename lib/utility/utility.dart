@@ -128,7 +128,7 @@ class Utility {
 
   static void updateAppuntamenti() {
     DownloadJson downloadJsonListaPrenotazioni = new DownloadJson(
-        url: EndPoint.GET_APPUNTAMENTI,
+        url: EndPoint.GET_LISTA_PRENOTAZIONI,
         // passo al parametro letturaTerminata la funzione letturaTerminata
         // che verrà eseguita nella classe DownloadJson
         letturaTerminata: (http.Response data) {

@@ -63,7 +63,7 @@ class ChatLoading {
   void _sendMesaggioLetto(String idMessage) {
     if (Utility.hasInternet) {
       http.get(Uri.parse(
-          (EndPoint.getUrlKey("SET_CHAT_LETTA") + "&message=$idMessage")));
+          (EndPoint.getUrlKey(EndPoint.SET_CHAT_LETTA) + "&message_id=$idMessage")));
     }
   }
 

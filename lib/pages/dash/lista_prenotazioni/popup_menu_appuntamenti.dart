@@ -25,7 +25,7 @@ class PopupMenuAppuntamenti {
       items.add(ItemPopBottomMenu(
         onPressed: () {
           print("SONO QUI 200");
-          http.delete(Uri.parse(EndPoint.getUrlKey(EndPoint.APPUNTAMENTO)),
+          http.delete(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_APPUNTAMENTO)),
               body: {"id": prenotazione["id"].toString()});
           delWidget(cardPos, true);
           Navigator.of(context).pop();

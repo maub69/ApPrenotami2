@@ -118,13 +118,13 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
     _onPressedAggiungi = null;
     setState(() {});
 
-    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CREA_APPUNTAMENTO)), body: {
+    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.INVIO_RICHIESTA_APPUNTAMENTO)), body: {
       "id_calendario": widget.idCalendario,
       "start_time": widget.disponibilita.from.toString(),
       "end_time": widget.disponibilita.to.toString(),
       "descrizione": testoController.text.trim(),
     }).then((value) {
-      print("testo: " + EndPoint.getUrl(EndPoint.CREA_APPUNTAMENTO));
+      print("testo: " + EndPoint.getUrl(EndPoint.INVIO_RICHIESTA_APPUNTAMENTO));
       print("risposta prenotazione: " + value.body);
       Navigator.pop(context);
       Navigator.pop(context);
