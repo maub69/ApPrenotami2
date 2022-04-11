@@ -60,6 +60,7 @@ dependencies:
   flutter_inappwebview: ^5.3.2
   settings_ui: ^2.0.2
   shared_preferences: ^2.0.13
+  awesome_notifications: ^0.6.21
 
 
 

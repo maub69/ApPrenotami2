@@ -294,6 +294,49 @@ class _StateVisualizzaPrenotazione
           },
           child: Text("Vai alla chat")),
       RaisedButton(onPressed: onClickElimina, child: buttonElimina),*/
+      Container(
+        margin: EdgeInsets.only(top: 8, right: 8, left: 8),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(width: 0.1),
+          borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 3,
+              blurRadius: 8,
+              offset: Offset(0, 2), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Column(children: [
+          Padding(
+            padding: EdgeInsets.only(right: 15, left: 15),
+            child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+            Text("Notifiche", style: TextStyle(
+                            fontSize: 20,
+                            color: Color(0xB4000000),
+                            fontWeight: FontWeight.bold,
+          )),
+          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.green[900],
+                              shape: CircleBorder(),
+                              padding: EdgeInsets.all(10)
+                            ),
+                            child: Icon(Icons.notification_add),
+                            onPressed: () { })
+          ])
+          )
+        ]),
+      )
     ];
 
     if (widget.prenotazione["steps"] != null) {

@@ -1,11 +1,12 @@
 import 'dart:io';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as nt;
 import 'package:flutter_notification_channel/flutter_notification_channel.dart';
-import 'package:flutter_notification_channel/notification_importance.dart';
+import 'package:flutter_notification_channel/notification_importance.dart' as ni;
 import 'package:flutter_notification_channel/notification_visibility.dart';
 import 'pages/avvio/login.dart';
 import 'utility/notification_sender.dart';
@@ -130,6 +131,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
+      SharedPreferences.getInstance().then((value) {
+        Utility.preferences = value;
+      });
+
+    AwesomeNotifications().initialize(
+      // set the icon to null if you want to use the default app icon
+      null,
+      [
+        NotificationChannel(
+          channelKey: 'scheduler_prenotazioni_high',
+          channelName: 'Avvisi prenotazioni scheduler',
+          channelDescription: 'Avvisi delle prenotazioni scheduler',
+          defaultColor: Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          playSound: true,
+          enableLights: true,
+          enableVibration: true,
+          importance: NotificationImportance.Max,
+          channelShowBadge: true,
+        ),
+      ]);
+
     Connectivity().checkConnectivity().then((value) {
       Utility.hasInternet = value != ConnectivityResult.none;
     });
@@ -165,7 +188,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       FlutterNotificationChannel.registerNotificationChannel(
         description: 'Qui ricevi le notifiche per gli appuntamenti',
         id: 'apprenotami.appuntamenti',
-        importance: NotificationImportance.IMPORTANCE_HIGH,
+        importance: ni.NotificationImportance.IMPORTANCE_HIGH,
         name: 'Appuntamenti',
         visibility: NotificationVisibility.VISIBILITY_PUBLIC,
         allowBubbles: value.getBool("notifica-attiva-bubble") ?? true,

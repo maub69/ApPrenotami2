@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'calendari/calendario.dart';
@@ -45,9 +46,7 @@ class _StateDash extends State<Dash> {
   void updateCalendario() {
     DownloadJson downloadJson = new DownloadJson(
         url: EndPoint.GET_CALENDARI_AZIENDA,
-        parametri: {
-          "id_azienda": widget.idCalendario
-        },
+        parametri: {"id_azienda": widget.idCalendario},
         // passo al parametro letturaTerminata la funzione letturaTerminata
         // che verrà eseguita nella classe DownloadJson
         letturaTerminata: letturaTerminataCalendarioRichieste);
@@ -58,6 +57,7 @@ class _StateDash extends State<Dash> {
   @override
   void initState() {
     super.initState();
+
     //questa classe serve a gestire le richieste get per scasricare i json. Necessita dell'url e della funzione da avviare una volta finito di scaricare il json.
     //la funzione letturaTerminata viene eseguita una votla che il json viene scaricato
     //si tratta di una classe generica e' puo' essere usata in qualsiasi contesto serva scaricare un json e poi eseguire una funzione su di esso, NON solo strettamente per il calendario
@@ -304,10 +304,9 @@ class _StateDash extends State<Dash> {
 
   _onPressedListaPrenotazioniFuture() {
     Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => ListaPrenotazioni()))
-        .then((_) {
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => ListaPrenotazioni())).then((_) {
       setState(() {
         _numNotifiche = 0;
         Utility.listaPrenotazioni.forEach((element) {
@@ -400,7 +399,6 @@ class _StateDash extends State<Dash> {
                 ),
                 Stack(children: [
                   Container(
-                    
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(

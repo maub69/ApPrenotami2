@@ -14,7 +14,7 @@ import 'package:mia_prima_app/utility/upload_manager.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// la classe Utility permette di utilizzare
 /// dei dati tra le varie altre classi
@@ -55,6 +55,8 @@ class Utility {
   static double height;
 
   static int ageApp = 18;
+
+  static SharedPreferences preferences;
 
   static CacheManager getCacheManager(String idAppuntamento) {
     if (!cacheManager.containsKey(idAppuntamento)) {
