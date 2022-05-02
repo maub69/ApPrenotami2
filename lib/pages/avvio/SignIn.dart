@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/utility/request_http.dart';
 import '../global/text_field_customized.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
@@ -294,11 +295,14 @@ class _StateSignIn extends State<SignIn> {
       setState(() {
         _isDisabled = true;
       });
-      http.post(Uri.parse(EndPoint.getUrl(EndPoint.REGISTRAZIONE)), body: {
-        "username": nomeUtente.text,
-        "email": email.text,
-        "password": passwordUtente.text
-      }).then((value) {
+      RequestHttp.post(
+        Uri.parse(EndPoint.getUrl(EndPoint.REGISTRAZIONE)),
+        body: {
+          "username": nomeUtente.text,
+          "email": email.text,
+          "password": passwordUtente.text
+        },
+        then: (value) {
         setState(() {
           _isDisabled = false;
         });

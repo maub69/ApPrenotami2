@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
 import 'calendari/calendario.dart';
 import 'calendari/crea_appuntamento/crea_appuntamento.dart';
 import '../global/info_app_basso.dart';
@@ -17,6 +18,7 @@ import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'lista_prenotazioni/prenotazione/visualizza_prenotazione.dart';
 import 'dart:ui';
+import 'package:intl/intl.dart' as intl;
 
 /// Pagina Dashboard che contiene il menu principale
 class Dash extends StatefulWidget {
@@ -112,7 +114,13 @@ class _StateDash extends State<Dash> {
         // il parametro aggiornaPrenotazioni permette di modificare la listaPrenotazioni con le nuove info sulla prenotazione
         // non e' necessario aprire la schermata della lista delle prenotazioni, in quanto sono già presenti tutte le info per aprire la sezione di dettaglio da questa schermata
         int idAppuntamentoAprire = -1;
-        for (int i = 0; i < Utility.listaPrenotazioni.length; i++) {
+        for (int i = 0; i < Utility.listaPrenotazioni.length; i++) {NotificheManager notificheManager = new NotificheManager(
+              dataAppuntamento: intl.DateFormat("yyyy-MM-dd HH:mm:ss")
+                  .parse(Utility.listaPrenotazioni[i]["start"]),
+              idAppuntamento: Utility.listaPrenotazioni[i]["id"].toString(),
+              nomeAppuntamento: Utility.listaPrenotazioni[i]
+                  ["calendario_nome"]);
+          notificheManager.start();
           if (Utility.listaPrenotazioni[i]["id"].toString() == idAppuntamento) {
             idAppuntamentoAprire = i;
           }

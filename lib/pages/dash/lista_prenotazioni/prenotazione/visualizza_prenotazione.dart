@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
+import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
+import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/popup_add_notifica.dart';
 import 'chat/chat_page.dart';
 import '../../../global/model.dart';
 import 'package:http/http.dart' as http;
@@ -11,6 +13,7 @@ import '../../../../utility/notification_sender.dart';
 import 'processo/steps.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
+import 'package:intl/intl.dart';
 
 class VisualizzaPrenotazione extends StatefulWidget {
   final dynamic prenotazione;
@@ -21,9 +24,10 @@ class VisualizzaPrenotazione extends StatefulWidget {
   State createState() => _StateVisualizzaPrenotazione();
 }
 
-class _StateVisualizzaPrenotazione
-    extends State<VisualizzaPrenotazione> {
+class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
   Widget buttonElimina = Text("Elimina", style: TextStyle(color: Colors.red));
+  NotificheManager _notificheManager;
+  Random _random = Random();
 
   // value --> // 1=richiesta annullamento, 2=elimina, 3=archivia
   void onClickElimina(int type, String description,
@@ -115,7 +119,9 @@ class _StateVisualizzaPrenotazione
           Utility.deletePrenotazione(widget.prenotazione["id"].toString());
           Utility.listaPrenotazioni.remove(widget.prenotazione);
         } else {
-          widget.prenotazione['richiesto_cancellazione'] = Utility.getDateStringFromDateTime(DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
+          widget.prenotazione['richiesto_cancellazione'] =
+              Utility.getDateStringFromDateTime(
+                  DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
           setState(() {});
         }
       });
@@ -140,6 +146,12 @@ class _StateVisualizzaPrenotazione
   void initState() {
     super.initState();
     print(widget.prenotazione);
+    _notificheManager = NotificheManager(
+        dataAppuntamento: DateFormat("yyyy-MM-dd HH:mm:ss")
+            .parse(widget.prenotazione["start"]),
+        idAppuntamento: widget.prenotazione["id"].toString(),
+        nomeAppuntamento: widget.prenotazione["calendario_nome"]);
+    _notificheManager.start();
   }
 
   @override
@@ -261,6 +273,60 @@ class _StateVisualizzaPrenotazione
           ),
         ));
 
+    List<Widget> listWidgetNotifiche = [
+      Padding(
+          padding: EdgeInsets.only(right: 15, left: 15),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text("Notifiche",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Color(0xB4000000),
+                  fontWeight: FontWeight.bold,
+                )),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.green[900],
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(10)),
+                child: Icon(Icons.notification_add),
+                onPressed: () {
+                  PopupAddNotifica.showMenu(
+                      context: context,
+                      callToSet: (int difference) {
+                        setState(() {
+                          _notificheManager.addNotificaDifference(difference);
+                        });
+                      });
+                })
+          ]))
+    ];
+
+    _notificheManager.notificheScheduler.forEach((element) {
+      listWidgetNotifiche.add(Padding(
+          padding: EdgeInsets.only(right: 15, left: 15),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(
+                Utility.getDateStringFromDateTime(
+                    element.start, "HH:mm dd/MM/yyyy"),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xB4000000),
+                  fontWeight: FontWeight.bold,
+                )),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    primary: Colors.red[900], shape: CircleBorder()),
+                child: Icon(Icons.cancel, size: 15),
+                onPressed: () {
+                  setState(() {
+                    _notificheManager.removeNotifica(element.id);
+                  });
+                })
+          ])));
+    });
+
     List<Widget> listWidget = [
       card,
       /*Text(
@@ -301,10 +367,10 @@ class _StateVisualizzaPrenotazione
           color: Colors.white,
           border: Border.all(width: 0.1),
           borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10)),
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+              bottomLeft: Radius.circular(10),
+              bottomRight: Radius.circular(10)),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -314,28 +380,7 @@ class _StateVisualizzaPrenotazione
             ),
           ],
         ),
-        child: Column(children: [
-          Padding(
-            padding: EdgeInsets.only(right: 15, left: 15),
-            child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-            Text("Notifiche", style: TextStyle(
-                            fontSize: 20,
-                            color: Color(0xB4000000),
-                            fontWeight: FontWeight.bold,
-          )),
-          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.green[900],
-                              shape: CircleBorder(),
-                              padding: EdgeInsets.all(10)
-                            ),
-                            child: Icon(Icons.notification_add),
-                            onPressed: () { })
-          ])
-          )
-        ]),
+        child: Column(children: listWidgetNotifiche),
       )
     ];
 
@@ -470,7 +515,14 @@ class _StateVisualizzaPrenotazione
 
     return Model(
         actions: actions,
-        body: ListView(children: listWidget),
+        body: ListView.builder(
+            itemCount: listWidget.length,
+            itemBuilder: ((context, index) {
+              return Container(
+                key: Key(_random.nextInt(100000).toString()),
+                child: listWidget[index],
+              );
+            })),
         floatingActionButton: Stack(
           children: [
             Container(

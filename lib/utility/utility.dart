@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'file_system_new.dart';
 import '../pages/dash/calendari/calendario.dart';
 import 'package:mia_prima_app/utility/database_helper.dart';
@@ -48,6 +49,8 @@ class Utility {
 
   static bool hasInternet = true;
 
+  static bool hasConnessioneServer = true;
+
   static bool isLogged = false;
 
   static double width;
@@ -57,6 +60,20 @@ class Utility {
   static int ageApp = 18;
 
   static SharedPreferences preferences;
+
+  static void callConnessioneServerAssente() {
+    if (hasConnessioneServer && hasInternet) {
+      hasConnessioneServer = false;
+      FlutterToast.showToast(
+              msg: "Server temporaneamente irraggiungibile",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Color(0xFF616161),
+              textColor: Colors.white,
+              fontSize: 16.0
+            );
+    }
+  }
 
   static CacheManager getCacheManager(String idAppuntamento) {
     if (!cacheManager.containsKey(idAppuntamento)) {

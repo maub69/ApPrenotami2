@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/utility/utility.dart';
 import 'cache_manager_url.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 
@@ -25,13 +26,19 @@ class MessagesManager {
   }
 
   static downloadChatNonLette() async {
-    CacheManagerUrl.instance.get(Uri.parse(EndPoint.getUrlKey(EndPoint.GET_CHAT_NON_LETTE))).then((value) {
+    CacheManagerUrl.instance
+        .get(Uri.parse(EndPoint.getUrlKey(EndPoint.GET_CHAT_NON_LETTE)))
+        .then((value) {
       _listChatNonLette = [];
-      List<dynamic> list = jsonDecode(value.body);
-      list.forEach((element) {
-        _listChatNonLette.add(element);
-      });
-      print("messaggesManager $_listChatNonLette");
+      if (value.statusCode != 503) {
+        List<dynamic> list = jsonDecode(value.body);
+        list.forEach((element) {
+          _listChatNonLette.add(element);
+        });
+        print("messaggesManager $_listChatNonLette");
+      } else {
+        Utility.callConnessioneServerAssente();
+      }
     });
   }
 
