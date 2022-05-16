@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
 import '../calendario.dart';
 import '../../../global/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -118,7 +119,7 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
     _onPressedAggiungi = null;
     setState(() {});
 
-    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.INVIO_RICHIESTA_APPUNTAMENTO)), body: {
+    RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.INVIO_RICHIESTA_APPUNTAMENTO)), body: {
       "id_calendario": widget.idCalendario,
       "start_time": widget.disponibilita.from.toString(),
       "end_time": widget.disponibilita.to.toString(),

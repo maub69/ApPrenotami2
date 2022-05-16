@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/utility/request_http.dart';
 import '../global/text_field_customized.dart';
 import '../global/info_app_basso.dart';
 import 'resetPassword.dart';
@@ -256,7 +257,7 @@ class _LoginState extends State<Login> {
                         });
                         */
     //
-    http.post(Uri.parse(EndPoint.getUrl(EndPoint.LOGIN)), body: {
+    RequestHttp.post(Uri.parse(EndPoint.getUrl(EndPoint.LOGIN)), body: {
       "email": nameController.text,
       "password": passwordController.text
     }).then((value) {

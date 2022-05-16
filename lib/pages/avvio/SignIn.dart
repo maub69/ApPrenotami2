@@ -301,26 +301,25 @@ class _StateSignIn extends State<SignIn> {
           "username": nomeUtente.text,
           "email": email.text,
           "password": passwordUtente.text
-        },
-        then: (value) {
-        setState(() {
-          _isDisabled = false;
-        });
-        print("Registrazione: ${value.body.toString()}");
-        if (value.body == "0") {
-          _userExists = true;
-          _formKey.currentState.validate();
-        } else if (value.body == "1") {
-          print("Registrazione Utente eseguita correttamente");
-          Utility.displaySnackBar(
-              "Registrazione utente eseguita correttamente", _scaffoldContext);
-          Navigator.pop(context);
-        } else {
-          print("Errore imprevisto, riprovare più tardi");
-          Utility.displaySnackBar(
-              "Errore imprevisto, riprovare più tardi", _scaffoldContext);
-          // _registrazioneOk = false;
-        }
+        }).then((value) {
+          setState(() {
+            _isDisabled = false;
+          });
+          print("Registrazione: ${value.body.toString()}");
+          if (value.body == "0") {
+            _userExists = true;
+            _formKey.currentState.validate();
+          } else if (value.body == "1") {
+            print("Registrazione Utente eseguita correttamente");
+            Utility.displaySnackBar(
+                "Registrazione utente eseguita correttamente", _scaffoldContext);
+            Navigator.pop(context);
+          } else {
+            print("Errore imprevisto, riprovare più tardi");
+            Utility.displaySnackBar(
+                "Errore imprevisto, riprovare più tardi", _scaffoldContext);
+            // _registrazioneOk = false;
+          }
       });
     } else {
       print("validation failed");

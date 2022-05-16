@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:mia_prima_app/utility/request_http.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,7 +17,7 @@ class CacheManagerChat {
 
   Future<String> getMessages(Uri urlChat) async {
     try {
-      http.Response response = await http.get(urlChat);
+      http.Response response = await RequestHttp.get(urlChat);
       save(response.body);
       return response.body;
     } catch (e) {

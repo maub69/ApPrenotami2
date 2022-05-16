@@ -32,13 +32,8 @@ class DownloadJson {
     print("richiesta: ${request.toString()}");
 
     CacheManagerUrl.instance.get(request).then((value) {
-      if (value.statusCode != 503) {
-        // passandoli alla funzione 'letturaTerminata'
-        if (letturaTerminata != null) {
-          letturaTerminata(value);
-        }
-      } else {
-        Utility.callConnessioneServerAssente();
+      if (letturaTerminata != null) {
+        letturaTerminata(value);
       }
     });
   }

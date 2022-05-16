@@ -11,6 +11,7 @@ import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/ri
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/risposte/rispostaFactory.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/upload/file_upload.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/upload/media_upload.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
 import 'cache_manager_chat.dart';
 import 'chatLoading.dart';
 import 'package:mia_prima_app/main.dart';
@@ -87,7 +88,7 @@ class _ChatPage extends State<ChatPage> {
     DateTime datetime = new DateTime.now();
     String idMessaggio =
         _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length);
-    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
+    RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
       "datetime": datetime.toString(),
       "text": text,
       "id": idMessaggio,

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
 import '../global/text_field_customized.dart';
 import '../global/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -82,7 +83,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 child: Text('Richiesta reset'),
                 onPressed: _isNotDisabled
                     ? () {
-                        http.post(
+                        RequestHttp.post(
                             Uri.parse(EndPoint.getUrl(EndPoint.RESET_PASSWORD)),
                             body: {
                               "email": _emailController.text.trim(),

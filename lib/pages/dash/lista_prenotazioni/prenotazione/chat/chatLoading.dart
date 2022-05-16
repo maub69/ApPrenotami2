@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/risposte/rispostaFactory.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
 import 'cache_manager_chat.dart';
 import '../../../../../utility/notification_sender.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -62,7 +63,7 @@ class ChatLoading {
 
   void _sendMesaggioLetto(String idMessage) {
     if (Utility.hasInternet) {
-      http.get(Uri.parse(
+      RequestHttp.get(Uri.parse(
           (EndPoint.getUrlKey(EndPoint.SET_CHAT_LETTA) + "&message_id=$idMessage")));
     }
   }

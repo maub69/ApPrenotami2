@@ -6,6 +6,7 @@ import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/popup_add_notifica.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
 import 'chat/chat_page.dart';
 import '../../../global/model.dart';
 import 'package:http/http.dart' as http;
@@ -94,7 +95,7 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
       setState(() {});
 
       //qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
-      http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_PRENOTAZIONE)),
+      RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_PRENOTAZIONE)),
           body: {
             "motivo": response,
             "type": type.toString(),

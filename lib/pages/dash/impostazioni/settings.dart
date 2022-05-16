@@ -1,6 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mia_prima_app/pages/dash/impostazioni/popup_notifica_settings.dart';
+import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
+import 'package:mia_prima_app/utility/utility.dart';
 import '../../avvio/login.dart';
 import '../../global/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -33,6 +37,39 @@ class _SettingsState extends State<Settings> {
     return _pref.getBool(param);
   }
 
+  bool _getParamAppuntamentoActive() {
+    if (_pref == null) {
+      return NotificheManager.hasDefault;
+    }
+    if (_pref.getBool("notifica-appuntamento-exists") == null) {
+      return NotificheManager.hasDefault;
+    }
+    return _pref.getBool("notifica-appuntamento-exists");
+  }
+
+  String convertValueNotifica() {
+    if (!NotificheManager.hasDefault) {
+      return "Mai";
+    } else {
+      switch (NotificheManager.minutesBefore) {
+        case 30:
+          return "30 minuti prima";
+        case 60:
+          return "1 ora prima";
+        case 120:
+          return "2 ore prima";
+        case 360:
+          return "6 ore prima";
+        case 1440:
+          return "1 giorno prima";
+        case 2880:
+          return "2 giorni prima";
+        case 10080:
+          return "1 settimana prima";
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +91,7 @@ class _SettingsState extends State<Settings> {
             SettingsTile.switchTile(
               onToggle: (value) {
                 _switchToggle("notifica-attiva", value);
-                http.get(Uri.parse(
+                RequestHttp.get(Uri.parse(
                     EndPoint.getUrlKey(EndPoint.SET_NOTIFICHE) +
                         "&enabled=" +
                         (value ? "1" : "0")));
@@ -93,6 +130,37 @@ class _SettingsState extends State<Settings> {
             ),
           ],
         ),
+        SettingsSection(
+            title: Text('Notifiche Prenotazioni',
+                style: TextStyle(color: Colors.black87, fontSize: 16)),
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                  leading: Icon(Icons.notification_add_sharp),
+                  title: Text(
+                      'Notifica default (${convertValueNotifica()})'),
+                  value: Text('Notifica di default per gli appuntamenti'),
+                  onPressed: (context) {
+                    PopupNotificaSettings.showMenu(
+                        context: context,
+                        callToSet: (value) {
+                          setState(() {
+                            if (value == -1) {
+                              NotificheManager.hasDefault = false;
+                              Utility.preferences
+                                  .setBool("notifica:has-default", false);
+                            } else {
+                              NotificheManager.hasDefault = true;
+                              NotificheManager.minutesBefore = value;
+                              Utility.preferences
+                                  .setBool("notifica:has-default", true);
+                              Utility.preferences
+                                  .setInt("notifica:minutes-before", value);
+                            }
+                          });
+                        });
+                  })
+              // TODO aggiungere un bottono sotto "Notifica di default" che se cliccato apre una finestra di scelta nel quale indicare quanto prima si vuole la notifica
+            ]),
         SettingsSection(
           title: Text('Utente',
               style: TextStyle(color: Colors.black87, fontSize: 16)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mia_prima_app/pages/dash/calendari/calendario.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/risposte/risposta.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
 import '../../message_tile.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
@@ -59,7 +60,7 @@ class CambioOrario extends Risposta {
                 style: buttonStyle,
                 // quando viene cliccato, viene inviata al server la tua scelta. E poi ritorna la risposta, non direttamente, ma tramite una notifica di Firebase onMessage
                 onPressed: () {
-                  http.post(
+                  RequestHttp.post(
                       Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
                       body: {
                         "appuntamento_id": idChat.toString(),
@@ -122,7 +123,7 @@ class CambioOrario extends Risposta {
     print(disponibilita.from);
     print(disponibilita.to);
     //in conformita a quanto scritto su postman viene inviata la richiesta al server
-    http.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
+    RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
       "appuntamento_id": idChat.toString(),
       "messaggio_id": body["id"].toString(),
       "type": "cambio_orario",

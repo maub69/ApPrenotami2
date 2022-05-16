@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as nt;
 import 'package:flutter_notification_channel/flutter_notification_channel.dart';
-import 'package:flutter_notification_channel/notification_importance.dart' as ni;
+import 'package:flutter_notification_channel/notification_importance.dart'
+    as ni;
 import 'package:flutter_notification_channel/notification_visibility.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
 import 'pages/avvio/login.dart';
 import 'utility/notification_sender.dart';
 import 'package:mia_prima_app/utility/database_helper.dart';
@@ -132,27 +134,31 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-      SharedPreferences.getInstance().then((value) {
-        Utility.preferences = value;
-      });
+    SharedPreferences.getInstance().then((value) {
+      Utility.preferences = value;
+      if (value.containsKey("notifica:has-default")) {
+        NotificheManager.hasDefault = value.getBool("notifica:has-default");
+        NotificheManager.minutesBefore = value.getInt("notifica:minutes-before");
+      }
+    });
 
     AwesomeNotifications().initialize(
-      // set the icon to null if you want to use the default app icon
-      null,
-      [
-        NotificationChannel(
-          channelKey: 'scheduler_prenotazioni_high',
-          channelName: 'Avvisi prenotazioni scheduler',
-          channelDescription: 'Avvisi delle prenotazioni scheduler',
-          defaultColor: Color(0xFF9D50DD),
-          ledColor: Colors.white,
-          playSound: true,
-          enableLights: true,
-          enableVibration: true,
-          importance: NotificationImportance.Max,
-          channelShowBadge: true,
-        ),
-      ]);
+        // set the icon to null if you want to use the default app icon
+        null,
+        [
+          NotificationChannel(
+            channelKey: 'scheduler_prenotazioni_high',
+            channelName: 'Avvisi prenotazioni scheduler',
+            channelDescription: 'Avvisi delle prenotazioni scheduler',
+            defaultColor: Color(0xFF9D50DD),
+            ledColor: Colors.white,
+            playSound: true,
+            enableLights: true,
+            enableVibration: true,
+            importance: NotificationImportance.Max,
+            channelShowBadge: true,
+          ),
+        ]);
 
     Connectivity().checkConnectivity().then((value) {
       Utility.hasInternet = value != ConnectivityResult.none;
@@ -184,8 +190,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     SharedPreferences.getInstance().then((value) {
       FirebaseMessaging.instance
-        .getToken()
-        .then((token) => print("token-app: $token"));
+          .getToken()
+          .then((token) => print("token-app: $token"));
       FlutterNotificationChannel.registerNotificationChannel(
         description: 'Qui ricevi le notifiche per gli appuntamenti',
         id: 'apprenotami.appuntamenti',

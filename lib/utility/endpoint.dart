@@ -1,6 +1,4 @@
 import 'package:mia_prima_app/utility/utility.dart';
-
-// TODO aggiungere possibilità di attivare notifiche (audio e in visualizzazione) ad un certo orario per ogni appuntamento
 class EndPoint {
   static final String HOST = "apprenotami.nlsitalia.com";
 

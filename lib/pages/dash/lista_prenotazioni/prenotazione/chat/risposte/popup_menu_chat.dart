@@ -2,6 +2,7 @@ import 'package:alert/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
+import 'package:mia_prima_app/utility/request_http.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:pop_bottom_menu/pop_bottom_menu.dart';
 import 'package:http/http.dart' as http;
@@ -43,7 +44,7 @@ class PopupMenuChat {
         onPressed: () {
           if (Utility.hasInternet) {
             print("elimina_messaggio: $idChat");
-            http.delete(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
+            RequestHttp.delete(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
               body: {"id": idChat});
             listWidget.remove(widget);
             cacheManagerChat.remove(idChat);
