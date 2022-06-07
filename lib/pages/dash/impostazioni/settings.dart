@@ -159,7 +159,6 @@ class _SettingsState extends State<Settings> {
                           });
                         });
                   })
-              // TODO aggiungere un bottono sotto "Notifica di default" che se cliccato apre una finestra di scelta nel quale indicare quanto prima si vuole la notifica
             ]),
         SettingsSection(
           title: Text('Utente',
@@ -218,8 +217,10 @@ class _SettingsState extends State<Settings> {
                       ),
                     );
                   },
+                /// rappresenta l'azione che viene svolta una volta che si clicca su disconnetti e si preme ok
+                /// viene eliminato il token di login e si torna sulla pagina di login
                 ).then((value) async {
-                  if (value == null || value) {
+                  if (value != null && value) {
                     print("sono qui 1");
                     final directory = await getApplicationDocumentsDirectory();
                     String path = directory.path;

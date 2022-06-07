@@ -3,10 +3,10 @@ import 'cache_manager_url.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 
-/// classe che riceve un url e una funzione
-/// invocando il metodo .start sull'oggetto
-/// si esegue la funzione 'letturaTerminata' passata precedentemente,
-/// sui dati ricevuti da http.get
+/// questa classe serve a gestire le richieste get per scaricare i json. Necessita dell'url e della funzione da avviare una volta finito di scaricare il json.
+/// la funzione letturaTerminata viene eseguita una volta che il json viene scaricato
+/// si tratta di una classe generica e' puo' essere usata in qualsiasi contesto serva scaricare un json e poi eseguire una funzione su di esso
+    
 class DownloadJson {
   // letturaTerminata serve a contenere una funzione
   // ha come tipo Function e come parametro vuole un oggetto di tipo http.Response
@@ -22,7 +22,7 @@ class DownloadJson {
   // funzione chiamabile dopo aver instaziato l'oggetto tramite nomeoggetto.start
   // ritorneranno dei dati poi passati a letturaTerminata
   void start() {
-    //da adesso non e' necessario inserire manualmente la key nella richiesta, ma viene fatto autmaticamente. Nei fatti viene aggiunto un nuovo attribbuto key con la chiave
+    //da adesso non e' necessario inserire manualmente la key nella richiesta, ma viene fatto automaticamente. Nei fatti viene aggiunto un nuovo attributo key con la chiave
     if (parametri == null) {
       parametri = {};
     }

@@ -7,9 +7,10 @@ import 'package:mia_prima_app/utility/request_http.dart';
 import '../calendario.dart';
 import '../../../global/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
-import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/utility/utility.dart';
 
+/// Questa è la pagina che viene aperta quanto si clicca su un item sul calendario e si vuole
+/// creare un nuovo appuntamento
 class CreaAppuntamento extends StatefulWidget {
   final Disponibilita disponibilita;
   final String idCalendario;
@@ -31,7 +32,7 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
   @override
   void initState() {
     super.initState();
-    _onPressedAggiungi = _aggiungiFrase;
+    _onPressedAggiungi = _richiediAppuntamento;
   }
 
   @override
@@ -111,9 +112,8 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
     );
   }
 
-  void _aggiungiFrase() {
-    // iserire controllo quantita'
-
+  /// Invia la richiesta al server per richiedere l'appuntamento e torna alla home
+  void _richiediAppuntamento() {
     childAggiungi = Loading(
         indicator: BallPulseIndicator(), size: 40.0, color: Colors.white);
     _onPressedAggiungi = null;

@@ -27,17 +27,24 @@ class _StateListaPrenotazioni extends State<ListaPrenotazioni> {
     _aggiornaListaPrenotazioni();
   }
 
-  //nei fatti non fa altro che popolare _listCard con i nuovi Widget delle prenotazioni
+  /// si tratta della funzione che popola _listCard, cioè la lista che contiene i widget che vengono visualizzati
+  /// riceve in ingresso la lista dei filtri della tipologia di appuntamenti che devono essere scartati
+  /// non riceve una lista di filtri, ma solo l'intero che li rappresenta, cioè l'id della tipologia
   void _aggiornaListaPrenotazioni({List<int> discard}) {
     if (discard == null) {
       discard = [];
     }
+    /// l'id 5 rappresenta gli archiviati, che devono sempre essere scartati dalla visualizzazione principale
     discard.add(-5);
 
     _listCard = [];
+
+    /// crea la lista degli appuntamenti che non devono essere visualizzati
+    /// cioè conserva solo quelli che hanno la tipologia che non è stata trovata nella lista dei filtri
     listaPrenotazioniNoArchivio = Utility.listaPrenotazioni
         .where((element) => discard.indexOf(element["type"]) == -1)
         .toList();
+    /// vengono effettivamente realizzati i widget per visualizzare gli appuntamenti
     for (int i = 0; i < listaPrenotazioniNoArchivio.length; i++) {
       _listCard.add(getWidgetList(listaPrenotazioniNoArchivio[i], i, () {
         Navigator.push(
@@ -46,6 +53,8 @@ class _StateListaPrenotazioni extends State<ListaPrenotazioni> {
                 builder: (BuildContext context) => VisualizzaPrenotazione(
                     prenotazione: listaPrenotazioniNoArchivio[i]))).then((_) {
           setState(() {
+            /// è presente l'aggiornamento nel caso in cui si torni indietro fino a questa pagina
+            /// perchè dopo aver visualizzato un appuntamento le informazioni di quest'ultimo potrebbero essere cambiate
             _aggiornaListaPrenotazioni(discard: discard);
           });
         });
@@ -69,6 +78,10 @@ class _StateListaPrenotazioni extends State<ListaPrenotazioni> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
+                      /// rappresenta l'azione che viene fatta quando si clicca sul bottone filtra
+                      /// qua viene scritta la funzione di callback che poi viene eseguita dalla pagina dei filtri
+                      /// si può vedere che viene eseguito _aggiornaListaPrenotazioni nel quale la lista 
+                      /// dei filtri viene trasformata in una lista di interi
                       builder: (context) => FiltraPage(
                             filtri: _filtri,
                             callback: (filtri) {
@@ -93,6 +106,10 @@ class _StateListaPrenotazioni extends State<ListaPrenotazioni> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
+                    /// crea la pagina per visualizzare gli archiviati
+                    /// usa un oggetto che permette di creare velocemente una visualizzazione
+                    /// di widget passando gli oggetti da convertire e la funzione
+                    /// da applicare per creare il widget, in questo caso getWidgetList
                     builder: (context) => ListPage(
                       title: "Archiviati",
                       list: listaArchiviati,
@@ -140,6 +157,9 @@ class _StateListaPrenotazioni extends State<ListaPrenotazioni> {
             : null);
   }
 
+  /// questa funzione viene passata in ingresso ad ogni visualizzazione della prenotazione
+  /// se una prenotazione venisse eliminata dalla sezione apposita, allora verrà richiamata
+  /// anche questa funzione, al fine di eliminare la prenotazione dalla lista delle prenotazioni
   void delWidget(int index, bool isToDelete) {
     setState(() {
       dynamic prenotazioneNoArchivio = listaPrenotazioniNoArchivio[index];

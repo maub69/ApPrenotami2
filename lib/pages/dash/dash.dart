@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
@@ -45,24 +44,18 @@ class _StateDash extends State<Dash> {
     )
   ];
 
+  /// scarica i calendari che vengono visualizzati a scorrimento orizzontale
   void updateCalendario() {
     DownloadJson downloadJson = new DownloadJson(
         url: EndPoint.GET_CALENDARI_AZIENDA,
         parametri: {"id_azienda": widget.idCalendario},
-        // passo al parametro letturaTerminata la funzione letturaTerminata
-        // che verrà eseguita nella classe DownloadJson
         letturaTerminata: letturaTerminataCalendarioRichieste);
-    // funzione presente nella classe DownloadJson tramite url lancia la funzione
     downloadJson.start();
   }
 
   @override
   void initState() {
     super.initState();
-
-    //questa classe serve a gestire le richieste get per scasricare i json. Necessita dell'url e della funzione da avviare una volta finito di scaricare il json.
-    //la funzione letturaTerminata viene eseguita una votla che il json viene scaricato
-    //si tratta di una classe generica e' puo' essere usata in qualsiasi contesto serva scaricare un json e poi eseguire una funzione su di esso, NON solo strettamente per il calendario
 
     Utility.updateCalendario = updateCalendario;
     updateCalendario();
@@ -84,21 +77,14 @@ class _StateDash extends State<Dash> {
     downloadNotifiche.start();
   }
 
-  int impostaGiorno(int giornoJson) {
-    var currDt = DateTime.now();
-    int oggi = currDt.weekday;
-    int giornoGiusto = oggi - giornoJson;
-    int giornoPartenza = currDt.day - giornoGiusto;
-    if (giornoPartenza < currDt.day) {
-      giornoPartenza += 7;
-    }
-    return giornoPartenza;
-  }
-
+  /// legge i dati in risposta dal server, li pulisce e li mette in un json
+  /// che verrà utilizzato per vedere la lista delle prenotazioni disponibili nell'app
   letturaTerminataListaPrenotazioni(http.Response data) {
     if (data.statusCode == 200) {
       Utility.listaPrenotazioni = jsonDecode(data.body);
 
+      /// per ogni calendario sono presenti dei messaggi non letti, vengono tutti sommati per essere poi visualizzati sopra il bottone
+      /// che ti fa visualizzare la lista delle prenotazioni
       _numNotifiche = 0;
       Utility.listaPrenotazioni.forEach((element) {
         _numNotifiche += element["msg_non_letti"];
@@ -108,6 +94,7 @@ class _StateDash extends State<Dash> {
         _onPressedListaPrenotazioniFuture();
       };
 
+      /// permette di aprire automaticamente un appuntamento nel caso nel quale sia stata cliccata una notifica ad app chiusa
       if (idAppuntamento != "-1") {
         // se idAppuntamento != "-1", allora cio' significa che e' presente un appuntamento da aprire
         // viene cercato l'appuntamento tra la lista degli appuntamenti e poi viene aperto con VisualizzaPrenotazioneFutura
@@ -154,29 +141,18 @@ class _StateDash extends State<Dash> {
     }
   }
 
-  //questa funzione viene eseguita una volta che viene scaricato il json contenente gli appuntamenti prenotabili e non del calendario
-  //funzione usata SOLO per la sezione "Calendario richieste"
+  /// funzione usata da updateCalendario per pulire il json dei calendari e visualizzarli a video
   letturaTerminataCalendarioRichieste(http.Response data) {
     if (data.statusCode == 200) {
-      // print(data.body);
-      // prende i dati da data e li decodifica mettendoli in result
-      /*Map<String, dynamic> results = jsonDecode(data.body);
-      // creo una lista dove ogni elemento e' un oggetto di tipo Meeting
-      List<Meeting> meetings = List<Meeting>();
-      String xx = results["base"]["base"];
-      List listaJs = jsonDecode(xx);
-      List orari;
-      listaJs.forEach((ele) {
-        List<dynamic> orario = ele["orari"];
-        orario.forEach((eleOra) {
-          List <String> soloOrainizio = eleOra["start"].split(":");
-          List <String> soloOraFine = eleOra["end"].split(":");
-        });
-      });*/
-
       Utility.calendari = [];
       List<dynamic> results = jsonDecode(data.body);
 
+      /// per ogni calendario effettua la conversione del suo body in una lista di disponibilità
+      /// per poi inserire quelle disponibilità all'interno di un oggetto più grande CalendarioBox
+      /// al quale ad ogni gruppo di disponibilità viene associato l'id del calendario e il nome
+      /// esistono questi due blocchi separati in quanto all'inizio l'app prevedeva un solo calendario
+      /// mentre successivamente si è deciso di averne di più, di conseguenza avendo liste diverse
+      /// era diventato necessario creare un oggetto più grande che le identificasse univocamente
       results.forEach((element) {
         ConvertSettimanaInCalendario convertSettimana =
             new ConvertSettimanaInCalendario(results: element["body"]);
@@ -187,6 +163,7 @@ class _StateDash extends State<Dash> {
         Utility.calendari.add(calendarioBox);
       });
 
+      /// a partire dalla lista dei calendari genera una nuova lista di widget per creare poi la lista orizzontale con tutti i calendari
       _listCalendari = [];
       Utility.calendari.forEach((element) {
         _listCalendari.add(
@@ -236,42 +213,21 @@ class _StateDash extends State<Dash> {
           element.showMessage = _showMessage;
         });
       });
-
-      /*var dayOfWeek = 1;
-      DateTime date = DateTime.now();
-      var lastMonday = date
-          .subtract(Duration(days: date.weekday - dayOfWeek)).to;
-      print(lastMonday);*/
-
-      // print(listaJs[0].toString());
-
-      // listaJs.forEach((dato){
-      //   meetings.add(Meeting(
-      //     descrizione: )
-      //  )
-      // });
-
-      /* prende i Meeting da result e li aggiunge a meetings tramite un ciclo
-      results.forEach((element) {
-        meetings.add(Meeting(
-            descrizione: element["disponibilita"],
-            from: DateTime.parse(element["inizio"]),
-            to: DateTime.parse(element["fine"]),
-            prenotato: element["prenotato"]));
-      });
-      */
-      // onPressedCalendario e' la funzione che viene avviata quando si clicca calendarioRichieste, di base eì nulla
       setState(() {});
     } else {
       print("Erorre: ${data.statusCode}");
     }
   }
 
-  void _showMessage(
-      String title, String body, String messageAdmin, Color color) {
-    //per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
-    //il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
-    //cio' significa che bisgona utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto
+  /// quanto viene fatta una richiesta di una nuova prenotazione da un calendario, l'utente viene riportato sulla dash
+  /// quando viene riportato sulla dash dal basso cmpare un messaggio nel quaòe viene specificato l'effettivo svolgimento dell'operazione
+  /// per fare ciò però è necessario che la classe dell'appuntamento lanci una funzione in questa classe al fine di far visualizzare
+  /// la snackBar in questa pagina, questo è il motivo per cui ad ogni appuntamento prenotabile del calendario viene passata
+  /// in ingresso questa funzione
+  void _showMessage(String title, String body, String messageAdmin, Color color) {
+    // per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
+    // il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
+    // cio' significa che bisogna utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto
     ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
       content: Column(
           children: [
@@ -286,15 +242,22 @@ class _StateDash extends State<Dash> {
     ));
   }
 
-  // avvia la pagina contenenete il calendario, e' fondamentale passargli in ingresso gli appuntamenti, dovrebbe essere generica per tutti i calendari
+  /// questa funzione avvia la pagina che permette di visualizzare il calendario con tutte le disponibilità di appuntamento
+  /// a questa funzione viene passata in ingresso solamente la lista delle disponibilità del calendario, perciò si perde
+  /// l'informazione di appartenenza al calendario di quelle disponibilità
+  /// tuttavia poco prima del lancio di questa funzione viene salvato l'id del calendario
+  /// sulla variabile globale Utility.idCalendarioAperto, in questo modo la richiesta di disponibilità
+  /// verrà inviata al calendario corretto
   _onPressedCal(List<Disponibilita> meetings) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => Calendario(
             calendario: meetings,
+            /// viene specificato in ingresso come ci si deve comportare quand si clicca su un appuntamento
+            /// il quale andrà sempre ad aprire una pagina per la richiesta di un appuntamento
+            // TODO riparti andando a vedere come fuzniona la classe Calendario e andando a commentarla
             onTapDisponibilita: (Disponibilita appuntamento) {
-              //sequenza avvia la pagina che permette di richiedere un appuntamento
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -315,6 +278,8 @@ class _StateDash extends State<Dash> {
         context,
         MaterialPageRoute(
             builder: (BuildContext context) => ListaPrenotazioni())).then((_) {
+      /// questo then serve per quando la pagina viene chiusa, cioè si torna indietro fino alla home
+      /// e perciò deve essere ricalcolato il numero di notifiche per poi essere visualizzato
       setState(() {
         _numNotifiche = 0;
         Utility.listaPrenotazioni.forEach((element) {
@@ -378,7 +343,7 @@ class _StateDash extends State<Dash> {
                           child: Padding(
                               padding: EdgeInsets.only(left: 10, right: 10),
                               child: Text(
-                                  "Scorri orizontalmente l'elenco sottostante per scegliere dove effettuare la prenotazione",
+                                  "Scorri orizzontalmente l'elenco sottostante per scegliere dove effettuare la prenotazione",
                                   textAlign: TextAlign.center,
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),

@@ -2,12 +2,10 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/utility/request_http.dart';
 import '../global/text_field_customized.dart';
 import '../global/info_app_basso.dart';
 import 'resetPassword.dart';
-import 'package:mia_prima_app/utility/database_helper.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
@@ -15,24 +13,12 @@ import 'SignIn.dart';
 import '../dash/dash.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// classe per il login
-/// se trova l'utente nel db prende il suo id
-/// se remember e' cheked lo scrive in un file
-/// rimandando poi alla pagina dash
-/// se non lo trova avverte dell'errore e rimane nella pagina
-///
 class Login extends StatefulWidget {
-  // Login() definisce il costruttore vuoto
   Login();
 
   @override
-  // creazione stato per la classe Login
   State createState() => _LoginState();
 }
-
-/// classe che controlla se utente e password corrispondono e in caso affermativo
-/// se spuntata la casella ricordami, memorizza i dati di login in un file
-/// e rimanda alla pagina principale Dash (Dashboard)
 class _LoginState extends State<Login> {
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -51,7 +37,7 @@ class _LoginState extends State<Login> {
     contextGlobal = context;
     return Scaffold(
       appBar: null,
-      //con builder creao un nuovo context, nei fatti a livello grafico aver creato questo builder non porta a nessun tipo di modifica, tuttavia e' fondamentale per lo showSnackBar
+      //con builder creo un nuovo context, nei fatti a livello grafico aver creato questo builder non porta a nessun tipo di modifica, tuttavia e' fondamentale per lo showSnackBar
       //si puo' vedere nella funzione _showMessage che viene utilizzato _scaffoldContext
       body: new Builder(
         builder: (BuildContext context) {
@@ -194,9 +180,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  /// funzione che riceve i dati id e password
-  /// e li salva nel percorso dell'applicazione
-  /// all'interno del file id.txt
+  /// conserva all'interno del file id.txt l'id utente e l'email, per usarli per memorizzare il login
   void salvaLogin(String id, String email) async {
     final directory = await getApplicationDocumentsDirectory();
     String path = directory.path;
@@ -207,61 +191,11 @@ class _LoginState extends State<Login> {
   void onPressedLogin() {
     _isNotPressedLogin = false;
     setState(() {});
-    /*http
-                            .get("https://hansolo.ovh/ripetizioni/data_json")
-                            .then((value) {
-                          Map<String, dynamic> results = jsonDecode(value.body);
-                          print(
-                              "email: ${results["email"]} + password: ${results["password"]}");
-                          if (results["email"] == nameController.text &&
-                              results["password"] == passwordController.text) {
-                            Alert(message: 'Login corretto').show();
-                          } else {
-                            print('Il login corretto è: ' +
-                                results["email"] +
-                                '\nil tuo login è: ' +
-                                nameController.text +
-                                '\nPassword corretta: ' +
-                                results["password"] +
-                                '\nPassword digitata: ' +
-                                passwordController.text);
-                            Alert(message: 'Login errato').show();
-                          }
-                        });*/
-    /*
-                        Utility.database.rawQuery(
-                            "SELECT * FROM User WHERE username = ? and password = ?",
-                            [
-                              nameController.text,
-                              passwordController.text
-                            ]).then((value) {
-                          if (value.isEmpty) {
-                            Alert(message: 'Login errato').show();
-                          } else {
-                            if (_isChecked) {
-                              salvaLogin(value[0]["id"]);
-                            }
-                            Utility.idUtente = value[0]["id"];
-                            Utente utente = Utente(
-                                email: value[0]["email"],
-                                id: value[0]["id"],
-                                username: value[0]["username"],
-                                password: value[0]["password"]);
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        Dash(utente: utente)));
-                          }
-                          Utility.databaseHelper = DatabaseHelper();
-                        });
-                        */
-    //
     RequestHttp.post(Uri.parse(EndPoint.getUrl(EndPoint.LOGIN)), body: {
       "email": nameController.text,
       "password": passwordController.text
     }).then((value) {
-      print("risposta: ${value.body}");
+      // print("risposta: ${value.body}");
       if (value.body == "-1") {
         Utility.displaySnackBar("Login errato", _scaffoldContext,
             type: 3, actionMessage: "CHIUDI");
@@ -283,7 +217,6 @@ class _LoginState extends State<Login> {
                 builder: (BuildContext context) =>
                     Dash(idCalendario: Utility.idApp)));
       }
-      Utility.databaseHelper = DatabaseHelper();
       _isNotPressedLogin = true;
       setState(() {});
     });

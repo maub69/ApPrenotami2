@@ -5,9 +5,12 @@ import 'package:mia_prima_app/utility/utility.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
+/// Questa classe si occupa di andare a creare il widget rappresentante il calendario
+/// Si tratta di un widget come tutti gli altri, ma poi nella sua build ritorna l'istanza del widget del calendario
+/// della libreria specifica che stiamo usando per creare la visualizzazione del calendario
 class Calendario extends StatefulWidget {
   final List<Disponibilita> calendario;
-  //questa unzione specifica che cosa fare quando un evento sul calendario viene cliccato, gli viene passato in entrata l'appuntamento cosi' sa che cosa gestire
+  //questa funzione specifica che cosa fare quando un evento sul calendario viene cliccato, gli viene passato in entrata l'appuntamento cosi' sa che cosa gestire
   final Function(Disponibilita appuntamento) onTapDisponibilita;
 
   Calendario({this.calendario, this.onTapDisponibilita});
@@ -27,6 +30,8 @@ class _StateCalendario extends State<Calendario> {
     meetingDataSource = MeetingDataSource(widget.calendario);
   }
 
+  /// Ritorna innanzitutto il widget SfCalendar, che è quello della libreria del calendario che stiamo usando
+  /// gli item vhe vengono visualizzati all'intenro del calendario sono quelli di meetingDataSource
   @override
   Widget build(BuildContext context) {
     return Model(
@@ -58,6 +63,8 @@ class _StateCalendario extends State<Calendario> {
   }
 }
 
+/// si tratta della classe che viene utilizzata dalla libreria del calendario per visualizzare le informazioni
+/// perciò deve necessariamente essere una classe estesa se no non potrebbe funzionare
 class MeetingDataSource extends CalendarDataSource {
   MeetingDataSource(List<Disponibilita> source) {
     appointments = source;
@@ -89,6 +96,7 @@ class MeetingDataSource extends CalendarDataSource {
   }
 }
 
+/// rappresenta l'oggetto che viene usato per estrarre le informazioni riguardanti l'appuntamento dal item del calendario una volta che viene cliccato
 class Disponibilita {
   String descrizione;
   DateTime from;

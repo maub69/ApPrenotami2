@@ -15,7 +15,7 @@ import 'package:mia_prima_app/utility/utility.dart';
 
 /*
   Questa classe fa fondamentalmente due cose:
-    - showNotificationWithoutSound permette di invia una notifica forzatamente dall'intenro dell'app, in questo modo anche se firebase di base nonla invia, questa funzione la avvia lo stesso
+    - showNotificationWithoutSound permette di inviare una notifica forzatamente dall'interno dell'app, in questo modo anche se firebase di base non la invia, questa funzione la avvia lo stesso
     - configureFirebaseNotification configura interamente firebase, questa e' una funzione fondamentale perche' senza questa dopo aver aperto una chat si perderebbe completamente la gestione delle notifiche di firebase
 */
 class NotificationSender {
@@ -100,25 +100,17 @@ class NotificationSender {
         .then((RemoteMessage message) {
       if (message != null) {
         // in caso dell'onLauch, bisogna settare la variabile del calendario e dell'appuntamento che si vuole aprire, in questo modo il flusso del programma sa che dovra intraprendere delle azioni speciali per aprire un appuntamento
-        print("contentuto-data: sono qui");
-        print("contentuto-data: ${message.data}");
+        // print("contentuto-data: sono qui");
+        // print("contentuto-data: ${message.data}");
         idCalendario = message.data["id_appuntamento"];
         idAppuntamento = jsonDecode(message.data["body"])["id_appuntamento"].toString();
-        /*FlutterToast.showToast(
-              msg: message["data"]["id_calendario"],
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0
-            );*/
       }
     });
   }
 
   void _setOnMessage(RemoteMessage message) {
     try {
-      print("contentuto-data: sono in onMessage notification sender");
+      // print("contentuto-data: sono in onMessage notification sender");
       NotificationSender notificationSender = NotificationSender();
       notificationSender.showNotificationWithoutSound(message);
       MessagesManager.addChat(jsonDecode(message.data["body"])["id"]);

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:mia_prima_app/pages/dash/calendari/calendario.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/risposte/risposta.dart';
 import 'package:mia_prima_app/utility/request_http.dart';

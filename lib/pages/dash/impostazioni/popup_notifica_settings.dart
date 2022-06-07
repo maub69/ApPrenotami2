@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:pop_bottom_menu/pop_bottom_menu.dart';
-import 'package:http/http.dart' as http;
 
 /*
   Azioni:
     - Archiviare: CONCLUSO, RIFIUTATO, CANCELLATO
     - Cancellare: CONCLUSO, RIFIUTATO, CANCELLATO
 */
+/// Classe del popup che viene aperto quando si clicca sul bottone per aggiungere una notifica alla prenotazione
 class PopupNotificaSettings {
   static void showMenu({@required BuildContext context, Function callToSet}) {
     List<ItemPopBottomMenu> items = [];

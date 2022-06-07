@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/request_http.dart';
 import 'package:pop_bottom_menu/pop_bottom_menu.dart';
-import 'package:http/http.dart' as http;
 
 /*
   Azioni:
     - Archiviare: CONCLUSO, RIFIUTATO, CANCELLATO
     - Cancellare: CONCLUSO, RIFIUTATO, CANCELLATO
 */
+/// corrisponde alla classe usata per gestire il popup che viene aperto quando si vuole
+/// cancellare o archiviare un appuntamento direttamente dalla lista di tutte le prenotazioni
 class PopupMenuAppuntamenti {
   static void showMenu(
       {@required BuildContext context,
@@ -25,7 +26,6 @@ class PopupMenuAppuntamenti {
       hasCommands = true;
       items.add(ItemPopBottomMenu(
         onPressed: () {
-          print("SONO QUI 200");
           RequestHttp.delete(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_APPUNTAMENTO)),
               body: {"id": prenotazione["id"].toString()});
           delWidget(cardPos, true);
@@ -42,7 +42,6 @@ class PopupMenuAppuntamenti {
       hasCommands = true;
       items.add(ItemPopBottomMenu(
         onPressed: () {
-          print("SONO QUI 201");
           RequestHttp.post(
               Uri.parse(EndPoint.getUrlKey(EndPoint.ARCHIVIA_APPUNTAMENTO)),
               body: {"id": prenotazione["id"].toString()});

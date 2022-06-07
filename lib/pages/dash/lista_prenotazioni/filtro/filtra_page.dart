@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../global/model.dart';
-import 'package:mia_prima_app/utility/utility.dart';
 
+// TODO Cambiare colore bottone "filtra"
+// La pagina che viene aperta quando si clicca sull'icona dei filtri dalla pagine della lista delle prenotazioni
 class FiltraPage extends StatefulWidget {
   final List<TypeFiltro> filtri;
   final Function(List<TypeFiltro>) callback;
@@ -36,13 +37,17 @@ class _FiltraPageState extends State<FiltraPage> {
   @override
   void initState() {
     super.initState();
+    /// se in ingresso alla classe vengono passati dei filtri, questi vengono usati per settare il valore di quelli all'interno della pagina
+    /// questo è importante per fare in modo che se ci sono dei filtri attivi, questi rimangono selezionati
     widget.filtri.forEach((element) {
-      TypeFiltro typeFiltro = _filtri.where((e) => e.nameInt == element.nameInt).first;
+      TypeFiltro typeFiltro =
+          _filtri.where((e) => e.nameInt == element.nameInt).first;
       if (typeFiltro != null) {
         typeFiltro.value = element.value;
       }
     });
 
+    /// per ogni filtro viene creato il widget della checkbox che lo rappresenta 
     _filtri.forEach((element) {
       _listBody.add(StatefulBuilder(
           builder: (context, _setState) => CheckboxListTile(
@@ -71,6 +76,8 @@ class _FiltraPageState extends State<FiltraPage> {
                 padding: EdgeInsets.all(10),
                 child: ConstrainedBox(
                     constraints: BoxConstraints.tightFor(width: 300),
+                    /// Una volta che si preme il bottone viene chiamata la funzione callback che viene passata dalla classe lista appuntamenti
+                    /// la quale poi filterà gli appuntamenti, gli passa alla funzione solo la lista dei filtri che non sono selezionati, cioè quelli che non su vuole visualizzare
                     child: ElevatedButton(
                       child: Text("Filtra",
                           style: TextStyle(

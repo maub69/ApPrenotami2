@@ -9,7 +9,6 @@ import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/popup_a
 import 'package:mia_prima_app/utility/request_http.dart';
 import 'chat/chat_page.dart';
 import '../../../global/model.dart';
-import 'package:http/http.dart' as http;
 import '../../../../utility/notification_sender.dart';
 import 'processo/steps.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
@@ -30,13 +29,18 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
   NotificheManager _notificheManager;
   Random _random = Random();
 
+  /// funzione che apre il popup per richiedere la cancellazione e invia la richiesta
+  /// il campo description specifica cosa deve essere visualizzato in risposta all'utente
+  /// una volta che viene inviata la richiesta di annullamento
+  /// possono esserci messaggi diversi in quanto a volte gli appuntamenti sono cancellabili in automatico
+  /// altre volte no
   // value --> // 1=richiesta annullamento, 2=elimina, 3=archivia
   void onClickElimina(int type, String description,
       {String title, String doButtonText}) async {
     String response = "1";
     if (title != null) {
       TextEditingController testoController = TextEditingController();
-      //qui viene chiamato il dialog e la schermata rimane in attesa finche' non viene fornita una risposta
+      /// qui viene chiamato il dialog e la schermata rimane in attesa finche' non viene fornita una risposta
       response = await showDialog<String>(
         barrierDismissible: false,
         context: context,
@@ -87,14 +91,14 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
       );
     }
 
-    //se la risposta e' uguale a -1 signica che e' stato cliccato "Annulla"
+    /// se la risposta e' uguale a -1 significa che e' stato cliccato "Annulla"
     if (response != "-1") {
-      //qui si va a sostiuire il testo del bottone con un caricamento
+      /// qui si va a sostituire il testo del bottone con un caricamento
       buttonElimina = Loading(
           indicator: BallPulseIndicator(), size: 40.0, color: Colors.red);
       setState(() {});
 
-      //qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
+      /// qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
       RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_PRENOTAZIONE)),
           body: {
             "motivo": response,
@@ -129,6 +133,7 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
     }
   }
 
+  /// mostra il messaggio che parte dal basso dello schermo quando viene effettuata la richiesta di annulamento 
   void _showMessage(String title, String body, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
       content: Column(
@@ -146,7 +151,6 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
   @override
   void initState() {
     super.initState();
-    print(widget.prenotazione);
     _notificheManager = NotificheManager(
         dataAppuntamento: DateFormat("yyyy-MM-dd HH:mm:ss")
             .parse(widget.prenotazione["start"]),
@@ -274,6 +278,9 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
           ),
         ));
 
+    /// rappresenta il box riguardante le notifiche che viene visualizzato
+    /// è presente sotto forma di lista in quanto la prima riga è sempre presente
+    /// poi tutte le righe che compongono la tabella sono presenti solo se ci sono notifiche
     List<Widget> listWidgetNotifiche = [
       Padding(
           padding: EdgeInsets.only(right: 15, left: 15),
@@ -303,6 +310,7 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
           ]))
     ];
 
+    /// in base alle notifiche presenti nello scheduler vengono aggiunte le righe per visualizzarle ed eliminarle
     _notificheManager.notificheScheduler.forEach((element) {
       listWidgetNotifiche.add(Padding(
           padding: EdgeInsets.only(right: 15, left: 15),
@@ -330,37 +338,6 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
 
     List<Widget> listWidget = [
       card,
-      /*Text(
-          "#" +
-              widget.prenotazione["id"].toString() +
-              " " +
-              widget.prenotazione["calendario_nome"],
-          style: TextStyle(fontSize: 30)),
-      Text(widget.prenotazione["calendario_descrizione"],
-          style: TextStyle(fontSize: 20)),
-      Text(widget.prenotazione["start"], style: TextStyle(fontSize: 15)),
-      Text(widget.prenotazione["end"], style: TextStyle(fontSize: 15)),
-      Text(widget.prenotazione["message"], style: TextStyle(fontSize: 15)),
-      Text(widget.prenotazione["message_admin"],
-          style: TextStyle(fontSize: 15)),
-      Text(widget.prenotazione["type"].toString(),
-          style: TextStyle(fontSize: 15)),
-      RaisedButton(
-          onPressed: () {
-            print("Vai alla chat");
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ChatPage(
-                      idAppuntamento: widget.prenotazione["id"],
-                      indexPrenotazioni: widget.indexPrenotazioni)),
-            ).then((value) {
-              NotificationSender notificationSender = NotificationSender();
-              notificationSender.configureFirebaseNotification();
-            });
-          },
-          child: Text("Vai alla chat")),
-      RaisedButton(onPressed: onClickElimina, child: buttonElimina),*/
       Container(
         margin: EdgeInsets.only(top: 8, right: 8, left: 8),
         padding: EdgeInsets.all(10),

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'file_system_new.dart';
 import '../pages/dash/calendari/calendario.dart';
-import 'package:mia_prima_app/utility/database_helper.dart';
 import 'package:mia_prima_app/utility/download_json.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utente.dart';
@@ -29,9 +28,6 @@ class Utility {
 
   /// Utility.Database
   static dynamic database;
-
-  /// Utility.DatabaseHelper
-  static DatabaseHelper databaseHelper;
 
   /// questa e la chiave di login con il quale l'utente si connette e manitne la connessione
   static Utente utente;

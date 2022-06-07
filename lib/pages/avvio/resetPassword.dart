@@ -5,8 +5,12 @@ import '../global/text_field_customized.dart';
 import '../global/model.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:http/http.dart' as http;
 
+/// Gestisce la pagina che permette di inviare una richiesta al server in caso di smarrimento password
+/// pagina presente all'avvio se l'utente non è loggato
+/// viene inviata una richiesta al server, il quale poi procede inviandoti una email e da li continui il procedimento
+/// di reset della password, la pagina di reset è accessibile tramite browser, non dall'applicazione
+// TODO SERVER creare pagina per il reset della password
 class ResetPassword extends StatefulWidget {
   const ResetPassword({Key key}) : super(key: key);
 

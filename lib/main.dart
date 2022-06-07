@@ -9,11 +9,9 @@ import 'package:flutter_notification_channel/flutter_notification_channel.dart';
 import 'package:flutter_notification_channel/notification_importance.dart'
     as ni;
 import 'package:flutter_notification_channel/notification_visibility.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
 import 'pages/avvio/login.dart';
 import 'utility/notification_sender.dart';
-import 'package:mia_prima_app/utility/database_helper.dart';
 import 'package:mia_prima_app/utility/messages_manager.dart';
 import 'package:mia_prima_app/utility/utente.dart';
 import 'package:mia_prima_app/utility/utility.dart';
@@ -24,10 +22,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 void main() async {
-  // la funzione di init main() contiene la funzione di bindig runApp()
-  // alla quale viene passata la classe MaterialApp() e quindi il suo costruttore
-  // la quale ritorna l'indirizzo dell'oggetto che viene istanziato dal framework
-  // e ha come parametro di home la classe MyApp()
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
@@ -40,69 +34,39 @@ void main() async {
   ));
 }
 
+/// Campi utilizzati per aprire automaticamente la pagina dell'appuntamento quando viene cliccata una notifica
+/// e l'applicazione e chiusa o è in pausa, viene valorizzata da notification_sender e poi viene usata dalla dash per avviare
+/// automaticamente la pagina
 String idCalendario = "-1";
 String idAppuntamento = "-1";
+/// classe istanziata per essere usata successivamente solo dalla classe notification sender
+/// viene messa qui per essere resa globale e sempre disponibile
 nt.FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 class MyApp extends StatefulWidget {
   @override
-  // sovrascritta createState() passandogli il costruttore della classe _MyAppState
-  // che crea una nuova istanza
   State createState() => _MyAppState();
-  // => l'elemento che rappresenta il corpo della funzione(l'istruzione tra graffe)
-  // Posso ritornare State perche _MyAppState eredita da State (riga sotto)
-  // Se sostituisco il tipo di ritorno State con _MyAppState andrebbe bene lo stesso
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  BuildContext _context;
-  // la classe tra < > sostituisce "T" un template a cui si passa
-  // la classe che deve essere utilizzata come tipo
-
-  /// nella variabile '_body' si inserisce il Widget Text per adesso vuoto
-  /// che permettera' poi di inserire le istruzioni
-  /// che comporranno la schermata da visualizzare
   Widget _body = Text("");
 
   /// la variabile 'file' conterra' il file dove è scritto l'ID di login
   File file;
 
-  /// la funzione asincrona manageDatabase()
-  /// crea il database di tipo sqlite se non esiste
-  void manageDatabase() async {
-    // Get a location using getDatabasesPath
-    //var databasesPath = await getDatabasesPath();
-    //print("scrivi: $databasesPath");
-
-    /// la variabile Stringa 'path' contiene percorso e nome del file del db
-    //String path = databasesPath + "/" + 'dbapp.db';
-
-    /// Apertura database e si mette a disposizione in Utility.database
-    /*Utility.database = await openDatabase(path, version: 1,
-        //funzione anonima asincrona di nome OnCreate che riceve due parametri
-        // si utilizza anonima quando si usa una sola volta
-        onCreate: (Database db, int version) async {
-      // When creating the db, create the table
-      await db.execute(
-          'CREATE TABLE User (id INTEGER PRIMARY KEY autoincrement, username TEXT, password TEXT, email TEXT, tipoUtente TEXT, ultimoLogin TEXT)');
-      await db.execute(
-          'CREATE TABLE Dati (id INTEGER PRIMARY KEY autoincrement, id_utente INTEGER, titolo TEXT, testo TEXT, data INTEGER, fatto INTEGER)');
-    });*/
-    Utility.databaseHelper = DatabaseHelper();
-  }
-
   /// legge i dati presenti dal file id.txt
   /// creato nella directory di lavoro dell'applicazione
   /// e li ritorna memorizzandoli nell'oggetto Utility.idUtente
   Future<String> _getDataLogin() async {
-    // si memorizza in directory l'oggetto in cui è contenuto il path interno
-    // che userà questa applicazione per memorizzare i file
+    /// si memorizza in directory l'oggetto in cui è contenuto il path interno
+    /// che userà questa applicazione per memorizzare i file
     final directory = await getApplicationDocumentsDirectory();
     try {
+      // TODO APP ricordarsi che in fase di compilazione dell'app per un cliente il file cliente.txt deve contenere l'id univoco del cliente
+      /// il campo idApp è molto importante, infatti specifica l'id del cliente che ha acquista l'app come servizio
+      /// all'interno del file è presente solo l'id, che verrà usato poi in tutta l'app per riconoscere il cliente
       Utility.idApp = await rootBundle.loadString('files/cliente.txt');
       String path = directory.path;
-      // id.txt è il nome del file utilizzato
-      // da metterre in un file di configurazione?
       this.file = File('$path/id.txt');
       // si legge il file e si memorizza in Utility.idUtente
       Utility.idUtente = await file.readAsString();
@@ -113,27 +77,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
-  /// funzione per cancellare il file id.txt
-  ///  dove sono memorizzati i dati di login dell'utente
-  void delDataLogin() async {
-    //this.file è facoltativo scriverla se esiste una sola var con questo nome
-    this.file.delete();
-  }
-
+  /// permette di scaricare nuovamente le chat non lette appena l'app ritorna in funzione dopo che viene messa in background
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (Utility.isLogged && state == AppLifecycleState.resumed) {
       MessagesManager.downloadChatNonLette();
     }
-    /* else if (state == AppLifecycleState.paused) {
-      print("messaggesManager: sono qua 3");
-    }*/
   }
 
   @override
   void initState() {
     super.initState();
 
+    /// utilizzata per impostare la libreria che gestisce il database interno delle preferenze
+    /// all'avvio dell'app vengono impostati i valori di default relativi alla notifica in automatico che viene inviata per ricordarti di un appuntamento
     SharedPreferences.getInstance().then((value) {
       Utility.preferences = value;
       if (value.containsKey("notifica:has-default")) {
@@ -142,8 +99,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       }
     });
 
+    /// settaggio iniziale del canale delle notifiche per dove passano le notifiche per ricordarti dell'appuntamento
     AwesomeNotifications().initialize(
-        // set the icon to null if you want to use the default app icon
         null,
         [
           NotificationChannel(
@@ -160,18 +117,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
         ]);
 
+    /// Vengono settati dei listener che nel corso di tutto l'utilizzo dell'applicazione monitorano lo stato della connessione
+    /// e nel caso ci siano dei cambiamenti settano la variabile hasInternet che verrà poi utilizzata nell'app
+    /// Il primo blocco controlla istantaneamente qual'è la connettività, mentre il blocco dopo avvia il listener
+    /// per i futuri cambi di connettività
     Connectivity().checkConnectivity().then((value) {
       Utility.hasInternet = value != ConnectivityResult.none;
     });
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       Utility.hasInternet = result != ConnectivityResult.none;
     });
+
+    /// vengano settati i campi per conoscere la folder dei file temporanei e permanenti
+    /// lo facciamo fin dall'avvio e non successivamente perché essendo una chiamata asincrona poi darebbe problemi in seguito 
     getTemporaryDirectory()
         .then((value) => Utility.pathTmpDownload = value.path);
     getApplicationSupportDirectory()
         .then((value) => Utility.pathDownload = value.path);
 
+    /// aggiunge la classe agli oggetti monitorati dal sistema, in questo modo le varie funzioni che necessitano di informazioni di sistema possono funzionare
     WidgetsBinding.instance.addObserver(this);
+
+    /// verifica se l'utente è autenticato o meno e apre la pagina di login o la dash
     _getDataLogin().then((id) {
       // se id non esiste
       if (id == "-1") {
@@ -186,7 +153,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         _goOnDash(id);
       }
     });
-    manageDatabase();
 
     SharedPreferences.getInstance().then((value) {
       FirebaseMessaging.instance
@@ -216,7 +182,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     // debugPaintSizeEnabled = true;
-    _context = context;
     // la funzione _getDataLogin() restituisce un valore 'id'
     // quando arriva l 'id' (attende il then) che poi viene valutata dalla funzione anonima
     Utility.width = MediaQuery.of(context).size.width;
@@ -224,28 +189,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return _body;
   }
 
-  // recupera i dATI UTENTE TRAMITE ID e li passa alla classe Dash
+  // recupera i DATI UTENTE TRAMITE ID e li passa alla classe Dash
   void _goOnDash(String key) async {
-    /*List<Map> list = await Utility.database
-        .rawQuery("SELECT * FROM User WHERE id = ?", [id]);
-    Utente utente = Utente(
-        email: list[0]["email"],
-        id: list[0]["id"],
-        username: list[0]["username"],
-        password: list[0]["password"]);*/
-
     List<String> idEmail = key.split(":");
-    Utente utente =
-        Utente(email: idEmail[1], id: idEmail[0], username: "", password: "");
+    Utente utente = Utente(email: idEmail[1], id: idEmail[0], username: "", password: "");
     Utility.utente = utente;
 
     MessagesManager.downloadChatNonLette();
     setState(() {
-      // _body = SceltaCalendario();
       _body = Dash(idCalendario: Utility.idApp);
     });
-    /*setState(() {
-      _body = Dash(utente: utente);
-    });*/
   }
 }

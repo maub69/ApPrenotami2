@@ -95,6 +95,12 @@ class _ChatPage extends State<ChatPage> {
       "type": "free"
     });
     setState(() {
+      /// quando viene inviato il messaggio, viene anche creato il widget che viene inserito
+      /// nella lista dei widget visualizzati, inoltre viene aggiunto alla cache
+      /// in basso si può vedere che deve essere specificato in primis il tipo di widget da aggiungere
+      /// poi il body che verrà salvato in cache
+      /// infine viene passato l'id dell'appuntamento, anche se in realtà in questo specifico caso non serve
+      /// infatti è utile solo per i widget interattivi, questo è solo di visualizzazione
       ResponseRispostaFactory risposta = RispostaFactory.getRisposta(
           "free",
           {
@@ -104,7 +110,7 @@ class _ChatPage extends State<ChatPage> {
           },
           _context,
           null,
-          idAppuntamento);
+          widget.idAppuntamento.toString());
 
       _cacheManagerChat.append(risposta.response.getJsonResponse());
 

@@ -1,16 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/utility/request_http.dart';
 import '../global/text_field_customized.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-// sutto il link per visualizzare una pagina web all'interno di flutter
-//https://github.com/doomoolmori/flutter_inappbrowser
 
 /// Classe per la registrazione dell'utente
-/// Permette la registrazione inserendo nomeUtente, password e mail
+/// Permette la registrazione inserendo password e mail
 /// e accettando la privacy policy (si può leggere da una apposita pagina)
 /// Poi torna alla schermata di login
 
@@ -249,41 +246,8 @@ class _StateSignIn extends State<SignIn> {
         }));
   }
 
-//questa funzione viene avviata dal FormBuilderTextField quando viene settata nel campo onChanged
-//se e' prensente anche solo un campo null o vuoto all'interno di uno dei campi, allora disabilito il bottone di registrazione
-//cio' lo faccio innianzitutto con _formKey.currentState.save(), in questo modo salvo lo stato corrente dei valori che poi reperisco con _formKey.currentState.value
-//la funzione thereIsNull ritorna true se uno dei valori all'interno di _formKey.currentState.value e' nullo, altrimenti ritorna false
-  /*void onChangedField(value) {
-    _formKey.currentState.save();
-    //ho fatto questi due if un po' strani per evitare di fare tanti setState, avrei potuto verificare direttamente thereIsNull(_formKey.currentState.value), ma avrei fatto un sacco di setState
-    if (!thereIsNull(_formKey.currentState.value) && isDisabilitato) {
-      isDisabilitato = false;
-      setState(() {});
-    } else if (thereIsNull(_formKey.currentState.value) && !isDisabilitato) {
-      isDisabilitato = true;
-      setState(() {});
-    }
-  }*/
-
-//la funzione thereIsNull ritorna true se uno dei valori all'interno di values e' nullo, altrimenti ritorna false
-  bool thereIsNull(Map<String, dynamic> values) {
-    bool thereIs = false;
-    values.forEach((key, value) {
-      if (value is bool) {
-        if (!value) {
-          thereIs = true;
-        }
-      } else if (value is List<String> && value.length != 2) {
-        thereIs = true;
-      } else if (value == null || (value is String && value.trim() == "")) {
-        thereIs = true;
-      }
-    });
-    return thereIs;
-  }
-
-  //qui effettivamente fa la validazione e se ci sono problemi aggiunge gli avvisi a livello grafico
-  //non c'e' bisogno di fare il setState perche' se ne occupa il validate
+  //qui fa la validazione e se ci sono problemi aggiunge gli avvisi a livello grafico
+  //non c'e' bisogno di fare il setState perché se ne occupa il validate
   void onPressRegistrati() {
     print(nomeUtente.text);
     print(email.text);
@@ -291,7 +255,6 @@ class _StateSignIn extends State<SignIn> {
     print(passwordUtente2.text);
     _userExists = false;
     if (_formKey.currentState.validate()) {
-      //_formKey.currentState.validate()
       setState(() {
         _isDisabled = true;
       });
@@ -308,6 +271,10 @@ class _StateSignIn extends State<SignIn> {
           print("Registrazione: ${value.body.toString()}");
           if (value.body == "0") {
             _userExists = true;
+            /// i vari TextField che compongono la form di registrazione hanno delle funzioni "validator" di validazione
+            /// che devono essere definite per verificare se quel campo è conforme a come deve essere scritto l'input o meno
+            /// _formKey.currentState.validate() controlla se tutti i validate tornano true, quindi per capire che cosa viene
+            /// validato bisogna rifarsi a tutto quello contenuto dentro Form() con la chiave _formKey
             _formKey.currentState.validate();
           } else if (value.body == "1") {
             print("Registrazione Utente eseguita correttamente");

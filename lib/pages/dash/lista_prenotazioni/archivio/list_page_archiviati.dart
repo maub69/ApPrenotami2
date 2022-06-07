@@ -27,7 +27,6 @@ class _ListPageState extends State<ListPage> {
     List<dynamic> listNew = widget.list
         .where((element) => element["type"] == -5)
         .toList();
-    print("-----> sono qui 10");
     return Model(
       textAppBar: widget.title,
       body: ListView.builder(
