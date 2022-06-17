@@ -14,12 +14,10 @@ import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/up
 import 'package:mia_prima_app/utility/request_http.dart';
 import 'cache_manager_chat.dart';
 import 'chatLoading.dart';
-import 'package:mia_prima_app/main.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/upload_manager.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:path/path.dart';
-import 'package:http/http.dart' as http;
 import "package:images_picker/images_picker.dart";
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -59,6 +57,9 @@ class _ChatPage extends State<ChatPage> {
     PopupMenuChat.listWidget = _listViewChat;
     PopupMenuChat.updateView = updateView;
     PopupMenuChat.cacheManagerChat = _cacheManagerChat;
+
+    /// permette di gestire il focus sul campo di inserimento di testo, in particolare
+    /// permette che la pagina effettivamente si aggiorni quando si sta scrivendo del testo
     focus.addListener(_focusListener);
     widget.prenotazione["msg_non_letti"] = 0;
     // qui vengono scaricati i messaggi e inseriti nella _listView per poi essere visualizzati
@@ -66,7 +67,7 @@ class _ChatPage extends State<ChatPage> {
 
   @override
   void dispose() {
-    // quando si esce si deve riuovere il listener per tutti i progress file, in quanto altrimenti si potrebbero presentare molto errori
+    // quando si esce si deve rimuovere il listener per tutti i progress file, in quanto altrimenti si potrebbero presentare molto errori
     _listProgressFile.forEach((element) {
       element.delListener();
     });
@@ -79,7 +80,8 @@ class _ChatPage extends State<ChatPage> {
     setState(() {});
   }
 
-  // fa due cose: 1) invia il messaggio all'endpoint EndPoint.MESSAGGIO_CHAT; 2) aggiunge il messaggio alla lista dei widget da visualizzare, in questo modo viene inserito al'interno della schermata
+  /// fa due cose: 1) invia il messaggio all'endpoint EndPoint.MESSAGGIO_CHAT
+  /// 2) aggiunge il messaggio alla lista dei widget da visualizzare, in questo modo viene inserito al'interno della schermata
   void invioMessaggioTesto(String text) {
     if (!Utility.hasInternet) {
       Alert(message: 'Internet assente, non puoi inviare un messaggio').show();
@@ -88,12 +90,13 @@ class _ChatPage extends State<ChatPage> {
     DateTime datetime = new DateTime.now();
     String idMessaggio =
         _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length);
-    RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
-      "datetime": datetime.toString(),
-      "text": text,
-      "id": idMessaggio,
-      "type": "free"
-    });
+    RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
+        body: {
+          "datetime": datetime.toString(),
+          "text": text,
+          "id": idMessaggio,
+          "type": "free"
+        });
     setState(() {
       /// quando viene inviato il messaggio, viene anche creato il widget che viene inserito
       /// nella lista dei widget visualizzati, inoltre viene aggiunto alla cache
@@ -119,69 +122,24 @@ class _ChatPage extends State<ChatPage> {
     _controller.text = "";
   }
 
-  /*uploadFile(File file) async {
-    // open a bytestream
-    var stream = new http.ByteStream(file.openRead());
-    stream.cast();
-    // get file length
-    var length = await file.length();
-
-    // string to uri
-    var uri = Uri.parse(EndPoint.getUrlKey(EndPoint.SEND_FILES));
-
-    // create multipart request
-    var request = new http.MultipartRequest("POST", uri);
-
-    // multipart that takes file
-    var multipartFile = new http.MultipartFile('file', stream, length,
-        filename: basename(file.path));
-
-    // add file to multipart
-    request.files.add(multipartFile);
-
-    // send
-    var response = await request.send();
-    print(response.statusCode);
-
-    // listen for response
-    response.stream.transform(utf8.decoder).listen((value) {
-      print(value);
-    });
-  }*/
-
-  /*uploadFile(File file) async {
-    DateTime now = new DateTime.now();
-
-    var request = MultipartRequest();
-
-    request.setUrl(EndPoint.getUrlKey(EndPoint.SEND_FILES) + "&datetime=${now.toString()}");
-    request.addFile("file", file.path);
-
-    Response response = request.send();
-
-    response.onError = () {
-      print("Error");
-    };
-
-    response.onComplete = (response) {
-      print(response);
-    };
-
-    response.progress.listen((int progress) {
-      print("progress from response object " + progress.toString());
-    });
-  }*/
-
-  // avvia le operazioni di upload del file
+  /// avvia le operazioni di upload del file
+  /// per farlo deve interpellare uploadManager e poi deve aggiungere
+  /// il progressFile alla lista dei progress, in quanto altrimenti non potrebbero
+  /// essere rimossi i listener quando si esce dalla pagina, in particolare si intendono
+  /// i listener dei widget di attesa, cioè gli indicatori di progresso dello stato
+  /// dell'avanzamento dell'upload
   uploadMedia(io.File file, bool isPhoto) async {
-    // per farlo deve interpellare uploadManager e poi deve aggiungere il progressFIle alla lista dei progress, in quanto altrimenti non potrebbero essere rimossi i listener quando si esce dalla sezione
-    ProgressFile progressFile = Utility.uploadManger.uploadFile(
+    ProgressFile progressFile = Utility.uploadManager.uploadFile(
         file,
         widget.idAppuntamento,
         _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length),
         isPhoto ? 0 : 1);
     _listProgressFile.add(progressFile);
     Future<void> saveMedia;
+    /// una volta che viene avviato l'upload, viene immediatamente effettuato il caching
+    /// per la foto o il video, dato che però creare una cache è un operazione asincrona
+    /// è necessario aspettare che questa termini prima di creare il widget corrispondente
+    /// in questo modo non verranno lanciate eccezioni
     if (isPhoto) {
       saveMedia = cacheImage(progressFile);
     } else {
@@ -207,8 +165,11 @@ class _ChatPage extends State<ChatPage> {
     });
   }
 
+
+  /// funzione molto simile a quella precedente come funzionamento interno, con la differenza
+  /// che effettua l'upload di un file generico
   uploadFile(io.File file) {
-    ProgressFile progressFile = Utility.uploadManger.uploadFile(
+    ProgressFile progressFile = Utility.uploadManager.uploadFile(
         file,
         widget.idAppuntamento,
         _cacheManagerChat.idChat(widget.idAppuntamento, _listViewChat.length),
@@ -233,6 +194,7 @@ class _ChatPage extends State<ChatPage> {
     });
   }
 
+  /// fa il caching della foto
   Future<void> cacheImage(ProgressFile progressFile) async {
     Uint8List bytes = progressFile.file.readAsBytesSync();
 
@@ -240,6 +202,8 @@ class _ChatPage extends State<ChatPage> {
         fileExtension: progressFile.getExtension(), maxAge: Duration(days: 15));
   }
 
+  /// fa il caching della foto di copertina del video
+  /// in quanto il caching del video si gestisce autonomamente
   Future<void> cachePlaceholderAndVideo(ProgressFile progressFile) async {
     Uint8List bytesVideo = progressFile.file.readAsBytesSync();
 
@@ -250,11 +214,6 @@ class _ChatPage extends State<ChatPage> {
 
     await _cacheManager.putFile(progressFile.getUrl() + ".jpeg", bytesFile,
         fileExtension: "jpeg", maxAge: Duration(days: 15));
-
-    // File fileVideo = await DefaultCacheManager().putFile(
-    //    progressFile.getUrl(), bytesVideo,
-    //    fileExtension: progressFile.getExtension(), maxAge: Duration(days: 7));
-    // print("video-url-1: ${fileVideo.path}");
   }
 
   @override
@@ -267,15 +226,21 @@ class _ChatPage extends State<ChatPage> {
         setState(() {
           List<ResponseRispostaFactory> responseRispostaFactory = value;
 
-          // all'avvio deve scaricare tutti i progressUpload in corso per questa pagina
-          // in quanto se si esce dalla pagina e poi si rientra deve appunto mostrare il fatto che si sta caricando qualche file
+          /// all'avvio deve scaricare tutti i progressUpload in corso per questa pagina
+          /// in quanto se si esce dalla pagina e poi si rientra deve appunto mostrare il fatto
+          /// che si sta caricando qualche file
           _listProgressFile =
-              Utility.uploadManger.getListProgressFile(widget.idAppuntamento);
+              Utility.uploadManager.getListProgressFile(widget.idAppuntamento);
           _listProgressFile.forEach((element) {
             element.setListener(
-                (int progress) => print("progress-file: $progress"));
+                (int progress) {});
           });
 
+          /// dato che si può uscire ed entrare in una chat anche mentre un'upload
+          /// è in corso, è necessario che i widget vengano inseriti nella chat, in quanto
+          /// in quanto altrimenti questi non sarebbero presenti, dato che si trovano
+          /// in uno stato in cui non sono ancora presenti nella chat, di conseguenza
+          /// non verrebbero scaricati dal server
           _listProgressFile.forEach((element) {
             if (element.typeUpload == 0 || element.typeUpload == 1) {
               responseRispostaFactory
@@ -297,6 +262,8 @@ class _ChatPage extends State<ChatPage> {
             }
           });
 
+          /// qui vengono riordinati i widget in base alla data di creazione e poi
+          /// inseriti insieme a tutti gli altri widget della pagina
           responseRispostaFactory
               .sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
@@ -310,23 +277,15 @@ class _ChatPage extends State<ChatPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:
-            (widget.appBarColor == null) ? Colors.green[900] : widget.appBarColor,
+        backgroundColor: (widget.appBarColor == null)
+            ? Colors.green[900]
+            : widget.appBarColor,
         centerTitle: true,
         title: Text('ApPuntamento'),
       ),
       backgroundColor: Colors.white70,
       body: Column(
         children: [
-          /*Expanded(
-            child: ListView(
-              shrinkWrap: true,
-              physics: AlwaysScrollableScrollPhysics(),
-              children:
-                  _listViewChat, //questo punto e' importante in quanto qui viene inserita la lista contenente tutit i messaggi della chat
-            ),
-          ),*/
-          // abbiamo sostituito la listview con listView.builder in quanto era piu elastica. Infatti avevamo necessita che in caso dell'eliminazione di un elemento dalla lista dei widget, esso venisse effettivamente eliminato, cosa che funziona con ListView.Builder e non con l'altro
           Expanded(
               child: ListView.builder(
             reverse: true,
@@ -424,9 +383,7 @@ class _ChatPage extends State<ChatPage> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        elevation: 0.0
-                    ),
+                        primary: Colors.white, elevation: 0.0),
                     child: Column(
                       children: [
                         Icon(Icons.file_copy, color: Colors.black),
@@ -450,9 +407,7 @@ class _ChatPage extends State<ChatPage> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        elevation: 0.0
-                    ),
+                        primary: Colors.white, elevation: 0.0),
                     child: Column(
                       children: [
                         Icon(Icons.image, color: Colors.black),
@@ -486,9 +441,7 @@ class _ChatPage extends State<ChatPage> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        primary: Colors.white,
-                        elevation: 0.0
-                    ),
+                        primary: Colors.white, elevation: 0.0),
                     child: Column(
                       children: [
                         Icon(Icons.photo_camera, color: Colors.black),

@@ -5,14 +5,21 @@ import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/request_http.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:pop_bottom_menu/pop_bottom_menu.dart';
-import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/cache_manager_chat.dart';
 
+/// questa classe si occupa di gestire il popup che si presenta quando si tiene premuto
+/// un messaggio, in particolare può permettere di copiarne il contenuto e eliminare il messaggio
 class PopupMenuChat {
+    /// la lista dei widget è necessaria per poter eliminare effettivamente un widget dalla lista
+    /// dei widget della chat
     static List<Widget> listWidget;
 
+    /// viene passata in ingresso da chatPage per aggiornare la pagina dopo che è stato
+    /// eliminato un messaggio
     static Function updateView;
 
+    /// necessario in quanto dopo che è stato eliminato un messaggio dalla vista
+    /// è necessario che questo venga anche eliminato dalla cache
     static CacheManagerChat cacheManagerChat;
 
     static void showMenu({
@@ -39,6 +46,8 @@ class PopupMenuChat {
       ));
     }
 
+    /// solo l'amministratore di un messaggio può eliminarlo, inoltre si può vedere
+    /// che viene anche effettuata la richiesta web per eliminare il messaggio dal server
     if (isAmministratore) {
       items.add(ItemPopBottomMenu(
         onPressed: () {

@@ -11,6 +11,7 @@ import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
+/// Il widget relativo al caricamento di un file in upload sul server
 class FileUpload extends StatefulWidget {
   final ProgressFile progressFile;
   final String url;
@@ -58,6 +59,8 @@ class _FileUploadState extends State<FileUpload>
   void initState() {
     super.initState();
 
+    /// è necessario capire se il file è stato già scaricato oppure no al fine di capire
+    /// se sarà necessario scaricarlo per visualizzarlo oppure si potrà usare il file in cache
     if (widget.progressFile == null) {
       _checkIfIsDownloaded().then((value) {
         setState(() {
@@ -68,6 +71,8 @@ class _FileUploadState extends State<FileUpload>
       _isDownloaded = true;
     }
 
+    /// se il widget è stato già caricato, allora si dovrà usare il datetime in risposta dal server
+    /// altrimenti l'unico disponibile è quello del progress file
     if (widget.progressFile == null) {
       _name = widget.name;
       _datetime = widget.datetime;
@@ -82,14 +87,18 @@ class _FileUploadState extends State<FileUpload>
       _progress = 0;
     }
 
+    /// permette si settare il listener sul progress file che verrà richiamato dal plugin
+    /// di caricamento dei file Dio, per rendere disponibile il progresso del file sul widget
     widget.progressFile?.setListener((progress) {
       setState(() {
-        print("progress-file: $progress");
+        // print("progress-file: $progress");
         _progress = progress.toDouble() / 100;
       });
     });
   }
 
+  /// funzione che avvia il download del file, mostrando anche il progresso del download
+  /// direttamente sul widget
   void _downloadFile() async {
     final response =
     await http.head(Uri.parse(widget.url));
@@ -98,26 +107,8 @@ class _FileUploadState extends State<FileUpload>
       if (!_inDownloading) {
         _inDownloading = true;
 
-        /*DownloaderUtils downloaderUtils = DownloaderUtils(
-          progressCallback: (current, total) {
-            setState(() {
-              _progress = current / total;
-            });
-          },
-          file: io.File(_getPathFileDownloaded()),
-          progress: ProgressImplementation(),
-          onDone: () {
-            setState(() {
-              _inDownloading = false;
-              _isDownloaded = true;
-            });
-          },
-          deleteOnCancel: true,
-        );
-        await Flowder.download(widget.url, downloaderUtils);*/
-
         // https://medium.com/flutter-community/how-to-show-download-progress-in-a-flutter-app-8810e294acbd
-        // abbiamo sostituito il plugin precedende per il download utilizzando direttamente le funzionalita' della libreria http
+        // abbiamo sostituito il plugin precedente per il download utilizzando direttamente le funzionalità della libreria http
         // seguendo le istruzioni del link sopra
 
         http.Request request = http.Request('GET', Uri.parse(widget.url));
@@ -152,14 +143,12 @@ class _FileUploadState extends State<FileUpload>
     }
   }
 
-  // ricordati di usare questo link per la questione della cache: https://stackoverflow.com/questions/66488125/how-to-store-image-to-cachednetwrok-image-in-flutter
-  // fare in modo che alla fine dell'upload venga rimosso il widget del caricamento
-  // rendere cliccabile l'immagine al fine di farla vedere a schermo pieno
-  // gestire gli altri caricamenti in attesa, magari mettendo una scritta tipo "in attesa di caricamento"
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onLongPress: () {
+          /// tenendo premuto il widget del file viene data la possibilità di eliminare il messaggio
+          /// ma non di copiarne il testo
           PopupMenuChat.showMenu(
             context: Model.getContext(),
             isAmministratore: widget.isAmministratore,
@@ -170,7 +159,6 @@ class _FileUploadState extends State<FileUpload>
         },
         onTap: () async {
           if (widget.progressFile == null) {
-            //redis
             if (_isDownloaded) {
               try {
                 OpenFile.open(_getPathFileDownloaded());
@@ -298,22 +286,6 @@ class _FileUploadState extends State<FileUpload>
   }
 
   Future<String> toRemove() async {
-    /*await [
-        Permission.storage,
-      ].request().then((value) {
-        if (value[Permission.storage].isGranted) {
-          print("permesso: attivo");
-        } else {
-          print("permesso: non attivo");
-        }
-      });*/
-
-    /*if (await Permission.storage.request().isGranted) {
-        print("permesso-1: attivo");
-      } else {
-        print("permesso-1: non attivo");
-      }*/
-
     if (await Permission.storage.isGranted) {
       print("permesso-2: attivo");
     } else {
@@ -325,8 +297,3 @@ class _FileUploadState extends State<FileUpload>
     return "${datetime.day}/${datetime.month}/${datetime.year} ${datetime.hour}:${(datetime.minute >= 10) ? datetime.minute : "0" + datetime.minute.toString()}";
   }
 }
-
-
-/*
-
-*/

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/risposte/popup_menu_chat.dart';
 import '../../../../global/model.dart';
 
+/// classe che permette di generare un widget, in particolare quello usato
+/// da Free e CambioOrario per creare il box che si mette o sulla sinistra o sulla destra
+/// con colori differenti
 class MessageTile extends StatelessWidget {
   final String messageText;
   final bool isLeft;

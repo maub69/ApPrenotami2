@@ -256,7 +256,6 @@ class _StateDash extends State<Dash> {
             calendario: meetings,
             /// viene specificato in ingresso come ci si deve comportare quand si clicca su un appuntamento
             /// il quale andrà sempre ad aprire una pagina per la richiesta di un appuntamento
-            // TODO riparti andando a vedere come fuzniona la classe Calendario e andando a commentarla
             onTapDisponibilita: (Disponibilita appuntamento) {
               Navigator.push(
                 context,

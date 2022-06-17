@@ -61,16 +61,28 @@ class Utility {
     if (hasConnessioneServer && hasInternet) {
       hasConnessioneServer = false;
       FlutterToast.showToast(
-              msg: "Server temporaneamente irraggiungibile",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Color(0xFF616161),
-              textColor: Colors.white,
-              fontSize: 16.0
-            );
+          msg: "Server temporaneamente irraggiungibile",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Color(0xFF616161),
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
   }
 
+  /// questa funzione permette di ottenere l'oggetto di gestione della cache per le immagini
+  /// in particolare ogni chat deve avere un proprio oggetto che gestisca separatamente
+  /// la cache delle immagini, in questo modo, nel momento nel quale viene cancellata una chat
+  /// può essere eliminata singolarmente la cache delle immagini di questa chat
+  /// lasciando tutte le altre attive. Questo dettaglio è molto importante in quanto di base
+  /// la classe CacheManager non permette di avere questa gestione separata delle cache, cosa
+  /// che abbiamo dovuto realizzare noi in modo dedicato.
+  /// In particolare in ingresso a questa funzione viene passato l'id dell appuntamento
+  /// che verrà utilizzato per creare in particolare la folder nel quale verranno
+  /// salvate le immagini della chat, per poi potrà essere eliminata come una qualsiasi
+  /// altra cartella. Questa istanza viene usata sia per mettere in cache le immagini
+  /// e sia dai widget preesistenti che si appoggiano su questa istanza per capire da dove
+  /// leggere le immagini in cache
   static CacheManager getCacheManager(String idAppuntamento) {
     if (!cacheManager.containsKey(idAppuntamento)) {
       cacheManager[idAppuntamento] = CacheManager(
@@ -87,7 +99,7 @@ class Utility {
     return cacheManager[idAppuntamento];
   }
 
-  static UploadManager uploadManger = new UploadManager();
+  static UploadManager uploadManager = new UploadManager();
 
   static String getDateInCorrectFormat(DateTime dateTime) {
     DateFormat formatter = DateFormat('yyyy-MM-dd_hh-mm-ss');

@@ -30,7 +30,6 @@ import 'package:timelines/timelines.dart';
 */
 
 
-//TODO ripartire da qui
 /*
   Gli viene dato in ingresso un json come quello mostrato sopra e genera una timeline dei vari step
 */

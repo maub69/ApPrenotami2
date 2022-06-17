@@ -9,8 +9,9 @@ import '../../../../../utility/notification_sender.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/messages_manager.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:http/http.dart' as http;
 
+/// Classe che gestisce il flusso di messaggi in entrata nella chat, al fine
+/// di farli visualizzare in real time
 class ChatLoading {
   final int idAppuntamento;
   final BuildContext context;
@@ -20,9 +21,8 @@ class ChatLoading {
 
   ChatLoading(this.idAppuntamento, this.context, this.update);
 
-  /*
-    Vengono scaricati i messaggi della chat
-  */
+  /// vengono scaricati i messaggi dall'api della chat ed inoltre avviati i listener
+  /// di firebase per fare in modo che vengano letti i messaggi in real time
   Future<List<ResponseRispostaFactory>> loadChat() async {
     List<ResponseRispostaFactory> responseRispostaFactory = [];
     /*
@@ -68,28 +68,33 @@ class ChatLoading {
     }
   }
 
+  /// qui viene creato il listener collegato poi a firebase che permette di leggere
+  /// le notifiche in entrata all'app, però dato che l'app è aperta queste notifiche di base
+  /// non vengono visualizzate sulla barra del cellulare. Se la notifica in entrata riguarda
+  /// la chat che si ha aperta, allora viene creato il nuovo messaggio visualizzato in chat
+  /// altrimenti viene creata forzatamente una notifica che ti reindirizza alla chat del messaggio
   void _loadFirebaseChat() {
       MessagesManager.isNotChat = false;
       Utility.onMessageFirebase = (RemoteMessage message) {
         dynamic bodyMessage = jsonDecode(message.data[
             "body"]); // non so perche', ma a quanto pare il body non e' un array, ma viene lasciato sotto forma di stringa, quindi bisogna fare il decode
-        print("contentuto-data: 1 ${bodyMessage["id_appuntamento"].toString()} - $idAppuntamento");
+        // print("contentuto-data: 1 ${bodyMessage["id_appuntamento"].toString()} - $idAppuntamento");
         if (bodyMessage["id_appuntamento"].toString() == idAppuntamento.toString()) {
-          print("risposta: id corrisponde - ${bodyMessage["action"]}");
-          print("contentuto-data: 1 - ${listWidget.length}");
+          // print("risposta: id corrisponde - ${bodyMessage["action"]}");
+          // print("contentuto-data: 1 - ${listWidget.length}");
           ResponseRispostaFactory responseRispostaFactory =
               RispostaFactory.getRisposta(bodyMessage["action"], bodyMessage,
                   context, delWidgets, idAppuntamento.toString());
           _cacheManagerChat
               .append(responseRispostaFactory.response.getJsonResponse());
           listWidget.addAll(responseRispostaFactory.widgets);
-          print("contentuto-data: 2 - ${listWidget.length}");
+          // print("contentuto-data: 2 - ${listWidget.length}");
           _sendMesaggioLetto(bodyMessage["id"]);
           update();
         } else {
           MessagesManager.addChat(
               jsonDecode(message.data["body"])["id_appuntamento"]);
-          print("risposta: non id corrisponde");
+          // print("risposta: non id corrisponde");
           NotificationSender notificationSender = NotificationSender();
           notificationSender.showNotificationWithoutSound(
               message, _loadFirebaseChat);
@@ -97,14 +102,17 @@ class ChatLoading {
       };
   }
 
-  /*
-    Elimina i widget interessati dalla lista dei widget visualizzati e poi aggiorna l'interfaccia
-  */
+  /// esistono dei widget nella chat che si possono auto eliminare, per esempio il cambio Orario
+  /// per fare questa operazione però è necessario che in ingresso ad un widget venga passata
+  /// una funzione che ti permetta di farlo, in quanto è l'unica che può accedere
+  /// alle sezioni dove sono presenti la lista dei widget
   void delWidgets(List<Widget> listWidgetToDelete) {
     listWidgetToDelete.forEach((element) {
       listWidget.remove(element);
     });
-    // dato che non puo' aggiornare l'interfaccia direttamente in quanto manca lo stato, allora delega la responsabilita' a questa funzione che viene eseguita sul widget che ha inizializzato questa classe
+    /// dato che non puo' aggiornare l'interfaccia direttamente in quanto manca lo stato
+    /// allora delega la responsabilita' a questa funzione che viene eseguita sul widget
+    /// che ha inizializzato questa classe
     update();
   }
 }
