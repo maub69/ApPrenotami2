@@ -8,6 +8,7 @@ import 'package:mia_prima_app/utility/upload_manager.dart';
 import 'package:better_player/better_player.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 
+/// widget per upload del media
 class MediaUpload extends StatefulWidget {
   final ProgressFile progressFile;
   final bool isPhoto;
@@ -46,15 +47,18 @@ class _MediaUploadState extends State<MediaUpload>
     super.initState();
     _cacheManager = Utility.getCacheManager(widget.idAppuntamento);
 
+
+    /// se il media è già stato scaricato, allora il progress file è null e può essere
+    /// usato l'url del widget, in quando e lui a passarlo
+    /// altrimenti l'unico url può passarlo il progress file, in quanto non è ancora
+    /// presente a livello di server. L'url serve per agganciarlo poi al widget
+    /// dell'immagine o del video per farlo visualizzare
     if (widget.progressFile == null) {
       _url = widget.url;
       _datetime = widget.datetime;
     } else {
       _url = widget.progressFile.getUrl();
       _datetime = widget.progressFile.dateTime;
-    }
-    if (!widget.isPhoto) {
-      print("url_media: $_url");
     }
 
     if (widget.progressFile == null || widget.progressFile.progress == 100) {
@@ -65,20 +69,16 @@ class _MediaUploadState extends State<MediaUpload>
 
     widget.progressFile?.setListener((progress) {
       setState(() {
-        print("progress-file: $progress");
         _progress = progress.toDouble() / 100;
       });
     });
   }
 
-  // ricordati di usare questo link per la questione della cache: https://stackoverflow.com/questions/66488125/how-to-store-image-to-cachednetwrok-image-in-flutter
-  // fare in modo che alla fine dell'upload venga rimosso il widget del caricamento
-  // rendere cliccabile l'immagine al fine di farla vedere a schermo pieno
-  // gestire gli altri caricamenti in attesa, magari mettendo una scritta tipo "in attesa di caricamento"
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onLongPress: () {
+          /// popup per eliminare il messaggio
           PopupMenuChat.showMenu(
             context: Model.getContext(),
             isAmministratore: !widget.isAmministratore,
@@ -88,6 +88,9 @@ class _MediaUploadState extends State<MediaUpload>
           );
         },
         onTap: () {
+          /// presente un Navigator.push in quanto quando si clicca su un immagine
+          /// o su un video questo apre nei fatti una seconda schermata dove viene visualizzato
+          /// il contenuto
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) {
@@ -114,6 +117,12 @@ class _MediaUploadState extends State<MediaUpload>
                 _isAlreadyShown = false;
                 BetterPlayerController betterPlayerController;
                 BetterPlayerDataSource betterPlayerDataSource;
+                /// se il progressFile è null vuol dire che l'upload è già terminato
+                /// perciò il file che gli verrà passato sarà quello reperibile all'url
+                /// che tra l'altro sarà quasi sicuramente presente in cache se l'utente
+                /// ha già visto il video
+                /// altrimenti se il progresso è i corso viene mostrato il file salvato
+                /// localmente
                 if (widget.progressFile == null) {
                   betterPlayerDataSource = BetterPlayerDataSource(
                       BetterPlayerDataSourceType.network, _url,
@@ -144,16 +153,6 @@ class _MediaUploadState extends State<MediaUpload>
                 widgetShowed = BetterPlayer(
                   controller: betterPlayerController,
                 );
-
-                /*VideoPlayerController controllerVideo;
-                controllerVideo =
-                    VideoPlayerController.network(widget.progressFile.getUrl())
-                      ..initialize().then((_) {
-                        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-                        setState(() {});
-                        controllerVideo.play();
-                      });
-                widgetShowed = VideoPlayer(controllerVideo);*/
               }
 
               return Scaffold(
@@ -266,8 +265,3 @@ class _MediaUploadState extends State<MediaUpload>
     return "${datetime.day}/${datetime.month}/${datetime.year} ${datetime.hour}:${(datetime.minute >= 10) ? datetime.minute : "0" + datetime.minute.toString()}";
   }
 }
-
-
-/*
-
-*/

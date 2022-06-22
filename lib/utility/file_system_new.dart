@@ -6,6 +6,9 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter_cache_manager/src/storage/file_system/file_system.dart';
 
+/// questa classe permette di creare un oggetto da passare in ingresso ai widget delle foto
+/// per gestire la cache in modo singolo per ogni chat, appunto per la logica di separare
+/// le cache
 class FileSystemNew implements FileSystem {
   final Future<Directory> _fileDir;
   final String _cacheKey;

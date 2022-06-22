@@ -6,7 +6,10 @@ import 'package:mia_prima_app/utility/cache_manager_url.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:uuid/uuid.dart';
 
-
+/// per gestire la situazione in cui il server per un qualsiasi motivo non è raggiungibile
+/// è stata creata questa classe contenente le funzioni get e post da usare esattamente come
+/// si usano quelle nella classe http, ma con la differenza che in caso di assenza di internet
+/// la risposta viene presa dalla cache
 class RequestHttp {
   static Future<http.Response> post(Uri url,
       {Map<String, String> headers, Object body, Encoding encoding}) async {

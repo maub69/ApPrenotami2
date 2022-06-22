@@ -5,8 +5,9 @@ import 'package:mia_prima_app/utility/request_http.dart';
 import '../../message_tile.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:http/http.dart' as http;
 
+/// il widget che ti permette di selezionare l'orario con il quale vuoi sostituire
+/// l'appuntamento tra le varie scelte che ti compaiono a video
 class CambioOrario extends Risposta {
   final int idCalendario;
 
@@ -35,16 +36,11 @@ class CambioOrario extends Risposta {
     ];
   }
 
-  /*
-    Qua sostanzialmente viene restituito il container contenente i bottoni delle scelte, che sara' composto dai bottoni nella lista body["scelte"], ma anche eventualmente da proponiOrario
-  */
+  /// Qua sostanzialmente viene restituito il container contenente i bottoni delle scelte, che sara' composto dai bottoni nella lista body["scelte"], ma anche eventualmente da proponiOrario
   Widget getBottoniScelte(List<dynamic> scelte, bool proponiOrario) {
     Container containerResponse;
     List<Widget> listBottoni = [];
-    /*
-      Inserisco sempre nella prima posizione per poi fare il reverse della listView e avere tutto allineato a destra
-    */
-
+    /// Inserisco sempre nella prima posizione per poi fare il reverse della listView e avere tutto allineato a destra
     ButtonStyle buttonStyle = ButtonStyle(
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0))));
@@ -57,7 +53,7 @@ class CambioOrario extends Risposta {
             child: ElevatedButton(
                 child: Text(element),
                 style: buttonStyle,
-                // quando viene cliccato, viene inviata al server la tua scelta. E poi ritorna la risposta, non direttamente, ma tramite una notifica di Firebase onMessage
+                /// quando viene cliccato, viene inviata al server la tua scelta. E poi ritorna la risposta, non direttamente, ma tramite una notifica di Firebase onMessage
                 onPressed: () {
                   RequestHttp.post(
                       Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)),
@@ -69,7 +65,7 @@ class CambioOrario extends Risposta {
                         "text": element.toString()
                       }).then((value) {
                     delWidgets([containerResponse]);
-                    //risulta importante aggiornare il calendario in quanto dopo un cambio di orario o comunque un cambio di info dell'appuntamento il calendario potrebbe aver subito delle variazioni
+                    /// risulta importante aggiornare il calendario in quanto dopo un cambio di orario o comunque un cambio di info dell'appuntamento il calendario potrebbe aver subito delle variazioni
                     Utility.updateCalendario();
                     Utility.updateAppuntamenti();
                   });
@@ -85,7 +81,6 @@ class CambioOrario extends Risposta {
               child: ElevatedButton(
                   child: Text("Scegli l'orario"),
                   style: buttonStyle,
-                  // qua viene aperto il calendario e viene gestito il click sulla disponibilita, anche se quello viene fatto nella funzione callQuandoDisponiblitaOn
                   onPressed: () {
                     Utility.idCalendarioAperto = idCalendario;
                     Navigator.push(
@@ -114,14 +109,12 @@ class CambioOrario extends Risposta {
     return containerResponse;
   }
 
-  /*
-    Si occupa di gestire l'onClick sulla disponibilita' del calendario
-  */
+  /// Si occupa di gestire l'onClick sulla disponibilita' del calendario
   void callQuandoDisponibilitaOn(
       Disponibilita disponibilita, Container containerResponse) {
     print(disponibilita.from);
     print(disponibilita.to);
-    //in conformita a quanto scritto su postman viene inviata la richiesta al server
+    //in conformità a quanto scritto su postman viene inviata la richiesta al server
     RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.MESSAGGIO_CHAT)), body: {
       "appuntamento_id": idChat.toString(),
       "messaggio_id": body["id"].toString(),
@@ -131,7 +124,7 @@ class CambioOrario extends Risposta {
       "end_proposta": disponibilita.to.toString()
     }).then((value) {
       delWidgets([containerResponse]);
-      //risulta importante aggiornare il calendario in quanto dopo un cambio di orario o comunque un cambio di info dell'appuntamento il calendario potrebbe aver subito delle variazioni
+      /// risulta importante aggiornare il calendario in quanto dopo un cambio di orario o comunque un cambio di info dell'appuntamento il calendario potrebbe aver subito delle variazioni
       Utility.updateCalendario();
     });
   }

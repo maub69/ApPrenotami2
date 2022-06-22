@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:timelines/timelines.dart';
 
+/// un esempio del json in ingresso al widget
 /*
   {
     "title": "Processo olive",
@@ -30,9 +31,7 @@ import 'package:timelines/timelines.dart';
 */
 
 
-/*
-  Gli viene dato in ingresso un json come quello mostrato sopra e genera una timeline dei vari step
-*/
+/// Gli viene dato in ingresso un json come quello mostrato sopra e genera una timeline dei vari step
 class Steps extends StatelessWidget {
   final String json;
 
@@ -79,11 +78,10 @@ class Steps extends StatelessWidget {
   }
 }
 
-/*
-  Questa classe rappresenta i messaggi interni per ognuno degli step,
-  in particolare qui si possono regolare tutte i parametri grafici riguardati
-  i messaggi interni
-*/
+
+/// Questa classe rappresenta i messaggi interni per ognuno degli step,
+/// in particolare qui si possono regolare tutte i parametri grafici riguardati
+/// i messaggi interni
 class _InnerTimeline extends StatelessWidget {
   const _InnerTimeline({
     this.messages,
@@ -135,10 +133,8 @@ class _InnerTimeline extends StatelessWidget {
   }
 }
 
-/*
-  Questo e' il widget che effettivamente rappresenta cio' che viene
-  visualizzato, o meglio rappresenza il widget della lista dei vari step
-*/
+/// Questo e' il widget che effettivamente rappresenta cio' che viene
+/// visualizzato, o meglio rappresenza il widget della lista dei vari step
 class _Steps extends StatelessWidget {
   const _Steps({Key key, this.processes}) : super(key: key);
 
@@ -223,16 +219,14 @@ class _Steps extends StatelessWidget {
   }
 }
 
-/*
-  Decodifica il json in ingresso e lo trasforma in una lista di step con anche
-  le info sul titolo e la descrizione
-*/
+/// Decodifica il json in ingresso e lo trasforma in una lista di step con anche
+/// le info sul titolo e la descrizione
 _Info _decodeJson(String json) {
   List<_Step> steps = [];
   Map<String, dynamic> infoJson = jsonDecode(json);
   List<dynamic> stepsJson = infoJson["steps"];
 
-  // qua viene riempito l'array degli step con name e messaggi interni
+  /// qua viene riempito l'array degli step con name e messaggi interni
   stepsJson.forEach((element) {
     List<String> messages = [];
     List<dynamic> messagesJson = element["messages"];
@@ -243,9 +237,9 @@ _Info _decodeJson(String json) {
     steps.add(_Step(element["name"], messages: messages));
   });
 
-  // in questa riga e quelle successive sostanzialmente viene settato il pallino in modo tale che sia verde o meno
-  // pero' deve essere fatto guardando al pallino successivo, percio' come si puo' vedere dal for si considera
-  // lo step nella posizione i+1
+  /// in questa riga e quelle successive sostanzialmente viene settato il pallino in modo tale che sia verde o meno
+  /// pero' deve essere fatto guardando al pallino successivo, percio' come si puo' vedere dal for si considera
+  /// lo step nella posizione i+1
   steps.first.done = infoJson["started"];
 
   for (int i = 0; i < (stepsJson.length - 1); i++) {

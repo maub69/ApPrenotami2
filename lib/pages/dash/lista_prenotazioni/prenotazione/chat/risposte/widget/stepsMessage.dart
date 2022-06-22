@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/risposte/risposta.dart';
 
-/*
-  Rappresenta il messaggio in chat piu' semplice, quello di testo libero
-*/
+/// il widget relativo al box rettangolare arancione che compare a metà nello schermo
+/// che da informazioni come se fosse una notifica, ogni qual volta si raggiunge un nuovo
+/// step, questo widget viene inviato alla chat
 class StepsMessage extends Risposta {
   StepsMessage(String idChat, Map<String, dynamic> body, DateTime datetime,
       BuildContext context, Function(List<Widget> listWidgets) delWidgets)

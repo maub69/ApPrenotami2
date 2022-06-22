@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-///commenti 
-///test
+
+/// Dato che i widget esistenti per creare form di input sono spesso incompleti, abbiamo
+/// realizzato questo widget per personalizzare in modo più facile e uniforme i widget di inserimento
+/// permettendo così di ridurre tutta la personalizzazione a pochi campi da specificare all'inizio
 class TextFieldCustomized extends StatefulWidget {
   final TextEditingController controller;
   final Color primaryColor;

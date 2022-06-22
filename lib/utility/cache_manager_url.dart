@@ -1,12 +1,11 @@
 import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:uuid/uuid.dart';
 
+/// classe di supporto a request_http, nell'altra classe sono presenti le funzioni che vengono
+/// effettivamente usate per fare le richieste rest, mentre qi è presente la logica vera e  propria
+/// che salva le risposte in cache
 class CacheManagerUrl {
   static CacheManagerUrl _instance;
 

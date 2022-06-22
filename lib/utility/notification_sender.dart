@@ -1,29 +1,23 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../pages/dash/lista_prenotazioni/prenotazione/chat/chat_page.dart';
 import 'package:mia_prima_app/main.dart';
 import '../pages/global/model.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    as nt;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart' as nt;
 import 'package:mia_prima_app/utility/messages_manager.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 
-/*
-  Questa classe fa fondamentalmente due cose:
-    - showNotificationWithoutSound permette di inviare una notifica forzatamente dall'interno dell'app, in questo modo anche se firebase di base non la invia, questa funzione la avvia lo stesso
-    - configureFirebaseNotification configura interamente firebase, questa e' una funzione fondamentale perche' senza questa dopo aver aperto una chat si perderebbe completamente la gestione delle notifiche di firebase
-*/
+/// Questa classe fa fondamentalmente due cose:
+/// - showNotificationWithoutSound permette di inviare una notifica forzatamente dall'interno dell'app,
+/// in questo modo anche se firebase di base non la invia, questa funzione la avvia lo stesso
+/// - configureFirebaseNotification configura interamente firebase,
+/// questa e' una funzione fondamentale perche' senza questa dopo aver aperto una chat si perderebbe
+/// completamente la gestione delle notifiche di firebase
 class NotificationSender {
   Future showNotificationWithoutSound(RemoteMessage message,
       [Function onNextCallNotification]) async {
-    print(message);
-    print(message.data["id_appuntamento"].toString());
-
     var initializationSettingsAndroid =
         new nt.AndroidInitializationSettings('ic_launcher');
     var initializationSettings =
@@ -33,12 +27,11 @@ class NotificationSender {
         onSelectNotification: (onNextCallNotification ==
                 null //di base la funzione che deve essere chiamata
             // alla chiusura di una chat e' configureFirebaseNotification, in quanto ricopre quasi tutte le casistiche,
-            // c'e' pero' una caisistica non coperta, cioe' quell nella quale si apre una chat a partire da un altra chat
+            // c'e' pero' una casistica non coperta, cioe' quell nella quale si apre una chat a partire da un altra chat
             // in quel caso bisogna chiamare un'altra funzione di configurazione a partire dalla classe che gestisce la chat
             ? onSelectNotification(configureFirebaseNotification)
             : onSelectNotification(onNextCallNotification)));
 
-    //final random = new Random();
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
         'apprenotami.appuntamenti',
         'Appuntamenti',
@@ -110,7 +103,6 @@ class NotificationSender {
 
   void _setOnMessage(RemoteMessage message) {
     try {
-      // print("contentuto-data: sono in onMessage notification sender");
       NotificationSender notificationSender = NotificationSender();
       notificationSender.showNotificationWithoutSound(message);
       MessagesManager.addChat(jsonDecode(message.data["body"])["id"]);

@@ -1,4 +1,3 @@
-//import 'package:sqflite/sqflite.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -16,20 +15,15 @@ import 'package:intl/intl.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// la classe Utility permette di utilizzare
-/// dei dati tra le varie altre classi
+/// classe di supporto per tutte le classi
 class Utility {
-  //fa riferimento all'id del amministratore del quale dovra' prendere il calendario, ora lo settiamo banalmente qui, ma poi si puo' pensare una logica migliroe per impostarlo
+  /// fa riferimento all'id del amministratore del quale dovra' prendere il calendario
   static String idApp;
 
-  /// Utility.idUtente porta l'id dell'utente letto dal database
-  /// e serve a riconoscerlo in modo univoco
+  /// conserva l'id dell'utente
   static String idUtente;
 
-  /// Utility.Database
-  static dynamic database;
-
-  /// questa e la chiave di login con il quale l'utente si connette e manitne la connessione
+  /// Classe con informazioni dell'utente
   static Utente utente;
 
   static List<CalendarioBox> calendari;
@@ -49,14 +43,19 @@ class Utility {
 
   static bool isLogged = false;
 
+  /// del dispositivo
   static double width;
-
+  
+  /// del dispositivo
   static double height;
 
+  /// età minia per iscriversi all'app
   static int ageApp = 18;
 
   static SharedPreferences preferences;
 
+  /// invia la notifica per dire che internet è assente, se chiamata più volte
+  /// se la connessione è sempre assente non rimostra il popup
   static void callConnessioneServerAssente() {
     if (hasConnessioneServer && hasInternet) {
       hasConnessioneServer = false;
@@ -148,11 +147,10 @@ class Utility {
     return DateTime.utc(2020, 12, 28);
   }
 
-  /*
-    Questa funzione permette semplicemente di aggiornare il calendario che è aperto
-  */
+  /// risulta importante aggiornare il calendario in quanto dopo un cambio di orario o comunque un cambio di info dell'appuntamento il calendario potrebbe aver subito delle variazioni
   static Function updateCalendario;
 
+  /// aggiorna la lista degli appuntamenti
   static void updateAppuntamenti() {
     DownloadJson downloadJsonListaPrenotazioni = new DownloadJson(
         url: EndPoint.GET_LISTA_PRENOTAZIONI,
@@ -167,6 +165,8 @@ class Utility {
     downloadJsonListaPrenotazioni.start();
   }
 
+  /// fornisce il box che può essere trovato dentro lista appuntamenti, per box si intende
+  /// il widget che rappresenta un appuntamento
   static Positioned getBoxNotification(
     int numNotifiche, {
     double right = 0,

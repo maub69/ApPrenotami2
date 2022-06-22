@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/risposte/risposta.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/upload/file_upload.dart';
 
-/*
-  Rappresenta il messaggio in chat piu' semplice, quello di testo libero
-*/
+/// widget che si occupa di visualizzare un file, come si può vedere non fa altro che richiamare la classe
+/// FileUpload che effettivamente si occupa di creare il widget
 class File extends Risposta {
   final String idAppuntamento;
 

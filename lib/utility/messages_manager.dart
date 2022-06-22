@@ -1,13 +1,10 @@
 import 'dart:convert';
-
-import 'package:http/http.dart' as http;
 import 'package:mia_prima_app/utility/utility.dart';
 import 'cache_manager_url.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 
-/*
-  Questa classe permette di conoscere quali chat non sono ancora state lette e offre varie funzioni per maneggiare la lista delle chat non lette
-*/
+/// Questa classe permette di conoscere quali chat non sono ancora state lette
+/// e offre varie funzioni per maneggiare la lista delle chat non lette
 class MessagesManager {
   static bool isNotChat = true;
   static int idChat = -1;
@@ -35,28 +32,22 @@ class MessagesManager {
         list.forEach((element) {
           _listChatNonLette.add(element);
         });
-        print("messaggesManager $_listChatNonLette");
       } else {
         Utility.callConnessioneServerAssente();
       }
     });
   }
 
-  /*
-    Questa e' necessaria per la casistica nel quale l'app e aperta e bisogna modificare la lista
-  */
+  /// rimuove la chat da lista delle chat non lette una volta che viene letta
   static removeChat(int idAppuntamento) {
     _listChatNonLette.remove(idAppuntamento);
-    print("messaggesManager $_listChatNonLette");
   }
 
-  /*
-    Questa e' necessaria per la casistica nel quale l'app e aperta e bisogna modificare la lista
-  */
+  ///  aggiunge una chat alla lista delle chat non lette sono se non è già presente
+  /// al suo interno
   static addChat(int idAppuntamento) {
     if (!_listChatNonLette.contains(idAppuntamento)) {
       _listChatNonLette.add(idAppuntamento);
     }
-    print("messaggesManager $_listChatNonLette");
   }
 }

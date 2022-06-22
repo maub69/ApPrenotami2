@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Il box che può essere aggiunto in qualsiasi pagina che da informazioni sull'app
 class InfoAppBasso {
   static final double height = 40;
 

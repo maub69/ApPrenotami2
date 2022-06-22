@@ -5,9 +5,7 @@ import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/ri
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/upload/media_upload.dart';
 import 'package:mia_prima_app/utility/upload_manager.dart';
 
-/*
-  Rappresenta il messaggio in chat piu' semplice, quello di testo libero
-*/
+/// Mostra la Video, delega a MediaUpload che è lo stesso del Foto
 class Video extends Risposta {
   final String idAppuntamento;
   final ProgressFile progressFile;
