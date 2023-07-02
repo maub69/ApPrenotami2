@@ -39,22 +39,27 @@ class NotificationSender {
     var platformChannelSpecifics =
         new NotificationDetails(android: androidPlatformChannelSpecifics);
     flutterLocalNotificationsPlugin.show(
-      jsonDecode(message.data["body"])["id_appuntamento"],
+      int.parse(message.data["id_appuntamento"]),
       message.notification.title,
       message.notification.body,
       platformChannelSpecifics,
-      payload: jsonDecode(message.data["body"])["id_appuntamento"].toString(),
+      payload: message.data["id_appuntamento"].toString(),
     );
   }
 
   Function onSelectNotification(Function nextCall) {
     return (String payload) async {
       try {
+        dynamic prenotazione = Utility.listaPrenotazioni
+            .where((element) => element["id"] == int.parse(payload)).first;
         Navigator.push(
           Model.getContext(),
           MaterialPageRoute(
               builder: (context) =>
-                  ChatPage(idAppuntamento: int.parse(payload))),
+                  ChatPage(
+                    idAppuntamento: int.parse(payload),
+                    prenotazione: prenotazione,
+                          )),
         ).then((value) {
           nextCall();
         });
@@ -74,11 +79,14 @@ class NotificationSender {
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('on resume $message');
+      dynamic prenotazione = Utility.listaPrenotazioni
+          .where((element) => element["id"] == int.parse(message.data["id_appuntamento"])).first;
       Navigator.push(
         Model.getContext(),
         MaterialPageRoute(
             builder: (context) => ChatPage(
-                idAppuntamento: jsonDecode(message.data["body"])["id_appuntamento"])),
+                idAppuntamento: int.parse(message.data["id_appuntamento"]),
+                prenotazione: prenotazione)),
       ).then((value) {
         configureFirebaseNotification();
       });
@@ -95,8 +103,8 @@ class NotificationSender {
         // in caso dell'onLauch, bisogna settare la variabile del calendario e dell'appuntamento che si vuole aprire, in questo modo il flusso del programma sa che dovra intraprendere delle azioni speciali per aprire un appuntamento
         // print("contentuto-data: sono qui");
         // print("contentuto-data: ${message.data}");
-        idCalendario = message.data["id_appuntamento"];
-        idAppuntamento = jsonDecode(message.data["body"])["id_appuntamento"].toString();
+        idCalendario = message.data["id_calendario"];
+        idAppuntamento = message.data["id_appuntamento"].toString();
       }
     });
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
+import 'package:mia_prima_app/utility/pop_bottom_menu.dart';
 import 'package:mia_prima_app/utility/request_http.dart';
-import 'package:pop_bottom_menu/pop_bottom_menu.dart';
 
 /*
   Azioni:

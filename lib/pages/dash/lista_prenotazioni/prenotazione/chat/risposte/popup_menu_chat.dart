@@ -2,9 +2,9 @@ import 'package:alert/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
+import 'package:mia_prima_app/utility/pop_bottom_menu.dart';
 import 'package:mia_prima_app/utility/request_http.dart';
 import 'package:mia_prima_app/utility/utility.dart';
-import 'package:pop_bottom_menu/pop_bottom_menu.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/chat/cache_manager_chat.dart';
 
 /// questa classe si occupa di gestire il popup che si presenta quando si tiene premuto

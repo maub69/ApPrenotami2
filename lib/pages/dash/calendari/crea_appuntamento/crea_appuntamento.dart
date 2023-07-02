@@ -120,7 +120,7 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
     setState(() {});
 
     RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.INVIO_RICHIESTA_APPUNTAMENTO)), body: {
-      "id_calendario": widget.idCalendario,
+      "id_calendario": Utility.idCalendarioAperto.toString(),
       "start_time": widget.disponibilita.from.toString(),
       "end_time": widget.disponibilita.to.toString(),
       "descrizione": testoController.text.trim(),
@@ -130,12 +130,13 @@ class _StateCreaAppuntamento extends State<CreaAppuntamento> {
       Navigator.pop(context);
       Navigator.pop(context);
       Map<String, dynamic> jsonResponse = jsonDecode(value.body);
+      // la risposta deve contenere response: 0,1; messagge: risposta da visualizzare
       widget.disponibilita.showMessage(
           (jsonResponse["response"] == 1)
               ? "Richiesta ricevuta correttamente"
               : "Richiesta non inoltrata",
           jsonResponse["messagge"],
-          jsonResponse["messagge_admin"],
+          "",
           (jsonResponse["response"] == 1) ? Colors.green : Colors.red);
     });
   }

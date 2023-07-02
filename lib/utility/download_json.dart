@@ -27,11 +27,13 @@ class DownloadJson {
       parametri = {};
     }
     parametri["key"] = Utility.utente.id;
-    Uri request = new Uri.https(EndPoint.HOST, "/" + url, parametri);
+    // TODO cambiare il Uri.https quando api sono ufficiali
+    Uri request = new Uri.http(EndPoint.HOST, "/" + url, parametri);
 
     print("richiesta: ${request.toString()}");
 
     CacheManagerUrl.instance.get(request).then((value) {
+      print("---> " + value.body);
       if (letturaTerminata != null) {
         letturaTerminata(value);
       }

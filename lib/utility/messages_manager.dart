@@ -28,6 +28,8 @@ class MessagesManager {
         .then((value) {
       _listChatNonLette = [];
       if (value.statusCode != 503) {
+        print("body: ${value.body}");
+        // TODO capire come dare l'elenco delle chat non lette, nel senso di creare l'api e fare anche l'api per leggere tutti i messaggi non letti
         List<dynamic> list = jsonDecode(value.body);
         list.forEach((element) {
           _listChatNonLette.add(element);

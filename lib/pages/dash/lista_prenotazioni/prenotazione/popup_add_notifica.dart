@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pop_bottom_menu/pop_bottom_menu.dart';
+import 'package:mia_prima_app/utility/pop_bottom_menu.dart';
 
 /// rappresenta il popup per aggiungere una notifica ad un appuntamento
 class PopupAddNotifica {

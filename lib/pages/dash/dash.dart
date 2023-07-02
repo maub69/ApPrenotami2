@@ -225,6 +225,7 @@ class _StateDash extends State<Dash> {
   /// la snackBar in questa pagina, questo è il motivo per cui ad ogni appuntamento prenotabile del calendario viene passata
   /// in ingresso questa funzione
   void _showMessage(String title, String body, String messageAdmin, Color color) {
+    updateCalendario();
     // per funzionare necessita di utilizzare un context, sul quale poi appunto si applica la funzione showSnackBar
     // il problema pero' e' che non può essere utilizzato lo stesso context dello statefulwidget, percio' contextGlobal non puo essere usato
     // cio' significa che bisogna utilizzare un nuovo context, per fare cio' bisogna crearlo con l'oggetto Builder che si trova piu' sotto

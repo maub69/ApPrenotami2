@@ -48,8 +48,10 @@ class _StateCalendario extends State<Calendario> {
               List<dynamic> appuntamenti = details.appointments;
               if (appuntamenti == null) {
                 print("risposta: non ci sono appuntamenti");
+              } else if ((appuntamenti[0] as Disponibilita).descrizione == '0') {
+                print("risposta: non ci sono appuntamenti");
               } else {
-                widget.onTapDisponibilita((appuntamenti[0] as Disponibilita));
+                  widget.onTapDisponibilita((appuntamenti[0] as Disponibilita));
               }
             },
             timeSlotViewSettings: TimeSlotViewSettings(
@@ -87,6 +89,9 @@ class MeetingDataSource extends CalendarDataSource {
 
   @override
   Color getColor(int index) {
+    if (appointments[index].descrizione == '0') {
+      return Colors.redAccent;
+    }
     return appointments[index].background;
   }
 

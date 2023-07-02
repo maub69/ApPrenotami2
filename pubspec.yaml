@@ -33,11 +33,11 @@ dependencies:
   syncfusion_localizations: ^19.2.57
   #dropdownfield: ^1.0.3
   loading: ^1.0.2
-  firebase_messaging: ^10.0.6
+  firebase_messaging: ^14.4.0
   rflutter_alert: ^1.0.2
   file_picker: ^4.0.0
   fluttertoast: ^5.0.0
-  flutter_notification_channel: ^1.0.2
+  flutter_notification_channel: ^2.0.0
   flutter_local_notifications: ^9.1.5
   stack: ^0.0.1
   timelines: ^0.1.0
@@ -45,17 +45,16 @@ dependencies:
   cached_network_image: ^3.0.0
   flutter_cache_manager: ^3.1.2
   images_picker: ^1.2.4
-  video_thumbnail: ^0.4.3
+  video_thumbnail: ^0.5.3
   better_player:
     git:
       url: git@github.com:maub69/better-player.git
   open_file: ^3.2.1
-  permission_handler: ^8.3.0
-  firebase_core: ^1.6.0
+  permission_handler: ^10.2.0
+  firebase_core: ^2.9.0
   alert: ^2.0.1
   uuid: ^3.0.4
   connectivity_plus: ^1.1.0
-  pop_bottom_menu: ^1.0.0
   url_launcher: ^6.0.12
   flutter_inappwebview: ^5.3.2
   settings_ui: ^2.0.2

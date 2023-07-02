@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:mia_prima_app/utility/request_http.dart';
 import '../global/text_field_customized.dart';
 import '../global/info_app_basso.dart';
@@ -12,6 +13,7 @@ import 'package:mia_prima_app/utility/utility.dart';
 import 'SignIn.dart';
 import '../dash/dash.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
   Login();
@@ -192,8 +194,9 @@ class _LoginState extends State<Login> {
     _isNotPressedLogin = false;
     setState(() {});
     RequestHttp.post(Uri.parse(EndPoint.getUrl(EndPoint.LOGIN)), body: {
-      "email": nameController.text,
-      "password": passwordController.text
+      "username": nameController.text,
+      "password": passwordController.text,
+      "id_azienda": Utility.idApp
     }).then((value) {
       // print("risposta: ${value.body}");
       if (value.body == "-1") {
