@@ -117,10 +117,24 @@ class _StateDash extends State<Dash> {
             MaterialPageRoute(
                 builder: (BuildContext context) => VisualizzaPrenotazione(
                     prenotazione:
-                        Utility.listaPrenotazioni[idAppuntamentoAprire])));
+                        Utility.listaPrenotazioni[idAppuntamentoAprire],
+                        cardPos: idAppuntamentoAprire,
+                        delWidget: delWidget)));
       }
       setState(() {});
     }
+  }
+
+  void delWidget(int index, bool isToDelete) {
+    setState(() {
+      dynamic prenotazione = Utility.listaPrenotazioni[index];
+      if (isToDelete) {
+        Utility.listaPrenotazioni.remove(prenotazione);
+      } else {
+        prenotazione["prev_type"] = prenotazione["type"];
+        prenotazione["type"] = -5;
+      }
+    });
   }
 
   letturaTerminataNotifiche(http.Response data) {

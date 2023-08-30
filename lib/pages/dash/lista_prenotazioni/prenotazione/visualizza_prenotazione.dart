@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
 import 'package:mia_prima_app/pages/dash/lista_prenotazioni/prenotazione/notifiche/notifiche_manager.dart';
@@ -14,11 +15,14 @@ import 'processo/steps.dart';
 import 'package:mia_prima_app/utility/endpoint.dart';
 import 'package:mia_prima_app/utility/utility.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class VisualizzaPrenotazione extends StatefulWidget {
   final dynamic prenotazione;
+  final int cardPos;
+  final Function(int, bool) delWidget;
 
-  VisualizzaPrenotazione({this.prenotazione});
+  VisualizzaPrenotazione({this.prenotazione, this.cardPos, this.delWidget});
 
   @override
   State createState() => _StateVisualizzaPrenotazione();
@@ -28,6 +32,7 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
   Widget buttonElimina = Text("Elimina", style: TextStyle(color: Colors.red));
   NotificheManager _notificheManager;
   Random _random = Random();
+  TextEditingController testoController;
 
   /// funzione che apre il popup per richiedere la cancellazione e invia la richiesta
   /// il campo description specifica cosa deve essere visualizzato in risposta all'utente
@@ -39,7 +44,7 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
       {String title, String doButtonText}) async {
     String response = "1";
     if (title != null) {
-      TextEditingController testoController = TextEditingController();
+      testoController = TextEditingController();
       /// qui viene chiamato il dialog e la schermata rimane in attesa finche' non viene fornita una risposta
       response = await showDialog<String>(
         barrierDismissible: false,
@@ -98,38 +103,83 @@ class _StateVisualizzaPrenotazione extends State<VisualizzaPrenotazione> {
           indicator: BallPulseIndicator(), size: 40.0, color: Colors.red);
       setState(() {});
 
-      /// qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
-      RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_PRENOTAZIONE)),
-          body: {
-            "motivo": response,
-            "type": type.toString(),
-            "id_appuntamento": widget.prenotazione["id"].toString()
-          }).then((value) {
-        Map<String, dynamic> jsonBody = jsonDecode(value.body);
-        if (jsonBody["new_element"]["type"] == -4) {
-          widget.prenotazione["prev_type"] = widget.prenotazione["type"];
-        }
-        widget.prenotazione["type"] = jsonBody["new_element"]["type"];
-        _showMessage(
-            Utility.getNameStateAppuntamento(jsonBody["new_element"]["type"])
-                    .substring(0, 1) +
-                Utility.getNameStateAppuntamento(
-                        jsonBody["new_element"]["type"])
-                    .substring(1)
-                    .toLowerCase(),
-            description,
-            Colors.green[900]);
-        if (type == 2) {
-          Navigator.pop(context);
-          Utility.deletePrenotazione(widget.prenotazione["id"].toString());
-          Utility.listaPrenotazioni.remove(widget.prenotazione);
-        } else {
-          widget.prenotazione['richiesto_cancellazione'] =
-              Utility.getDateStringFromDateTime(
-                  DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
-          setState(() {});
-        }
-      });
+      // TODO far si che quando la richiesta viene inviata si aggiorni anche l'interfaccia in tempo reale, quindi capire come gestire il delWidget per questa situazione
+      if (type == 1) {
+        RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.RICHIESTA_ANNULLAMENTO)),
+            body: {
+              "id_appuntamento": widget.prenotazione["id"].toString(),
+              "messaggio": testoController.text
+            }).then((value) {
+          // widget.delWidget(widget.cardPos, false);
+          Navigator.of(context).pop();
+        });
+      } else if (type == 2 || type == 3) {
+        print("url--->" + Uri.parse(EndPoint.getUrlKey(type == 2 ? EndPoint.CANCELLA_APPUNTAMENTO : EndPoint.ARCHIVIA_APPUNTAMENTO)).toString());
+        http.post(
+            Uri.parse(EndPoint.getUrlKey(type == 2 ? EndPoint.CANCELLA_APPUNTAMENTO : EndPoint.ARCHIVIA_APPUNTAMENTO)),
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "*/*"
+            },
+            body: jsonEncode({"id": widget.prenotazione["id"].toString()})).then((value) {
+          if (value.statusCode == 200) {
+            widget.delWidget(widget.cardPos, type == 2);
+            Navigator.of(context).pop();
+          } else {
+            FlutterToast.showToast(
+                msg: "Comando momentaneamente non eseguibile",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Color(0xFF616161),
+                textColor: Colors.white,
+                fontSize: 16.0);
+            Navigator.of(context).pop();
+          }
+        });
+      } else if (type == 4) {
+        // TODO gestire il bottone ripristina su archivio, nel senso che deve toglierlo dalla sezione archiviati sia sul sistema locale che sul server
+        RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.RIPRISTINA_DA_ARCHIVIO)),
+            body: {
+              "id_appuntamento": widget.prenotazione["id"].toString()
+            }).then((value) {
+              widget.delWidget(widget.cardPos, false);
+              Navigator.of(context).pop();
+            });
+      } else {
+        print("type: $type");
+        /// qui si fa partire la richiesta e poi si gestira' il fatto di uscire dalla pagina e di tornare alla precedente
+        RequestHttp.post(Uri.parse(EndPoint.getUrlKey(EndPoint.CANCELLA_PRENOTAZIONE)),
+            body: {
+              "motivo": response,
+              "type": type.toString(),
+              "id_appuntamento": widget.prenotazione["id"].toString()
+            }).then((value) {
+          Map<String, dynamic> jsonBody = jsonDecode(value.body);
+          if (jsonBody["new_element"]["type"] == -4) {
+            widget.prenotazione["prev_type"] = widget.prenotazione["type"];
+          }
+          widget.prenotazione["type"] = jsonBody["new_element"]["type"];
+          _showMessage(
+              Utility.getNameStateAppuntamento(jsonBody["new_element"]["type"])
+                  .substring(0, 1) +
+                  Utility.getNameStateAppuntamento(
+                      jsonBody["new_element"]["type"])
+                      .substring(1)
+                      .toLowerCase(),
+              description,
+              Colors.green[900]);
+          if (type == 2) {
+            Navigator.pop(context);
+            Utility.deletePrenotazione(widget.prenotazione["id"].toString());
+            Utility.listaPrenotazioni.remove(widget.prenotazione);
+          } else {
+            widget.prenotazione['richiesto_cancellazione'] =
+                Utility.getDateStringFromDateTime(
+                    DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
+            setState(() {});
+          }
+        });
+      }
     }
   }
 

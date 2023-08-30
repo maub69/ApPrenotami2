@@ -1,6 +1,6 @@
 import 'package:mia_prima_app/utility/utility.dart';
 class EndPoint {
-  static final String HOST = "192.168.1.12:5000";
+  static final String HOST = "192.168.1.5:5000";
 
   // verra' utilizzata la registrazione proposta la laravel, percio' nel momento nel quale capiremo come utilizzarla imposteremo i parametri al fine di farlo funzionare
   static final String REGISTRAZIONE = "register";
@@ -16,10 +16,10 @@ class EndPoint {
   static final String GET_CALENDARI_AZIENDA = "getCalendariSettimane";
 
   // cancella un appuntamento
-  static final String CANCELLA_APPUNTAMENTO = "test/appuntamento.php";
+  static final String CANCELLA_APPUNTAMENTO = "cancellaAppuntamento";
 
   // archivia un appuntamento
-  static final String ARCHIVIA_APPUNTAMENTO = "test/archiviaAppuntamento.php";
+  static final String ARCHIVIA_APPUNTAMENTO = "archiviaAppuntamento";
 
   // invia un appuntamento
   static final String INVIO_RICHIESTA_APPUNTAMENTO = "creaAppuntamento";
@@ -28,7 +28,13 @@ class EndPoint {
   static final String GET_LISTA_PRENOTAZIONI = "getAppuntamenti";
 
  // permette di inviare una richiesta per cancellare una prenotazione, ma anche per archiviarla, questo si decide in base al campo tipo nella richiesta
-  static final String CANCELLA_PRENOTAZIONE = "test/eliminaPrenotazione.php";
+  static final String CANCELLA_PRENOTAZIONE = "eliminaPrenotazione";
+
+  // ripristina una prenotazione dalla sezione archivio a quella normale
+  static final String RIPRISTINA_DA_ARCHIVIO = "ripristinaDaArchivio";
+
+  // ripristina una prenotazione dalla sezione archivio a quella normale
+  static final String RICHIESTA_ANNULLAMENTO = "richiestaAnnullamento";
 
   // fornisce tutta la chat per un deteminato appuntamento
   static final String GET_CHAT = "test/getChat.php";

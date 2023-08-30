@@ -51,7 +51,9 @@ class _StateListaPrenotazioni extends State<ListaPrenotazioni> {
             context,
             MaterialPageRoute(
                 builder: (BuildContext context) => VisualizzaPrenotazione(
-                    prenotazione: listaPrenotazioniNoArchivio[i]))).then((_) {
+                    prenotazione: listaPrenotazioniNoArchivio[i],
+                    cardPos: i,
+                    delWidget: delWidget))).then((_) {
           setState(() {
             /// è presente l'aggiornamento nel caso in cui si torni indietro fino a questa pagina
             /// perchè dopo aver visualizzato un appuntamento le informazioni di quest'ultimo potrebbero essere cambiate

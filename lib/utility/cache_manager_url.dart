@@ -33,7 +33,7 @@ class CacheManagerUrl {
       if (Utility.hasInternet) {
         Utility.callConnessioneServerAssente();
       }
-      print("errore: sono qui");
+      print("errore: sono qui, $e");
       response = readOldResponse(uuid);
     }
     return response;
